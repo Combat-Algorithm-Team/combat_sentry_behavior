@@ -1,4 +1,4 @@
-// Copyright 2025 Lihan Chen
+// Copyright 2026 Jieliang Li
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,8 @@ namespace combat_sentry_behavior
 
 PublishChassisStatusAction::PublishChassisStatusAction(
   const std::string & name, const BT::NodeConfig & config, const BT::RosNodeParams & params)
-: RosTopicPubStatefulActionNode(name, config, params)
+: RosTopicPubStatefulActionNode(name, config, params),
+  last_publish_time_(std::chrono::steady_clock::time_point::min())
 {
 }
 
@@ -27,14 +28,27 @@ BT::PortsList PublishChassisStatusAction::providedPorts()
 {
   return providedBasicPorts({
     BT::InputPort<uint8_t>("chassis_status", 0, "Chassis status (0-5)"),
+    BT::InputPort<float>("timeout", 0.0, "Time to wait before publishing next message"),
   });
 }
 
 bool PublishChassisStatusAction::setMessage(example_interfaces::msg::UInt8 & msg)
 {
   uint8_t chassis_status = 0;
+  float timeout = 0.0;
+  
   getInput("chassis_status", chassis_status);
+  getInput("timeout", timeout);
 
+  auto timeout_period_ = std::chrono::duration<float>(timeout);
+  auto now = std::chrono::steady_clock::now();
+  auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_publish_time_);
+
+  if (elapsed < timeout_period_) {
+    return false;
+  }
+
+  last_publish_time_ = now;
   msg.data = static_cast<uint8_t>(chassis_status);
 
   return true;

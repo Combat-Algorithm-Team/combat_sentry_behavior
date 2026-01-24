@@ -16,6 +16,7 @@
 #define COMBAT_SENTRY_BEHAVIOR__PLUGINS__ACTION__PUB_CHASSIS_STATUS_HPP_
 
 #include <string>
+#include <chrono>
 
 #include "behaviortree_ros2/bt_topic_pub_action_node.hpp"
 #include "example_interfaces/msg/u_int8.hpp"
@@ -35,6 +36,8 @@ public:
   bool setMessage(example_interfaces::msg::UInt8 & msg) override;
 
   bool setHaltMessage(example_interfaces::msg::UInt8 & msg) override;
+
+  std::chrono::steady_clock::time_point last_publish_time_;
 };
 
 }  // namespace combat_sentry_behavior

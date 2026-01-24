@@ -36,6 +36,9 @@ rclcpp_components_register_node(action_client
 )
 
 ####### Conditions #######
+ament_auto_add_library(is_attacked SHARED plugins/condition/is_attacked.cpp)
+list(APPEND plugin_libs is_attacked)
+
 ament_auto_add_library(is_game_status SHARED plugins/condition/is_game_status.cpp)
 list(APPEND plugin_libs is_game_status)
 

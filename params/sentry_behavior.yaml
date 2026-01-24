@@ -13,6 +13,13 @@ combat_sentry_behavior_server:
     behavior_trees:
       - combat_sentry_behavior/behavior_trees
 
+    CalculateAttackPose:
+      attack_radius: 2.0
+      num_sectors: 36
+      cost_threshold: 50
+      robot_base_frame: chassis
+      visualize: true
+
 combat_sentry_behavior_client:
   ros__parameters:
     use_sim_time: true
