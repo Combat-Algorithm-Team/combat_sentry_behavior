@@ -25,7 +25,8 @@
   <BehaviorTree ID="control_robot_status">
     <Fallback>
       <Sequence>
-        <IsAttacked key_port="{@referee_robotStatus}"/>
+        <IsAttacked robotstatus_port="{@referee_robotStatus}"
+                    hurtdata_port="{@referee_hurtData}"/>
         <PublishChassisStatus chassis_status="2"
                               duration="3000.0"
                               topic_name="cmd_chassis_status"/>
@@ -98,9 +99,12 @@
 
   <!-- Condition -->
     <Condition ID="IsAttacked">
-      <input_port name="key_port"
+      <input_port name="robotstatus_port"
                   default="{@referee_robotStatus}"
                   type="combat_rm_interfaces::msg::RobotStatus_&lt;std::allocator&lt;void&gt; &gt;">RobotStatus port on blackboard</input_port>
+      <input_port name="hurtdata_port"
+                  default="{@referee_hurtData}"
+                  type="combat_rm_interfaces::msg::HurtData_&lt;std::allocator&lt;void&gt; &gt;">HurtData port on blackboard</input_port>
     </Condition>
     <Condition ID="IsDetectEnemy">
       <input_port name="armor_id"
