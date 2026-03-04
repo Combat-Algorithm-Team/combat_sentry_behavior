@@ -12,34 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "combat_sentry_behavior/plugins/action/pub_chassis_status.hpp"
+#include "combat_sentry_behavior/plugins/action/pub_sentry_status.hpp"
 
 namespace combat_sentry_behavior
 {
 
-PublishChassisStatusAction::PublishChassisStatusAction(
+PublishSentryStatusAction::PublishSentryStatusAction(
   const std::string & name, const BT::NodeConfig & config, const BT::RosNodeParams & params)
 : RosTopicPubStatefulActionNode(name, config, params)
 {
 }
 
-BT::PortsList PublishChassisStatusAction::providedPorts()
+BT::PortsList PublishSentryStatusAction::providedPorts()
 {
   return providedBasicPorts({
-    BT::InputPort<uint8_t>("chassis_status", 0, "Chassis status (0-5)"),
+    BT::InputPort<uint8_t>("sentry_status", 0, "Sentry status (0-5)"),
   });
 }
 
-bool PublishChassisStatusAction::setMessage(example_interfaces::msg::UInt8 & msg)
+bool PublishSentryStatusAction::setMessage(example_interfaces::msg::UInt8 & msg)
 {
-  uint8_t chassis_status = 0;
-  getInput("chassis_status", chassis_status);
+  uint8_t sentry_status = 0;
+  getInput("sentry_status", sentry_status);
 
-  msg.data = static_cast<uint8_t>(chassis_status);
+  msg.data = static_cast<uint8_t>(sentry_status);
   return true;
 }
 
-bool PublishChassisStatusAction::setHaltMessage(example_interfaces::msg::UInt8 & msg)
+bool PublishSentryStatusAction::setHaltMessage(example_interfaces::msg::UInt8 & msg)
 {
   msg.data = 0;
   return true;
@@ -48,4 +48,4 @@ bool PublishChassisStatusAction::setHaltMessage(example_interfaces::msg::UInt8 &
 }  // namespace combat_sentry_behavior
 
 #include "behaviortree_ros2/plugins.hpp"
-CreateRosNodePlugin(combat_sentry_behavior::PublishChassisStatusAction, "PublishChassisStatus");
+CreateRosNodePlugin(combat_sentry_behavior::PublishSentryStatusAction, "PublishSentryStatus");

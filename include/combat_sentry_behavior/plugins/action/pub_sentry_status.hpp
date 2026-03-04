@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef COMBAT_SENTRY_BEHAVIOR__PLUGINS__ACTION__PUB_CHASSIS_STATUS_HPP_
-#define COMBAT_SENTRY_BEHAVIOR__PLUGINS__ACTION__PUB_CHASSIS_STATUS_HPP_
+#ifndef COMBAT_SENTRY_BEHAVIOR__PLUGINS__ACTION__PUB_SENTRY_STATUS_HPP_
+#define COMBAT_SENTRY_BEHAVIOR__PLUGINS__ACTION__PUB_SENTRY_STATUS_HPP_
 
 #include <string>
 #include <chrono>
@@ -24,11 +24,11 @@
 namespace combat_sentry_behavior
 {
 
-class PublishChassisStatusAction
+class PublishSentryStatusAction
 : public BT::RosTopicPubStatefulActionNode<example_interfaces::msg::UInt8>
 {
 public:
-  PublishChassisStatusAction(
+  PublishSentryStatusAction(
     const std::string & name, const BT::NodeConfig & config, const BT::RosNodeParams & params);
 
   static BT::PortsList providedPorts();
@@ -40,4 +40,4 @@ public:
 
 }  // namespace combat_sentry_behavior
 
-#endif  // COMBAT_SENTRY_BEHAVIOR__PLUGINS__ACTION__PUB_CHASSIS_STATUS_HPP_
+#endif  // COMBAT_SENTRY_BEHAVIOR__PLUGINS__ACTION__PUB_SENTRY_STATUS_HPP_

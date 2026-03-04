@@ -14,8 +14,6 @@
 
 #include "combat_sentry_behavior/plugins/condition/is_attacked.hpp"
 
-#include "pb_rm_interfaces/msg/robot_status.hpp"
-
 namespace combat_sentry_behavior
 {
 
@@ -26,32 +24,35 @@ IsAttackedCondition::IsAttackedCondition(const std::string & name, const BT::Nod
 
 BT::NodeStatus IsAttackedCondition::checkIsAttacked()
 {
-  auto msg = getInput<pb_rm_interfaces::msg::RobotStatus>("key_port");
-  if (!msg) {
+  auto robotstatus_msg = getInput<combat_rm_interfaces::msg::RobotStatus>("robotstatus_port");
+  auto hurt_msg = getInput<combat_rm_interfaces::msg::HurtData>("hurtdata_port");
+  if (!robotstatus_msg) {
     RCLCPP_ERROR(logger_, "RobotStatus message is not available");
+    return BT::NodeStatus::FAILURE;
+  }
+  if (!hurt_msg) {
+    RCLCPP_ERROR(logger_, "HurtData message is not available");
     return BT::NodeStatus::FAILURE;
   }
 
   bool is_hp_deduced;
-  if (last_hp_ - msg->current_hp > 0) {
+  if (last_hp_ - robotstatus_msg->current_hp > 0) {
     is_hp_deduced = true;
-  } 
-  last_hp_ = msg->current_hp;
+  }
+  last_hp_ = robotstatus_msg->current_hp;
 
-  const bool is_attacked = is_hp_deduced && msg->hp_deduction_reason == msg->ARMOR_HIT;
+  const bool is_attacked = is_hp_deduced && hurt_msg->hp_deduction_reason == hurt_msg->ARMOR_HIT;
 
-  setOutput("is_attacked", is_attacked);
-
-  return BT::NodeStatus::SUCCESS;
+  return is_attacked ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
 }
 
 BT::PortsList IsAttackedCondition::providedPorts()
 {
   return {
-    BT::InputPort<pb_rm_interfaces::msg::RobotStatus>(
-      "key_port", "{@referee_robotStatus}", "RobotStatus port on blackboard"),
-    BT::OutputPort<bool>(
-      "is_attacked", "{is_attacked}", "Condition of robot being attacked"),};
+    BT::InputPort<combat_rm_interfaces::msg::RobotStatus>(
+      "robotstatus_port", "{@referee_robotStatus}", "RobotStatus port on blackboard"),
+    BT::InputPort<combat_rm_interfaces::msg::HurtData>(
+      "hurtdata_port", "{@referee_hurtdata}", "HurtData port on blackboard")};
 }
 
 }  // namespace combat_sentry_behavior

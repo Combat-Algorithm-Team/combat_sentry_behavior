@@ -12,15 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef COMBAT_SENTRY_BEHAVIOR__PLUGINS__CONDITION__IS_STATUS_OK_HPP_
-#define COMBAT_SENTRY_BEHAVIOR__PLUGINS__CONDITION__IS_STATUS_OK_HPP_
+#ifndef COMBAT_SENTRY_BEHAVIOR__PLUGINS__CONDITION__IS_GOAL_AVAILABLE_HPP_
+#define COMBAT_SENTRY_BEHAVIOR__PLUGINS__CONDITION__IS_GOAL_AVAILABLE_HPP_
 
+#include <memory>
 #include <string>
 
 #include "behaviortree_cpp/condition_node.h"
-#include "combat_rm_interfaces/msg/game_status.hpp"
-#include "combat_rm_interfaces/msg/robot_status.hpp"
 #include "rclcpp/rclcpp.hpp"
+
+#include "geometry_msgs/msg/pose_stamped.hpp"
 
 namespace combat_sentry_behavior
 {
@@ -28,10 +29,10 @@ namespace combat_sentry_behavior
  * @brief A BT::ConditionNode that get GameStatus from port and
  * returns SUCCESS when current game status and remain time is expected
  */
-class IsStatusOKCondition : public BT::SimpleConditionNode
+class IsGoalAvailableCondition : public BT::SimpleConditionNode
 {
 public:
-  IsStatusOKCondition(const std::string & name, const BT::NodeConfig & config);
+  IsGoalAvailableCondition(const std::string & name, const BT::NodeConfig & config);
 
   /**
    * @brief Creates list of BT ports
@@ -41,12 +42,12 @@ public:
 
 private:
   /**
-   * @brief Tick function for game status ports
+   * @brief Tick function for robot_status ports
    */
-  BT::NodeStatus checkRobotStatus();
+  BT::NodeStatus checkIsGoalAvailable();
 
-  rclcpp::Logger logger_ = rclcpp::get_logger("IsStatusOKCondition");
+  rclcpp::Logger logger_ = rclcpp::get_logger("IsGoalAvailableCondition");
 };
 }  // namespace combat_sentry_behavior
 
-#endif  // COMBAT_SENTRY_BEHAVIOR__PLUGINS__CONDITION__IS_STATUS_OK_HPP_
+#endif  // COMBAT_SENTRY_BEHAVIOR__PLUGINS__CONDITION__IS_GOAL_AVAILABLE_HPP_

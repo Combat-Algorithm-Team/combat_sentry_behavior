@@ -25,10 +25,10 @@ IsStatusOKCondition::IsStatusOKCondition(const std::string & name, const BT::Nod
 BT::NodeStatus IsStatusOKCondition::checkRobotStatus()
 {
   int hp_min;
-  auto msg = getInput<pb_rm_interfaces::msg::RobotStatus>("key_port");
+  auto msg = getInput<combat_rm_interfaces::msg::RobotStatus>("key_port");
   if (!msg) {
-    return BT::NodeStatus::FAILURE;
     RCLCPP_ERROR(logger_, "RobotStatus message is not available");
+    return BT::NodeStatus::FAILURE;
   }
 
   getInput("hp_min", hp_min);
@@ -41,7 +41,7 @@ BT::NodeStatus IsStatusOKCondition::checkRobotStatus()
 BT::PortsList IsStatusOKCondition::providedPorts()
 {
   return {
-    BT::InputPort<pb_rm_interfaces::msg::RobotStatus>(
+    BT::InputPort<combat_rm_interfaces::msg::RobotStatus>(
       "key_port", "{@referee_robotStatus}", "RobotStatus port on blackboard"),
     BT::InputPort<int>("hp_min", 300, "Minimum HP. NOTE: Sentry init/max HP is 400")};
 }

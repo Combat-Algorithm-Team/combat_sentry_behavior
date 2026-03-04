@@ -48,6 +48,12 @@ list(APPEND plugin_libs is_rfid_detected)
 ament_auto_add_library(is_status_ok SHARED plugins/condition/is_status_ok.cpp)
 list(APPEND plugin_libs is_status_ok)
 
+ament_auto_add_library(is_goal_available SHARED plugins/condition/is_goal_available.cpp)
+list(APPEND plugin_libs is_goal_available)
+
+ament_auto_add_library(is_detect_enemy SHARED plugins/condition/is_detect_enemy.cpp)
+list(APPEND plugin_libs is_detect_enemy)
+
 ####### Actions #######
 ament_auto_add_library(calculate_attack_pose SHARED plugins/action/calculate_attack_pose.cpp)
 list(APPEND plugin_libs calculate_attack_pose)
@@ -62,6 +68,8 @@ ament_auto_add_library(pub_twist SHARED plugins/action/pub_twist.cpp)
 list(APPEND plugin_libs pub_twist)
 
 ####### Controls #######
+ament_auto_add_library(recovery_node SHARED plugins/control/recovery_node.cpp)
+list(APPEND plugin_libs recovery_node)
 
 ####### Decorators #######
 

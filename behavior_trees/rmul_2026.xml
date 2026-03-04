@@ -22,7 +22,37 @@
     </Fallback>
   </BehaviorTree>
 
-  <BehaviorTree ID="check_robot_status">
+  <BehaviorTree ID="control_robot_status">
+    <Fallback>
+      <Sequence>
+        <IsAttacked key_port="{@referee_robotStatus}"/>
+        <PublishChassisStatus chassis_status="2"
+                              duration="3000.0"
+                              topic_name="cmd_chassis_status"/>
+      </Sequence>
+      <PublishChassisStatus chassis_status="1"
+                            duration="0.0"
+                            topic_name="cmd_chassis_status"/>
+    </Fallback>
+  </BehaviorTree>
+
+  <BehaviorTree ID="calculate_attack_pose">
+    <Sequence>
+      <IsDetectEnemy armor_id="1;2;3;4;7"
+                      max_distance="4.0"
+                      key_port="{@detector_armors}"/>
+      <CalculateAttackPose costmap_port="{@nav_globalCostmap}"
+                           tracker_port="{@tracker_target}"
+                           goal="{attack_pose}"
+                           topic_name="debug_attack_pose"/>
+      <IsGoalAvailable max_x="8.0"
+                       goal="{attack_pose}"/>
+      <PubNav2Goal goal="{attack_pose}"
+                   topic_name="goal_pose"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="check_min_hp">
     <Fallback>
       <IsStatusOK hp_min="200"
                   key_port="{@referee_robotStatus}"/>
@@ -38,17 +68,26 @@
     </Fallback>
   </BehaviorTree>
 
-  <BehaviorTree ID="rmul_2025">
+  <BehaviorTree ID="decide_goal">
+    <ForceSuccess>
+      <Sequence>
+        <SubTree ID="check_min_hp"/>
+        <Fallback>
+          <SubTree ID="calculate_attack_pose"/>
+          <PubNav2Goal goal="4.65;-3.5;0"
+                      topic_name="goal_pose"/>
+        </Fallback>
+      </Sequence>
+    </ForceSuccess>
+  </BehaviorTree>
+
+  <BehaviorTree ID="rmul_2026">
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <ReactiveSequence>
           <SubTree ID="check_game_start"/>
-          <PublishChassisStatus chassis_status="1"
-                                duration="0.0"
-                                topic_name="cmd_chassis_status"/>
-          <SubTree ID="check_robot_status"/>
-          <PubNav2Goal goal="4.65;-3.5;0"
-                       topic_name="goal_pose"/>
+          <SubTree ID="decide_goal"/>
+          <SubTree ID="control_robot_status"/>
         </ReactiveSequence>
       </ForceSuccess>
     </KeepRunningUntilFailure>
@@ -56,6 +95,24 @@
 
   <!-- Description of Node Models (used by Groot) -->
   <TreeNodesModel>
+
+  <!-- Condition -->
+    <Condition ID="IsAttacked">
+      <input_port name="key_port"
+                  default="{@referee_robotStatus}"
+                  type="combat_rm_interfaces::msg::RobotStatus_&lt;std::allocator&lt;void&gt; &gt;">RobotStatus port on blackboard</input_port>
+    </Condition>
+    <Condition ID="IsDetectEnemy">
+      <input_port name="armor_id"
+                  default="1;2;3;4;5;7"
+                  type="std::vector&lt;int, std::allocator&lt;int&gt; &gt;">Expected id of armors. Multiple numbers should be separated by the character `;` in Groot2</input_port>
+      <input_port name="max_distance"
+                  default="8.000000"
+                  type="float">Distance to enemy target</input_port>
+      <input_port name="key_port"
+                  default="{@detector_armors}"
+                  type="rm_interfaces::msg::Armors_&lt;std::allocator&lt;void&gt; &gt;">Vision detector port on blackboard</input_port>
+    </Condition>
     <Condition ID="IsGameStatus">
       <input_port name="max_remain_time"
                   default="420"
@@ -68,10 +125,18 @@
                   type="int">Expected game progress stage</input_port>
       <input_port name="key_port"
                   default="{@referee_gameStatus}"
-                  type="pb_rm_interfaces::msg::GameStatus_&lt;std::allocator&lt;void&gt; &gt;">GameStatus port on blackboard</input_port>
+                  type="combat_rm_interfaces::msg::GameStatus_&lt;std::allocator&lt;void&gt; &gt;">GameStatus port on blackboard</input_port>
+    </Condition>
+    <Condition ID="IsGoalAvailable">
+      <input_port name="max_x"
+                  default="8.000000"
+                  type="float">Maximum x value of the goal</input_port>
+      <input_port name="goal"
+                  default="0;0;0"
+                  type="geometry_msgs::msg::PoseStamped_&lt;std::allocator&lt;void&gt; &gt;">Expected goal pose that send to nav2. Fill with format `x;y;yaw`</input_port>
     </Condition>
     <Condition ID="IsRfidDetected">
-      <input_port name="friendly_supply_zone_non_exchange"
+      <input_port name="ally_supply_point_non_exchange"
                   default="false"
                   type="bool">己方与兑换区不重叠的补给区 / RMUL 补给区</input_port>
       <input_port name="center_gain_point"
@@ -79,7 +144,7 @@
                   type="bool">中心增益点（仅 RMUL 适用）</input_port>
       <input_port name="key_port"
                   default="{@referee_rfidStatus}"
-                  type="pb_rm_interfaces::msg::RfidStatus_&lt;std::allocator&lt;void&gt; &gt;">RfidStatus port on blackboard</input_port>
+                  type="combat_rm_interfaces::msg::RfidStatus_&lt;std::allocator&lt;void&gt; &gt;">RfidStatus port on blackboard</input_port>
     </Condition>
     <Condition ID="IsStatusOK">
       <input_port name="hp_min"
@@ -87,12 +152,20 @@
                   type="int">Minimum HP. NOTE: Sentry init/max HP is 400</input_port>
       <input_port name="key_port"
                   default="{@referee_robotStatus}"
-                  type="pb_rm_interfaces::msg::RobotStatus_&lt;std::allocator&lt;void&gt; &gt;">RobotStatus port on blackboard</input_port>
+                  type="combat_rm_interfaces::msg::RobotStatus_&lt;std::allocator&lt;void&gt; &gt;">RobotStatus port on blackboard</input_port>
     </Condition>
-    <Condition ID="PubNav2Goal">
-      <input_port name="goal"
-                  default="0;0;0"
-                  type="geometry_msgs::msg::PoseStamped_&lt;std::allocator&lt;void&gt; &gt;">Expected goal pose that send to nav2. Fill with format `x;y;yaw`</input_port>
+
+  <!-- Action -->
+    <Condition ID="CalculateAttackPose">
+      <input_port name="costmap_port"
+                  default="{@nav_globalCostmap}"
+                  type="nav_msgs::msg::OccupancyGrid_&lt;std::allocator&lt;void&gt; &gt;">GlobalCostmap port on blackboard</input_port>
+      <input_port name="tracker_port"
+                  default="{@tracker_target}"
+                  type="rm_interfaces::msg::Target_&lt;std::allocator&lt;void&gt; &gt;">Vision target port on blackboard</input_port>
+      <output_port name="goal"
+                   default="{attack_pose}"
+                   type="geometry_msgs::msg::PoseStamped_&lt;std::allocator&lt;void&gt; &gt;">Expected goal pose that send to nav2. Fill with format `x;y;yaw`</output_port>
       <input_port name="topic_name"
                   default="__default__placeholder__"
                   type="std::string">Topic name</input_port>
@@ -101,6 +174,24 @@
       <input_port name="chassis_status"
                   default="0"
                   type="uint8_t">Chassis status (0-5)</input_port>
+      <input_port name="duration"
+                  type="std::chrono::milliseconds">Publish then sleep duration in milliseconds</input_port>
+      <input_port name="topic_name"
+                  default="__default__placeholder__"
+                  type="std::string">Topic name</input_port>
+    </Action>
+    <Condition ID="PubNav2Goal">
+      <input_port name="goal"
+                  default="0;0;0"
+                  type="geometry_msgs::msg::PoseStamped_&lt;std::allocator&lt;void&gt; &gt;">Expected goal pose that send to nav2. Fill with format `x;y;yaw`</input_port>
+      <input_port name="topic_name"
+                  default="__default__placeholder__"
+                  type="std::string">Topic name</input_port>
+    </Condition>
+    <Action ID="PubSentryStatus">
+      <input_port name="sentry_status"
+                  default="0"
+                  type="uint8_t">Sentry status (1-3)</input_port>
       <input_port name="duration"
                   type="std::chrono::milliseconds">Publish then sleep duration in milliseconds</input_port>
       <input_port name="topic_name"

@@ -21,6 +21,9 @@
 #include "behaviortree_cpp/condition_node.h"
 #include "rclcpp/rclcpp.hpp"
 
+#include "combat_rm_interfaces/msg/robot_status.hpp"
+#include "combat_rm_interfaces/msg/hurt_data.hpp"
+
 namespace combat_sentry_behavior
 {
 /**

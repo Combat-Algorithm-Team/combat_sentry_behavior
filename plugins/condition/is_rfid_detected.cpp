@@ -25,17 +25,17 @@ IsRfidDetectedCondition::IsRfidDetectedCondition(
 
 BT::NodeStatus IsRfidDetectedCondition::checkRfidStatus()
 {
-  bool friendly_supply_zone_non_exchange, center_gain_point;
-  auto msg = getInput<pb_rm_interfaces::msg::RfidStatus>("key_port");
-  // if (!msg) {
-  //   return BT::NodeStatus::FAILURE;
-  //   RCLCPP_ERROR(logger_, "RfidStatus message is not available");
-  // }
+  bool ally_supply_point_non_exchange, center_gain_point;
+  auto msg = getInput<combat_rm_interfaces::msg::RfidStatus>("key_port");
+  if (!msg) {
+    RCLCPP_ERROR(logger_, "RfidStatus message is not available");
+    return BT::NodeStatus::FAILURE;
+  }
 
-  getInput("friendly_supply_zone_non_exchange", friendly_supply_zone_non_exchange);
+  getInput("ally_supply_point_non_exchange", ally_supply_point_non_exchange);
   getInput("center_gain_point", center_gain_point);
 
-  if ((friendly_supply_zone_non_exchange && msg->ally_supply_zone_non_exchange == msg->DETECTED) ||
+  if ((ally_supply_point_non_exchange && msg->ally_supply_point_non_exchange == msg->DETECTED) ||
     (center_gain_point && msg->center_gain_point == msg->DETECTED)) {
     return BT::NodeStatus::SUCCESS;
   } else {
@@ -46,10 +46,10 @@ BT::NodeStatus IsRfidDetectedCondition::checkRfidStatus()
 BT::PortsList IsRfidDetectedCondition::providedPorts()
 {
   return {
-    BT::InputPort<pb_rm_interfaces::msg::RfidStatus>(
+    BT::InputPort<combat_rm_interfaces::msg::RfidStatus>(
       "key_port", "{@referee_rfidStatus}", "RfidStatus port on blackboard"),
     BT::InputPort<bool>(
-      "friendly_supply_zone_non_exchange", false, "己方与兑换区不重叠的补给区 / RMUL 补给区"),
+      "ally_supply_point_non_exchange", false, "己方与兑换区不重叠的补给区 / RMUL 补给区"),
     BT::InputPort<bool>("center_gain_point", false, "中心增益点（仅 RMUL 适用）"),
   };
 }
