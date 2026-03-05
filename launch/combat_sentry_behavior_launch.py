@@ -26,7 +26,7 @@ from nav2_common.launch import RewrittenYaml
 
 def generate_launch_description():
     # Get the package directory
-    bringup_dir = get_package_share_directory("pb2025_sentry_behavior")
+    bringup_dir = get_package_share_directory("combat_sentry_behavior")
 
     # Create the launch configuration variables
     namespace = LaunchConfiguration("namespace")
@@ -82,17 +82,17 @@ def generate_launch_description():
             SetRemap("/tf", "tf"),
             SetRemap("/tf_static", "tf_static"),
             Node(
-                package="pb2025_sentry_behavior",
-                executable="pb2025_sentry_behavior_server",
-                name="pb2025_sentry_behavior_server",
+                package="combat_sentry_behavior",
+                executable="combat_sentry_behavior_server",
+                name="combat_sentry_behavior_server",
                 output="screen",
                 parameters=[configured_params],
                 arguments=["--ros-args", "--log-level", log_level],
             ),
             Node(
-                package="pb2025_sentry_behavior",
-                executable="pb2025_sentry_behavior_client",
-                name="pb2025_sentry_behavior_client",
+                package="combat_sentry_behavior",
+                executable="combat_sentry_behavior_client",
+                name="combat_sentry_behavior_client",
                 output="screen",
                 parameters=[configured_params],
                 arguments=["--ros-args", "--log-level", log_level],
