@@ -19,12 +19,41 @@
 #ifndef COMBAT_SENTRY_BEHAVIOR__CUSTOM_TYPES_HPP_
 #define COMBAT_SENTRY_BEHAVIOR__CUSTOM_TYPES_HPP_
 
+struct Pose3D
+{
+  double x, y, yaw;
+};
+
+namespace BT
+{
+template <>
+Pose3D convertFromString(StringView key)
+{
+  // three real numbers separated by semicolons
+  auto parts = BT::splitString(key, ';');
+  if(parts.size() != 3)
+  {
+    throw RuntimeError("invalid input)");
+  }
+  else
+  {
+    Pose3D output{};
+    output.x = convertFromString<double>(parts[0]);
+    output.y = convertFromString<double>(parts[1]);
+    output.yaw = convertFromString<double>(parts[2]);
+    return output;
+  }
+}
+}  // namespace BT
+
 namespace BT
 {
 template <>
 geometry_msgs::msg::PoseStamped convertFromString(StringView key)
 {
+  std::cout<<"convertFromString geometry_msgs::msg::PoseStamped";
   auto parts = BT::splitString(key, ';');
+  std::cout<<"parts size:"<<parts.size()<<std::endl;
   if (parts.size() == 7) {
     geometry_msgs::msg::PoseStamped output;
     output.pose.position.x = convertFromString<double>(parts[0]);

@@ -19,6 +19,7 @@
 #include "nav2_util/robot_utils.hpp"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 #include "visualization_msgs/msg/marker.hpp"
+#include "combat_sentry_behavior/custom_types.hpp"
 
 using nav2_util::declare_parameter_if_not_declared;
 namespace combat_sentry_behavior
@@ -61,7 +62,7 @@ BT::PortsList CalculateAttackPoseAction::providedPorts()
       "costmap_port", "{@nav_globalCostmap}", "GlobalCostmap port on blackboard"),
     BT::InputPort<rm_interfaces::msg::Target>(
       "tracker_port", "{@tracker_target}", "Vision target port on blackboard"),
-    BT::OutputPort<PoseStamped>(
+    BT::OutputPort<Pose3D>(
       "goal", "{attack_pose}", "Expected goal pose that send to nav2. Fill with format `x;y;yaw`"),
   });
 }
@@ -93,8 +94,9 @@ bool CalculateAttackPoseAction::setMessage(visualization_msgs::msg::MarkerArray 
       RCLCPP_WARN(node_->get_logger(), "No last known position to direct to.");
       return false;
     }
-    PoseStamped pose;
-    pose.pose.position = enemy_on_costmap_.point;
+    Pose3D pose;
+    pose.x = enemy_on_costmap_.point.x;
+    pose.y = enemy_on_costmap_.point.y;
     setOutput("goal", pose);
   } else {
     // Transform enemy position
@@ -131,7 +133,11 @@ bool CalculateAttackPoseAction::setMessage(visualization_msgs::msg::MarkerArray 
 
     // Create attack pose
     const auto attack_pose = createAttackPose(best_point, enemy_on_costmap_);
-    setOutput("goal", attack_pose);
+    
+    Pose3D pose;
+    pose.x = attack_pose.pose.position.x;
+    pose.y = attack_pose.pose.position.y;
+    setOutput("goal", pose);
 
     // Create visualization
     if (params_.visualize) {

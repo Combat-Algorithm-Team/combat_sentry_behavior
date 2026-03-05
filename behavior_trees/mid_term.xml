@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+
+  <BehaviorTree ID="mid_term">
+    <Repeat num_cycles="-1">
+        <Sequence>
+            <SendNav2Goal goal="3;0;0"
+                        action_name="navigate_to_pose"/>
+        </Sequence>
+    </Repeat>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="SendNav2Goal">
+      <input_port name="goal"
+                  default="0;0;0"
+                  type="Pose3D">Expected goal pose that send to nav2. Fill with format `x;y;yaw`</input_port>
+      <input_port name="action_name"
+                  type="std::string">Action server name</input_port>
+    </Action>
+  </TreeNodesModel>
+
+</root>
