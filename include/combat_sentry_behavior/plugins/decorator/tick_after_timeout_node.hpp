@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PB2025_SENTRY_BEHAVIOR__PLUGINS__DECORATOR__TICK_AFTER_TIMEOUT_NODE_HPP_
-#define PB2025_SENTRY_BEHAVIOR__PLUGINS__DECORATOR__TICK_AFTER_TIMEOUT_NODE_HPP_
+#ifndef COMBAT_SENTRY_BEHAVIOR__PLUGINS__DECORATOR__TICK_AFTER_TIMEOUT_NODE_HPP_
+#define COMBAT_SENTRY_BEHAVIOR__PLUGINS__DECORATOR__TICK_AFTER_TIMEOUT_NODE_HPP_
 
 #include <chrono>
 #include <string>
@@ -22,7 +22,7 @@
 #include "behaviortree_cpp/decorator_node.h"
 #include "behaviortree_cpp/tree_node.h"
 
-namespace pb2025_sentry_behavior
+namespace combat_sentry_behavior
 {
 class TickAfterTimeout : public BT::DecoratorNode
 {
@@ -40,6 +40,6 @@ private:
 
   BT::NodeStatus tick() override;
 };
-}  // namespace pb2025_sentry_behavior
+}  // namespace combat_sentry_behavior
 
-#endif  // PB2025_SENTRY_BEHAVIOR__PLUGINS__DECORATOR__TICK_AFTER_TIMEOUT_NODE_HPP_
+#endif  // COMBAT_SENTRY_BEHAVIOR__PLUGINS__DECORATOR__TICK_AFTER_TIMEOUT_NODE_HPP_

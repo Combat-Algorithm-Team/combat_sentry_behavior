@@ -75,6 +75,11 @@ ament_auto_add_library(recovery_node SHARED plugins/control/recovery_node.cpp)
 list(APPEND plugin_libs recovery_node)
 
 ####### Decorators #######
+ament_auto_add_library(rate_controller SHARED plugins/decorator/rate_controller.cpp)
+list(APPEND plugin_libs rate_controller)
+
+ament_auto_add_library(tick_after_timeout SHARED plugins/decorator/tick_after_timeout_node.cpp)
+list(APPEND plugin_libs tick_after_timeout)
 
 foreach(bt_plugin ${plugin_libs})
   target_compile_definitions(${bt_plugin} PRIVATE BT_PLUGIN_EXPORT)

@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PB2025_SENTRY_BEHAVIOR__PLUGINS__DECORATOR__RATE_CONTROLLER_HPP_
-#define PB2025_SENTRY_BEHAVIOR__PLUGINS__DECORATOR__RATE_CONTROLLER_HPP_
+#ifndef COMBAT_SENTRY_BEHAVIOR__PLUGINS__DECORATOR__RATE_CONTROLLER_HPP_
+#define COMBAT_SENTRY_BEHAVIOR__PLUGINS__DECORATOR__RATE_CONTROLLER_HPP_
 
 #include <chrono>
 #include <string>
 
 #include "behaviortree_cpp/decorator_node.h"
 
-namespace pb2025_sentry_behavior
+namespace combat_sentry_behavior
 {
 
 /**
@@ -30,7 +30,7 @@ class RateController : public BT::DecoratorNode
 {
 public:
   /**
-   * @brief A constructor for pb2025_sentry_behavior::RateController
+   * @brief A constructor for combat_sentry_behavior::RateController
    * @param name Name for the XML tag for this node
    * @param conf BT node configuration
    */
@@ -54,6 +54,6 @@ private:
   bool first_time_;
 };
 
-}  // namespace pb2025_sentry_behavior
+}  // namespace combat_sentry_behavior
 
-#endif  // PB2025_SENTRY_BEHAVIOR__PLUGINS__DECORATOR__RATE_CONTROLLER_HPP_
+#endif  // COMBAT_SENTRY_BEHAVIOR__PLUGINS__DECORATOR__RATE_CONTROLLER_HPP_

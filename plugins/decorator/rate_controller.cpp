@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "pb2025_sentry_behavior/plugins/decorator/rate_controller.hpp"
+#include "combat_sentry_behavior/plugins/decorator/rate_controller.hpp"
 
 #include <chrono>
 #include <string>
 
-namespace pb2025_sentry_behavior
+namespace combat_sentry_behavior
 {
 
 RateController::RateController(const std::string & name, const BT::NodeConfiguration & conf)

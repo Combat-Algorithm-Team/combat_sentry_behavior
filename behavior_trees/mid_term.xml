@@ -4,8 +4,18 @@
   <BehaviorTree ID="mid_term">
     <Repeat num_cycles="-1">
         <Sequence>
-            <SendNav2Goal goal="3;0;0"
-                        action_name="navigate_to_pose"/>
+          <RateController hz="1">
+              <SendNav2Goal goal="3;0;0"/>
+          </RateController>
+
+          <RateController hz="1">
+              <SendNav2Goal goal="2;0;0"/>
+          </RateController>
+
+          <RateController hz="1">
+              <SendNav2Goal goal="1;0;0"/>
+          </RateController>
+
         </Sequence>
     </Repeat>
   </BehaviorTree>
