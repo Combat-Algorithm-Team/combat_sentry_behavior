@@ -37,11 +37,11 @@ bool SendNav2GoalAction::setGoal(nav2_msgs::action::NavigateToPose::Goal & goal)
   goal.pose.pose.position.y = received_goal.y;
   tf2::Quaternion q;
   q.setRPY(0,0,received_goal.yaw);
+  goal.pose.pose.orientation = tf2::toMsg(q);
 
-  goal.pose.pose.orientation.x = q.x();
-  goal.pose.pose.orientation.y = q.y();
-  goal.pose.pose.orientation.z = q.z();
-  goal.pose.pose.orientation.w = q.w();
+  RCLCPP_DEBUG(
+    logger(), "Setting goal to (%.2f, %.2f, %.2f)", received_goal.x, received_goal.y,
+    received_goal.yaw);
 
   return true;
 }
