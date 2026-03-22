@@ -14,30 +14,31 @@
 
 #include "combat_sentry_behavior/plugins/condition/is_goal_available.hpp"
 
-#include "combat_rm_interfaces/msg/robot_status.hpp"
+#include "combat_sentry_behavior/custom_types.hpp"
 
 namespace combat_sentry_behavior
 {
 
-IsGoalAvailableCondition::IsGoalAvailableCondition(const std::string & name, const BT::NodeConfig & config)
-: BT::SimpleConditionNode(name, std::bind(&IsGoalAvailableCondition::checkIsGoalAvailable, this), config)
+IsGoalAvailableCondition::IsGoalAvailableCondition(
+  const std::string & name, const BT::NodeConfig & config)
+: BT::SimpleConditionNode(
+    name, std::bind(&IsGoalAvailableCondition::checkIsGoalAvailable, this), config)
 {
 }
 
 BT::NodeStatus IsGoalAvailableCondition::checkIsGoalAvailable()
 {
-  auto msg = getInput<geometry_msgs::msg::PoseStamped>("goal");
-  
+  Pose3D goal{};
+  getInput("goal", goal);
+
   float max_x;
   getInput<float>("max_x", max_x);
 
-  if (!msg) {
-    RCLCPP_ERROR(logger_, "Goal message is not available");
-    return BT::NodeStatus::FAILURE;
-  }
+  float max_y;
+  getInput<float>("max_y", max_y);
 
   bool is_goal_available = false;
-  if (msg->pose.position.x < max_x) {
+  if (goal.x < max_x && goal.y < max_y) {
     is_goal_available = true;
   }
 
@@ -47,10 +48,11 @@ BT::NodeStatus IsGoalAvailableCondition::checkIsGoalAvailable()
 BT::PortsList IsGoalAvailableCondition::providedPorts()
 {
   return {
-    BT::InputPort<float>(
-      "max_x", "8.0", "the maximum x coordinate of the goal position"),
-    BT::InputPort<geometry_msgs::msg::PoseStamped>(
-      "goal", "{candidate_pose}", "Expected goal pose that send to nav2. Fill with format `x;y;yaw`"),
+    BT::InputPort<float>("max_x", "8.0", "the maximum x coordinate of the goal position"),
+    BT::InputPort<float>("max_y", "8.0", "the maximum y coordinate of the goal position"),
+    BT::InputPort<Pose3D>(
+      "goal", "{candidate_pose}",
+      "Expected goal pose that send to nav2. Fill with format `x;y;yaw`"),
   };
 }
 

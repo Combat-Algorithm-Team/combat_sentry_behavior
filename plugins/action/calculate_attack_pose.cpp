@@ -14,12 +14,12 @@
 
 #include "combat_sentry_behavior/plugins/action/calculate_attack_pose.hpp"
 
-#include "rm_interfaces/msg/target.hpp"
+#include "combat_sentry_behavior/custom_types.hpp"
 #include "nav2_util/node_utils.hpp"
 #include "nav2_util/robot_utils.hpp"
+#include "rm_interfaces/msg/target.hpp"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 #include "visualization_msgs/msg/marker.hpp"
-#include "combat_sentry_behavior/custom_types.hpp"
 
 using nav2_util::declare_parameter_if_not_declared;
 namespace combat_sentry_behavior
@@ -94,10 +94,10 @@ bool CalculateAttackPoseAction::setMessage(visualization_msgs::msg::MarkerArray 
       RCLCPP_WARN(node_->get_logger(), "No last known position to direct to.");
       return false;
     }
-    Pose3D pose;
-    pose.x = enemy_on_costmap_.point.x;
-    pose.y = enemy_on_costmap_.point.y;
-    setOutput("goal", pose);
+    Pose3D pose3d;
+    pose3d.x = enemy_on_costmap_.point.x;
+    pose3d.y = enemy_on_costmap_.point.y;
+    setOutput("goal", pose3d);
   } else {
     // Transform enemy position
     PointStamped enemy_point;
@@ -114,7 +114,8 @@ bool CalculateAttackPoseAction::setMessage(visualization_msgs::msg::MarkerArray 
     candidates = generateCandidatePoints(enemy_on_costmap_.point);
 
     // Filter feasible points
-    feasible_points = filterFeasiblePoints(candidates, global_costmap.value(), params_.cost_threshold);
+    feasible_points =
+      filterFeasiblePoints(candidates, global_costmap.value(), params_.cost_threshold);
     if (feasible_points.empty()) {
       RCLCPP_WARN(node_->get_logger(), "No feasible attack points found");
       return false;
@@ -133,11 +134,11 @@ bool CalculateAttackPoseAction::setMessage(visualization_msgs::msg::MarkerArray 
 
     // Create attack pose
     const auto attack_pose = createAttackPose(best_point, enemy_on_costmap_);
-    
-    Pose3D pose;
-    pose.x = attack_pose.pose.position.x;
-    pose.y = attack_pose.pose.position.y;
-    setOutput("goal", pose);
+
+    Pose3D pose3d;
+    pose3d.x = attack_pose.pose.position.x;
+    pose3d.y = attack_pose.pose.position.y;
+    setOutput("goal", pose3d);
 
     // Create visualization
     if (params_.visualize) {
@@ -193,7 +194,8 @@ std::vector<Point> CalculateAttackPoseAction::generateCandidatePoints(const Poin
 }
 
 std::vector<Point> CalculateAttackPoseAction::filterFeasiblePoints(
-  const std::vector<Point> & candidates, const nav_msgs::msg::OccupancyGrid & costmap, int cost_threshold)
+  const std::vector<Point> & candidates, const nav_msgs::msg::OccupancyGrid & costmap,
+  int cost_threshold)
 {
   std::vector<Point> feasible_points;
   const auto & info = costmap.info;

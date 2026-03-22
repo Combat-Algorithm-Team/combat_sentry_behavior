@@ -36,10 +36,10 @@ bool SendNav2GoalAction::setGoal(nav2_msgs::action::NavigateToPose::Goal & goal)
   goal.pose.pose.position.x = received_goal.x;
   goal.pose.pose.position.y = received_goal.y;
   tf2::Quaternion q;
-  q.setRPY(0,0,received_goal.yaw);
+  q.setRPY(0, 0, received_goal.yaw);
   goal.pose.pose.orientation = tf2::toMsg(q);
 
-  RCLCPP_DEBUG(
+  RCLCPP_INFO(
     logger(), "Setting goal to (%.2f, %.2f, %.2f)", received_goal.x, received_goal.y,
     received_goal.yaw);
 
@@ -78,9 +78,10 @@ void SendNav2GoalAction::onHalt()
 {
   RCLCPP_INFO(logger(), "SendNav2GoalAction halted, canceling goal");
 
-  cancelGoal();
+  // cancelGoal();
 
-  RosActionNode<nav2_msgs::action::NavigateToPose>::onHalt();
+  // RosActionNode<nav2_msgs::action::NavigateToPose>::onHalt();
+  // goal_handle_.reset();
 }
 
 BT::NodeStatus SendNav2GoalAction::onFailure(BT::ActionNodeErrorCode error)

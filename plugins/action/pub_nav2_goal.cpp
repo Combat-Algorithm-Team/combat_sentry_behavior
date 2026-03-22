@@ -35,6 +35,9 @@ bool PubNav2GoalAction::setMessage(geometry_msgs::msg::PoseStamped & msg)
   msg.pose.position.x = goal.x;
   msg.pose.position.y = goal.y;
   msg.pose.position.z = goal.yaw;
+
+  RCLCPP_INFO(logger(), "Setting goal to (%.2f, %.2f, %.2f)", goal.x, goal.y, goal.yaw);
+
   return true;
 }
 

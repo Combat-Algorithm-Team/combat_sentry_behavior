@@ -35,13 +35,23 @@ BT::NodeStatus IsAttackedCondition::checkIsAttacked()
     return BT::NodeStatus::FAILURE;
   }
 
-  bool is_hp_deduced;
-  if (last_hp_ - robotstatus_msg->current_hp > 0) {
+  bool is_hp_deduced = false;
+  if (last_hp_ - robotstatus_msg->current_hp >= 20) {
     is_hp_deduced = true;
+  } else {
+    is_hp_deduced = false;
   }
   last_hp_ = robotstatus_msg->current_hp;
 
   const bool is_attacked = is_hp_deduced && hurt_msg->hp_deduction_reason == hurt_msg->ARMOR_HIT;
+
+  // RCLCPP_WARN(logger_, "cur hp = %d; last_hp = %d", robotstatus_msg->current_hp, last_hp_);
+
+  // RCLCPP_WARN(
+  //   logger_, "is_hp_deduced = %d; hp_deduction_reason = %d", is_hp_deduced,
+  //   hurt_msg->hp_deduction_reason);
+
+  // RCLCPP_WARN(logger_, "is attacked : %d; ", is_attacked);
 
   return is_attacked ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
 }

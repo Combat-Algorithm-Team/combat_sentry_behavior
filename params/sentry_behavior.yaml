@@ -14,7 +14,7 @@ combat_sentry_behavior_server:
       - combat_sentry_behavior/behavior_trees
 
     CalculateAttackPose:
-      attack_radius: 3.0
+      attack_radius: 1.0
       num_sectors: 36
       cost_threshold: 50
       robot_base_frame: base_footprint

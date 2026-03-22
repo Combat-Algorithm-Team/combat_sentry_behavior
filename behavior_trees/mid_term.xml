@@ -1,34 +1,106 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
-
-  <BehaviorTree ID="mid_term">
-    <Repeat num_cycles="-1">
+  <BehaviorTree ID="mid_term_check_game_start">
+    <Fallback>
+      <IsGameStatus name="IsGameStart"
+                    max_remain_time="420"
+                    min_remain_time="0"
+                    expected_game_progress="4"
+                    key_port="{@referee_gameStatus}"/>
+      <ForceFailure>
         <Sequence>
-          <RateController hz="1">
-              <SendNav2Goal goal="3;0;0"/>
-          </RateController>
-
-          <RateController hz="1">
-              <SendNav2Goal goal="2;0;0"/>
-          </RateController>
-
-          <RateController hz="1">
-              <SendNav2Goal goal="1;0;0"/>
-          </RateController>
-
+          <PublishSentryStatus sentry_status="0"
+                                duration="0.0"
+                                topic_name="cmd_sentry_status"/>
+          <PublishTwist v_y="0.0"
+                        v_yaw="0.0"
+                        v_x="0.0"
+                        duration="0.0"
+                        topic_name="cmd_vel"/>
         </Sequence>
-    </Repeat>
+      </ForceFailure>
+    </Fallback>
   </BehaviorTree>
 
-  <!-- Description of Node Models (used by Groot) -->
-  <TreeNodesModel>
-    <Action ID="SendNav2Goal">
-      <input_port name="goal"
-                  default="0;0;0"
-                  type="Pose3D">Expected goal pose that send to nav2. Fill with format `x;y;yaw`</input_port>
-      <input_port name="action_name"
-                  type="std::string">Action server name</input_port>
-    </Action>
-  </TreeNodesModel>
+  <BehaviorTree ID="mid_term_control_sentry_status">
+    <Fallback>
+      <Sequence>
+        <IsDetectEnemy armor_id="1;2;3;4;7"
+                      max_distance="4.0"
+                      key_port="{@detector_armors}"/>
+        <PublishSentryStatus sentry_status="1"
+                              duration="0.0"
+                              topic_name="cmd_sentry_status"/>
+      </Sequence>
+      <Sequence>
+        <IsRfidDetected ally_supply_point_non_exchange="true"
+                          center_gain_point="true"
+                          key_port="{@referee_rfidStatus}"/>
+        <PublishSentryStatus sentry_status="2"
+                              duration="0.0"
+                              topic_name="cmd_sentry_status"/>
+      </Sequence>
+      <PublishSentryStatus sentry_status="3"
+                            duration="0.0"
+                            topic_name="cmd_sentry_status"/>
+    </Fallback>
+  </BehaviorTree>
+
+  <BehaviorTree ID="mid_term_calculate_attack_pose">
+    <Sequence>
+      <IsDetectEnemy armor_id="1;2;3;4;7"
+                      max_distance="4.0"
+                      key_port="{@detector_armors}"/>
+      <CalculateAttackPose costmap_port="{@nav_globalCostmap}"
+                           tracker_port="{@tracker_target}"
+                           goal="{attack_pose}"
+                           topic_name="debug_attack_pose"/>
+      <IsGoalAvailable max_x="8.0"
+                       goal="{attack_pose}"/>
+      <PubNav2Goal goal="{attack_pose}"
+                   topic_name="goal_pose"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="mid_term_check_min_hp">
+    <Fallback>
+      <IsStatusOK hp_min="100"
+                  key_port="{@referee_robotStatus}"/>
+      <ForceFailure>
+        <Sequence>
+          <PublishSentryStatus sentry_status="2"
+                               duration="0.0"
+                               topic_name="cmd_sentry_status"/>
+          <PubNav2Goal goal="0;0;0"
+                       topic_name="goal_pose"/>
+        </Sequence>
+      </ForceFailure>
+    </Fallback>
+  </BehaviorTree>
+
+  <BehaviorTree ID="mid_term_decide_goal">
+    <!-- <ForceSuccess> -->
+    <Sequence>
+      <SubTree ID="mid_term_check_min_hp"/>
+      <Fallback>
+        <!-- <SubTree ID="mid_term_calculate_attack_pose"/> -->
+        <PubNav2Goal goal="4;0;0"
+                      topic_name="goal_pose"/>
+      </Fallback>
+    </Sequence>
+    <!-- </ForceSuccess> -->
+  </BehaviorTree>
+
+  <BehaviorTree ID="mid_term_sentry_behavior">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <ReactiveSequence>
+          <SubTree ID="mid_term_check_game_start"/>
+          <SubTree ID="mid_term_decide_goal"/>
+          <SubTree ID="mid_term_control_sentry_status"/>
+        </ReactiveSequence>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
 
 </root>

@@ -21,7 +21,6 @@
 #include "behaviortree_cpp/condition_node.h"
 #include "rclcpp/rclcpp.hpp"
 
-#include "geometry_msgs/msg/pose_stamped.hpp"
 
 namespace combat_sentry_behavior
 {

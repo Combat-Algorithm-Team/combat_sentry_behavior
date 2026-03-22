@@ -70,6 +70,9 @@ list(APPEND plugin_libs pub_twist)
 ament_auto_add_library(send_nav2_goal SHARED plugins/action/send_nav2_goal.cpp)
 list(APPEND plugin_libs send_nav2_goal)
 
+ament_auto_add_library(pub_sentry_status SHARED plugins/action/pub_sentry_status.cpp)
+list(APPEND plugin_libs pub_sentry_status)
+
 ####### Controls #######
 ament_auto_add_library(recovery_node SHARED plugins/control/recovery_node.cpp)
 list(APPEND plugin_libs recovery_node)

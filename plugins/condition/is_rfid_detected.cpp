@@ -29,6 +29,7 @@ BT::NodeStatus IsRfidDetectedCondition::checkRfidStatus()
   auto msg = getInput<combat_rm_interfaces::msg::RfidStatus>("key_port");
   if (!msg) {
     RCLCPP_ERROR(logger_, "RfidStatus message is not available");
+    RCLCPP_ERROR(logger_, "center gain point: %d, ally supply point non exchange: %d", msg->center_gain_point, msg->ally_supply_point_non_exchange);
     return BT::NodeStatus::FAILURE;
   }
 
