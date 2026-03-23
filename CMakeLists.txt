@@ -36,6 +36,9 @@ rclcpp_components_register_node(action_client
 )
 
 ####### Conditions #######
+ament_auto_add_library(check_target_in_region SHARED plugins/condition/check_target_in_region.cpp)
+list(APPEND plugin_libs check_target_in_region)
+
 ament_auto_add_library(is_attacked SHARED plugins/condition/is_attacked.cpp)
 list(APPEND plugin_libs is_attacked)
 

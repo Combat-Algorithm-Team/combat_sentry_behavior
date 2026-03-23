@@ -91,6 +91,8 @@
       <ForceSuccess>
         <ReactiveSequence>
           <SubTree ID="check_game_start"/>
+          <CheckTargetInRegion tracker_port="{@tracker_target}"
+                                topic_name="check_target_in_region"/>
           <SubTree ID="decide_goal"/>
           <SubTree ID="control_robot_status"/>
         </ReactiveSequence>
