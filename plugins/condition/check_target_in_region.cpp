@@ -1,4 +1,4 @@
-#include "combat_sentry_behavior/plugins/action/check_target_in_region.hpp"
+#include "combat_sentry_behavior/plugins/condition/check_target_in_region.hpp"
 
 #include "nav2_util/node_utils.hpp"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
@@ -16,13 +16,13 @@ CheckTargetInRegion::CheckTargetInRegion(
 {
   tf_buffer_ = std::make_shared<tf2_ros::Buffer>(node_->get_clock());
   tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
-  marker_pub_ = node_->create_publisher<visualization_msgs::msg::Marker>(
+  marker_pub_ = node_->create_publisher<visualization_msgs::msg::MarkerArray>(
   name + "/region_marker", 10);
 
-  declare_parameter_if_not_declared(node_, name + ".min_x", rclcpp::ParameterValue(-5.0));
-  declare_parameter_if_not_declared(node_, name + ".max_x", rclcpp::ParameterValue(5.0));
-  declare_parameter_if_not_declared(node_, name + ".min_y", rclcpp::ParameterValue(-5.0));
-  declare_parameter_if_not_declared(node_, name + ".max_y", rclcpp::ParameterValue(5.0));
+  declare_parameter_if_not_declared(node_, name + ".min_x", rclcpp::ParameterValue(0.0));
+  declare_parameter_if_not_declared(node_, name + ".max_x", rclcpp::ParameterValue(0.0));
+  declare_parameter_if_not_declared(node_, name + ".min_y", rclcpp::ParameterValue(0.0));
+  declare_parameter_if_not_declared(node_, name + ".max_y", rclcpp::ParameterValue(0.0));
   declare_parameter_if_not_declared(
     node_, name + ".target_frame", rclcpp::ParameterValue("map"));
   declare_parameter_if_not_declared(

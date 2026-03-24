@@ -14,11 +14,22 @@ combat_sentry_behavior_server:
       - combat_sentry_behavior/behavior_trees
 
     CalculateAttackPose:
-      attack_radius: 1.0
+      attack_radius: 3.0
       num_sectors: 36
       cost_threshold: 50
       robot_base_frame: base_footprint
       visualize: true
+      transform_tolerance: 0.5
+      max_visualization_distance: 4.0
+      marker_scale_base: 0.3
+
+    CheckTargetInRegion:
+      min_x: 3.0
+      max_x: 5.0
+      min_y: 3.0
+      max_y: 5.0
+      target_frame: map
+      transform_tolerance: 0.5
 
 combat_sentry_behavior_client:
   ros__parameters:

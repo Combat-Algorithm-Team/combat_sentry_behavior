@@ -31,12 +31,22 @@
                               duration="3000.0"
                               topic_name="cmd_chassis_status"/>
       </Sequence>
-      <PublishChassisStatus chassis_status="100"
-                            duration="500.0"
-                            topic_name="cmd_chassis_status"/>
-      <PublishChassisStatus chassis_status="200"
-                            duration="500.0"
-                            topic_name="cmd_chassis_status"/>
+      <Sequence>
+        <IsRfidDetected ally_supply_point_non_exchange="false"
+                        center_gain_point="true"
+                        key_port="{@referee_rfidStatus}"/>
+        <PublishChassisStatus chassis_status="255"
+                              duration="0.0"
+                              topic_name="cmd_chassis_status"/>
+      </Sequence>
+      <Sequence>
+        <PublishChassisStatus chassis_status="100"
+                              duration="500.0"
+                              topic_name="cmd_chassis_status"/>
+        <PublishChassisStatus chassis_status="200"
+                              duration="500.0"
+                              topic_name="cmd_chassis_status"/>
+      </Sequence>
     </Fallback>
   </BehaviorTree>
 
@@ -79,8 +89,14 @@
         <SubTree ID="check_min_hp"/>
         <Fallback>
           <SubTree ID="calculate_attack_pose"/>
-          <PubNav2Goal goal="3.5;5.5;0"
-                      topic_name="goal_pose"/>
+          <IfThenElse>
+            <CheckFieldEvent key_port="{@referee_eventData}"
+                             center_gain_point="1"/>
+            <PubNav2Goal goal="2.5;5.5;0"
+                        topic_name="goal_pose"/>
+            <PubNav2Goal goal="3.5;5.5;0"
+                        topic_name="goal_pose"/>
+          </IfThenElse>
         </Fallback>
       </Sequence>
     </ForceSuccess>

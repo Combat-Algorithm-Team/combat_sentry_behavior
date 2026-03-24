@@ -11,10 +11,10 @@ CheckFieldEventCondition::CheckFieldEventCondition(
 
 BT::NodeStatus CheckFieldEventCondition::checkEvent()
 {
-  auto msg = getInput<combat_rm_interfaces::msg::FieldEvent>("key_port");
+  auto msg = getInput<combat_rm_interfaces::msg::EventData>("key_port");
 
   if (!msg) {
-    RCLCPP_ERROR(logger_, "FieldEvent message is not available");
+    RCLCPP_ERROR(logger_, "EventData message is not available");
     return BT::NodeStatus::FAILURE;
   }
 
@@ -74,8 +74,8 @@ BT::NodeStatus CheckFieldEventCondition::checkEvent()
 BT::PortsList CheckFieldEventCondition::providedPorts()
 {
   return {
-    BT::InputPort<combat_rm_interfaces::msg::FieldEvent>(
-      "key_port", "{@field_event}", "FieldEvent message"),
+    BT::InputPort<combat_rm_interfaces::msg::EventData>(
+      "key_port", "{@referee_eventData}", "EventData message"),
 
     BT::InputPort<int>("ally_supply_zone_non_exchange", -1, "补给区(非兑换区)"),
     BT::InputPort<int>("ally_supply_zone_exchange", -1, "补给区(兑换区)"),

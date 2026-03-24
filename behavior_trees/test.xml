@@ -5,10 +5,17 @@
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <Sequence>
+          <IsDetectEnemy armor_id="1;2;3;4;7"
+                      max_distance="6.0"
+                      key_port="{@detector_armors}"/>
+          <CheckTargetInRegion target_port="{@tracker_target}"/>
           <CalculateAttackPose costmap_port="{@nav_globalCostmap}"
                                tracker_port="{@tracker_target}"
                                goal="{attack_pose}"
                                topic_name="debug_attack_pose"/>
+          <IsGoalAvailable max_x="10.0"
+                          max_y="6.0"
+                          goal="{attack_pose}"/>
           <PubNav2Goal goal="{attack_pose}"
                        topic_name="goal_pose"/>
         </Sequence>

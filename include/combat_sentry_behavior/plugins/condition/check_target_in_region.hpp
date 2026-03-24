@@ -9,6 +9,7 @@
 #include "tf2_ros/transform_listener.h"
 #include "geometry_msgs/msg/point_stamped.hpp"
 #include "visualization_msgs/msg/marker.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
 
 using PointStamped = geometry_msgs::msg::PointStamped;
 
@@ -30,7 +31,7 @@ public:
 private:
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
-  rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr marker_pub_;
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr marker_pub_;
 
   struct Params
   {
