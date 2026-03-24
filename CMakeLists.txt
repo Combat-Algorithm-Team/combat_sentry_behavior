@@ -57,6 +57,9 @@ list(APPEND plugin_libs is_goal_available)
 ament_auto_add_library(is_detect_enemy SHARED plugins/condition/is_detect_enemy.cpp)
 list(APPEND plugin_libs is_detect_enemy)
 
+ament_auto_add_library(check_field_event SHARED plugins/condition/check_field_event.cpp)
+list(APPEND plugin_libs check_field_event)
+
 ####### Actions #######
 ament_auto_add_library(calculate_attack_pose SHARED plugins/action/calculate_attack_pose.cpp)
 list(APPEND plugin_libs calculate_attack_pose)
