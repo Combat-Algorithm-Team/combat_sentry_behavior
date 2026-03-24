@@ -23,4 +23,13 @@
     </KeepRunningUntilFailure>
   </BehaviorTree>
 
+  <BehaviorTree ID="test_check_target_in_region">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <Sequence>
+          <CheckTargetInRegion target_port="{@tracker_target}"/>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
 </root>
