@@ -28,7 +28,7 @@
         <IsAttacked robotstatus_port="{@referee_robotStatus}"
                     hurtdata_port="{@referee_hurtData}"/>
         <PublishChassisStatus chassis_status="255"
-                              duration="3000.0"
+                              duration="5000.0"
                               topic_name="cmd_chassis_status"/>
       </Sequence>
       <Sequence>
@@ -40,11 +40,29 @@
                               topic_name="cmd_chassis_status"/>
       </Sequence>
       <Sequence>
-        <PublishChassisStatus chassis_status="100"
-                              duration="500.0"
+        <IsDetectEnemy armor_id="1;2;3;4;7"
+                      max_distance="6.0"
+                      key_port="{@detector_armors}"/>
+        <PublishChassisStatus chassis_status="200"
+                              duration="300.0"
+                              topic_name="cmd_chassis_status"/>
+        <PublishChassisStatus chassis_status="255"
+                              duration="300.0"
+                              topic_name="cmd_chassis_status"/>
+      </Sequence>
+      <Sequence>
+        <CheckFieldEvent key_port="{@referee_eventData}"
+                          center_gain_point="0"/>
+        <PublishChassisStatus chassis_status="50"
+                              duration="0.0"
+                              topic_name="cmd_chassis_status"/>
+      </Sequence>
+      <Sequence>
+        <PublishChassisStatus chassis_status="150"
+                              duration="200.0"
                               topic_name="cmd_chassis_status"/>
         <PublishChassisStatus chassis_status="200"
-                              duration="500.0"
+                              duration="200.0"
                               topic_name="cmd_chassis_status"/>
       </Sequence>
     </Fallback>
@@ -75,7 +93,7 @@
       <ForceFailure>
         <Fallback>
           <IsRfidDetected ally_supply_point_non_exchange="true"
-                          center_gain_point="true"
+                          center_gain_point="false"
                           key_port="{@referee_rfidStatus}"/>
           <PubNav2Goal goal="0;0;0"
                        topic_name="goal_pose"/>
@@ -92,9 +110,11 @@
           <SubTree ID="calculate_attack_pose"/>
           <IfThenElse>
             <CheckFieldEvent key_port="{@referee_eventData}"
-                             center_gain_point="1"/>
+                             center_gain_point="0"/>
+            <!-- 如果没有被占领，选择最近的中心增益点 -->
             <PubNav2Goal goal="2.5;5.5;0"
                         topic_name="goal_pose"/>
+            <!-- 被占领，选择目标点 -->
             <PubNav2Goal goal="3.5;5.5;0"
                         topic_name="goal_pose"/>
           </IfThenElse>
@@ -108,8 +128,8 @@
       <ForceSuccess>
         <ReactiveSequence>
           <SubTree ID="check_game_start"/>
-          <CheckTargetInRegion tracker_port="{@tracker_target}"
-                                topic_name="check_target_in_region"/>
+          <!-- <CheckTargetInRegion tracker_port="{@tracker_target}"
+                                topic_name="check_target_in_region"/> -->
           <SubTree ID="decide_goal"/>
           <SubTree ID="control_robot_status"/>
         </ReactiveSequence>

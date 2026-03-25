@@ -46,6 +46,8 @@ private:
   BT::NodeStatus checkRobotStatus();
 
   rclcpp::Logger logger_ = rclcpp::get_logger("IsStatusOKCondition");
+
+  bool need_recover_ = false;
 };
 }  // namespace combat_sentry_behavior
 
