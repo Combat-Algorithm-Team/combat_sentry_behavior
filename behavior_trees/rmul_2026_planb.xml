@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
-  <BehaviorTree ID="check_game_start">
+  <!-- <BehaviorTree ID="check_game_start">
     <Fallback>
       <IsGameStatus name="IsGameStart"
                     max_remain_time="420"
@@ -17,8 +17,6 @@
                         v_x="0.0"
                         duration="0.0"
                         topic_name="cmd_vel"/>
-          <PubNav2Goal goal="0;0;0"
-                       topic_name="goal_pose"/>
         </Sequence>
       </ForceFailure>
     </Fallback>
@@ -49,7 +47,7 @@
                               duration="300.0"
                               topic_name="cmd_chassis_status"/>
         <PublishChassisStatus chassis_status="255"
-                              duration="500.0"
+                              duration="300.0"
                               topic_name="cmd_chassis_status"/>
       </Sequence>
       <Sequence>
@@ -61,10 +59,10 @@
       </Sequence>
       <Sequence>
         <PublishChassisStatus chassis_status="150"
-                              duration="300.0"
+                              duration="200.0"
                               topic_name="cmd_chassis_status"/>
-        <PublishChassisStatus chassis_status="255"
-                              duration="500.0"
+        <PublishChassisStatus chassis_status="200"
+                              duration="200.0"
                               topic_name="cmd_chassis_status"/>
       </Sequence>
     </Fallback>
@@ -109,16 +107,12 @@
       <Sequence>
         <SubTree ID="check_min_hp"/>
         <Fallback>
-          <Sequence>
-            <CheckFieldEvent key_port="{@referee_eventData}"
-                             center_gain_point="1"/>
-            <SubTree ID="calculate_attack_pose"/>
-          </Sequence>
+          <SubTree ID="calculate_attack_pose"/>
           <IfThenElse>
             <CheckFieldEvent key_port="{@referee_eventData}"
                              center_gain_point="0"/>
             <!-- 如果没有被占领，选择最近的中心增益点 -->
-            <PubNav2Goal goal="3.5;5.5;0"
+            <PubNav2Goal goal="2.5;5.5;0"
                         topic_name="goal_pose"/>
             <!-- 被占领，选择目标点 -->
             <PubNav2Goal goal="3.5;5.5;0"
@@ -134,11 +128,13 @@
       <ForceSuccess>
         <ReactiveSequence>
           <SubTree ID="check_game_start"/>
+          <!-- <CheckTargetInRegion tracker_port="{@tracker_target}"
+                                topic_name="check_target_in_region"/> -->
           <SubTree ID="decide_goal"/>
           <SubTree ID="control_robot_status"/>
         </ReactiveSequence>
       </ForceSuccess>
     </KeepRunningUntilFailure>
-  </BehaviorTree>
+  </BehaviorTree> -->
 
 </root>

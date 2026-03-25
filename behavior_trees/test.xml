@@ -28,6 +28,7 @@
       <ForceSuccess>
         <Sequence>
           <CheckTargetInRegion target_port="{@tracker_target}"/>
+        </Sequence>
       </ForceSuccess>
     </KeepRunningUntilFailure>
   </BehaviorTree>
