@@ -70,6 +70,7 @@
   <BehaviorTree ID="check_min_hp">
     <Fallback>
       <IsStatusOK hp_min="200"
+                  hp_max="399"
                   key_port="{@referee_robotStatus}"/>
       <ForceFailure>
         <Fallback>
