@@ -25,12 +25,15 @@
   </BehaviorTree>
 
   <BehaviorTree ID="control_robot_status">
-    <Fallback>
+    <ReactiveFallback>
       <Sequence>
         <IsAttacked robotstatus_port="{@referee_robotStatus}"
                     hurtdata_port="{@referee_hurtData}"/>
         <PublishChassisStatus chassis_status="255"
-                              duration="5000.0"
+                              duration="300.0"
+                              topic_name="cmd_chassis_status"/>
+        <PublishChassisStatus chassis_status="150"
+                              duration="300.0"
                               topic_name="cmd_chassis_status"/>
       </Sequence>
       <Sequence>
@@ -38,36 +41,39 @@
                         center_gain_point="true"
                         key_port="{@referee_rfidStatus}"/>
         <PublishChassisStatus chassis_status="255"
-                              duration="0.0"
+                              duration="500.0"
+                              topic_name="cmd_chassis_status"/>
+        <PublishChassisStatus chassis_status="200"
+                              duration="300.0"
                               topic_name="cmd_chassis_status"/>
       </Sequence>
       <Sequence>
         <IsDetectEnemy armor_id="1;2;3;4;7"
                       max_distance="6.0"
                       key_port="{@detector_armors}"/>
-        <PublishChassisStatus chassis_status="200"
-                              duration="300.0"
-                              topic_name="cmd_chassis_status"/>
         <PublishChassisStatus chassis_status="255"
                               duration="500.0"
+                              topic_name="cmd_chassis_status"/>
+        <PublishChassisStatus chassis_status="200"
+                              duration="300.0"
                               topic_name="cmd_chassis_status"/>
       </Sequence>
       <Sequence>
         <CheckFieldEvent key_port="{@referee_eventData}"
                           center_gain_point="0"/>
-        <PublishChassisStatus chassis_status="50"
+        <PublishChassisStatus chassis_status="100"
                               duration="0.0"
                               topic_name="cmd_chassis_status"/>
       </Sequence>
       <Sequence>
-        <PublishChassisStatus chassis_status="150"
-                              duration="300.0"
-                              topic_name="cmd_chassis_status"/>
         <PublishChassisStatus chassis_status="255"
                               duration="500.0"
                               topic_name="cmd_chassis_status"/>
+        <PublishChassisStatus chassis_status="100"
+                              duration="300.0"
+                              topic_name="cmd_chassis_status"/>
       </Sequence>
-    </Fallback>
+    </ReactiveFallback>
   </BehaviorTree>
 
   <BehaviorTree ID="calculate_attack_pose">
