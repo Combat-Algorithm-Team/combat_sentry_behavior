@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
 
-  <BehaviorTree ID="control_robot_status_no_attack">
+  <BehaviorTree ID="control_robot_status_no_event">
     <ReactiveFallback>
       <Sequence>
         <IsAttacked robotstatus_port="{@referee_robotStatus}"
@@ -36,13 +36,6 @@
                               topic_name="cmd_chassis_status"/>
       </Sequence>
       <Sequence>
-        <CheckFieldEvent key_port="{@referee_eventData}"
-                          center_gain_point="0"/>
-        <PublishChassisStatus chassis_status="100"
-                              duration="0.0"
-                              topic_name="cmd_chassis_status"/>
-      </Sequence>
-      <Sequence>
         <PublishChassisStatus chassis_status="255"
                               duration="500.0"
                               topic_name="cmd_chassis_status"/>
@@ -53,20 +46,15 @@
     </ReactiveFallback>
   </BehaviorTree>
 
-  <BehaviorTree ID="decide_goal_no_attack">
+  <BehaviorTree ID="decide_goal_no_event">
     <ForceSuccess>
       <Sequence>
         <SubTree ID="check_min_hp"/>
-        <IfThenElse>
-          <CheckFieldEvent key_port="{@referee_eventData}"
-                            center_gain_point="0"/>
-          <!-- 如果没有被占领，选择最近的中心增益点 -->
+        <Fallback>
+          <SubTree ID="calculate_attack_pose"/>
           <PubNav2Goal goal="3.5;5.5;0"
                       topic_name="goal_pose"/>
-          <!-- 被占领，选择目标点 -->
-          <PubNav2Goal goal="3.5;5.5;0"
-                      topic_name="goal_pose"/>
-        </IfThenElse>
+        </Fallback>
       </Sequence>
     </ForceSuccess>
   </BehaviorTree>
@@ -76,8 +64,8 @@
       <ForceSuccess>
         <ReactiveSequence>
           <SubTree ID="check_game_start"/>
-          <SubTree ID="decide_goal_no_attack"/>
-          <SubTree ID="control_robot_status_no_attack"/>
+          <SubTree ID="decide_goal_no_event"/>
+          <SubTree ID="control_robot_status_no_event"/>
         </ReactiveSequence>
       </ForceSuccess>
     </KeepRunningUntilFailure>
