@@ -1,23 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
 
-  <BehaviorTree ID="check_min_hp">
-    <Fallback>
-      <IsStatusOK hp_min="200"
-                  hp_max="399"
-                  key_port="{@referee_robotStatus}"/>
-      <ForceFailure>
-        <Fallback>
-          <IsRfidDetected ally_supply_point_non_exchange="true"
-                          center_gain_point="false"
-                          key_port="{@referee_rfidStatus}"/>
-          <PubNav2Goal goal="0;0;0"
-                       topic_name="goal_pose"/>
-        </Fallback>
-      </ForceFailure>
-    </Fallback>
-  </BehaviorTree>
-
   <BehaviorTree ID="control_robot_status_no_event">
     <ReactiveFallback>
       <Sequence>
@@ -68,15 +51,17 @@
       <Sequence>
         <SubTree ID="check_min_hp"/>
         <Fallback>
-          <SubTree ID="calculate_attack_pose"/>
+          <RateController hz='0.5'>
+            <SubTree ID="calculate_attack_pose"/>
+          </RateController>
           <PubNav2Goal goal="3.5;5.5;0"
-                      topic_name="goal_pose"/>
+                        topic_name="goal_pose"/>
         </Fallback>
       </Sequence>
     </ForceSuccess>
   </BehaviorTree>
 
-  <BehaviorTree ID="rmul_2026_no_attack">
+  <BehaviorTree ID="rmul_2026_no_event">
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <ReactiveSequence>

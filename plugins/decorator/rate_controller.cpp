@@ -70,6 +70,7 @@ BT::NodeStatus RateController::tick()
     }
   }
 
+  setStatus(BT::NodeStatus::FAILURE);
   return status();
 }
 

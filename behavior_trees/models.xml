@@ -6,6 +6,24 @@
             <output_port name="goal" type="Pose3D" default="{attack_pose}">Expected goal pose that send to nav2. Fill with format `x;y;yaw`</output_port>
             <input_port name="topic_name" type="std::string" default="__default__placeholder__">Topic name</input_port>
         </Condition>
+        <Condition ID="CheckFieldEvent">
+            <input_port name="center_gain_point" type="int" default="-1">中心增益点</input_port>
+            <input_port name="ally_outpost_gain_point" type="int" default="-1">前哨站增益点</input_port>
+            <input_port name="trapezoidal_highland" type="int" default="-1">梯形高地</input_port>
+            <input_port name="central_highland" type="int" default="-1">中央高地</input_port>
+            <input_port name="ally_big_power_rune" type="int" default="-1">大能量机关</input_port>
+            <input_port name="ally_fortress_gain_point" type="int" default="-1">堡垒增益点</input_port>
+            <input_port name="ally_small_power_rune" type="int" default="-1">小能量机关</input_port>
+            <input_port name="ally_supply_zone" type="int" default="-1">补给区(RMUL)</input_port>
+            <input_port name="ally_supply_zone_exchange" type="int" default="-1">补给区(兑换区)</input_port>
+            <input_port name="ally_supply_zone_non_exchange" type="int" default="-1">补给区(非兑换区)</input_port>
+            <input_port name="base_gain_point" type="int" default="-1">基地增益点</input_port>
+            <input_port name="key_port" type="combat_rm_interfaces::msg::EventData_&lt;std::allocator&lt;void&gt; &gt;" default="{@referee_eventData}">EventData message</input_port>
+        </Condition>
+        <Condition ID="CheckTargetInRegion">
+            <input_port name="tracker_port" type="rm_interfaces::msg::Target_&lt;std::allocator&lt;void&gt; &gt;" default="{@tracker_target}">Vision target from blackboard</input_port>
+            <input_port name="topic_name" type="std::string" default="__default__placeholder__">Topic name</input_port>
+        </Condition>
         <Condition ID="IsAttacked">
             <input_port name="hurtdata_port" type="combat_rm_interfaces::msg::HurtData_&lt;std::allocator&lt;void&gt; &gt;" default="{@referee_hurtdata}">HurtData port on blackboard</input_port>
             <input_port name="robotstatus_port" type="combat_rm_interfaces::msg::RobotStatus_&lt;std::allocator&lt;void&gt; &gt;" default="{@referee_robotStatus}">RobotStatus port on blackboard</input_port>
@@ -23,6 +41,7 @@
         </Condition>
         <Condition ID="IsGoalAvailable">
             <input_port name="goal" type="Pose3D" default="{candidate_pose}">Expected goal pose that send to nav2. Fill with format `x;y;yaw`</input_port>
+            <input_port name="max_y" type="float" default="8.0">the maximum y coordinate of the goal position</input_port>
             <input_port name="max_x" type="float" default="8.0">the maximum x coordinate of the goal position</input_port>
         </Condition>
         <Condition ID="IsRfidDetected">
@@ -31,7 +50,8 @@
             <input_port name="key_port" type="combat_rm_interfaces::msg::RfidStatus_&lt;std::allocator&lt;void&gt; &gt;" default="{@referee_rfidStatus}">RfidStatus port on blackboard</input_port>
         </Condition>
         <Condition ID="IsStatusOK">
-            <input_port name="hp_min" type="int" default="300">Minimum HP. NOTE: Sentry init/max HP is 400</input_port>
+            <input_port name="hp_max" type="int" default="399">Maximum HP. NOTE: Sentry init/max HP is 400</input_port>
+            <input_port name="hp_min" type="int" default="200">Minimum HP. NOTE: Sentry init/max HP is 400</input_port>
             <input_port name="key_port" type="combat_rm_interfaces::msg::RobotStatus_&lt;std::allocator&lt;void&gt; &gt;" default="{@referee_robotStatus}">RobotStatus port on blackboard</input_port>
         </Condition>
         <Condition ID="PubNav2Goal">

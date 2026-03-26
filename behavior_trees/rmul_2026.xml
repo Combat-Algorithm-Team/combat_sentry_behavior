@@ -30,9 +30,9 @@
         <IsAttacked robotstatus_port="{@referee_robotStatus}"
                     hurtdata_port="{@referee_hurtData}"/>
         <PublishChassisStatus chassis_status="255"
-                              duration="300.0"
+                              duration="500.0"
                               topic_name="cmd_chassis_status"/>
-        <PublishChassisStatus chassis_status="150"
+        <PublishChassisStatus chassis_status="200"
                               duration="300.0"
                               topic_name="cmd_chassis_status"/>
       </Sequence>
@@ -66,10 +66,10 @@
                               topic_name="cmd_chassis_status"/>
       </Sequence>
       <Sequence>
-        <PublishChassisStatus chassis_status="255"
+        <PublishChassisStatus chassis_status="200"
                               duration="500.0"
                               topic_name="cmd_chassis_status"/>
-        <PublishChassisStatus chassis_status="100"
+        <PublishChassisStatus chassis_status="150"
                               duration="300.0"
                               topic_name="cmd_chassis_status"/>
       </Sequence>
@@ -115,11 +115,13 @@
       <Sequence>
         <SubTree ID="check_min_hp"/>
         <Fallback>
-          <Sequence>
-            <CheckFieldEvent key_port="{@referee_eventData}"
-                             center_gain_point="1"/>
-            <SubTree ID="calculate_attack_pose"/>
-          </Sequence>
+          <RateController hz='0.5'>
+            <Sequence>
+              <CheckFieldEvent key_port="{@referee_eventData}"
+                              center_gain_point="1"/>
+              <SubTree ID="calculate_attack_pose"/>
+            </Sequence>
+          </RateController>
           <IfThenElse>
             <CheckFieldEvent key_port="{@referee_eventData}"
                              center_gain_point="0"/>
@@ -127,7 +129,7 @@
             <PubNav2Goal goal="3.5;5.5;0"
                         topic_name="goal_pose"/>
             <!-- 被占领，选择目标点 -->
-            <PubNav2Goal goal="3.5;5.5;0"
+            <PubNav2Goal goal="2.5;6.5;0"
                         topic_name="goal_pose"/>
           </IfThenElse>
         </Fallback>

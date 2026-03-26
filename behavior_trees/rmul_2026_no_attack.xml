@@ -1,32 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
 
-  <BehaviorTree ID="check_min_hp">
-    <Fallback>
-      <IsStatusOK hp_min="200"
-                  hp_max="399"
-                  key_port="{@referee_robotStatus}"/>
-      <ForceFailure>
-        <Fallback>
-          <IsRfidDetected ally_supply_point_non_exchange="true"
-                          center_gain_point="false"
-                          key_port="{@referee_rfidStatus}"/>
-          <PubNav2Goal goal="0;0;0"
-                       topic_name="goal_pose"/>
-        </Fallback>
-      </ForceFailure>
-    </Fallback>
-  </BehaviorTree>
-
   <BehaviorTree ID="control_robot_status_no_attack">
     <ReactiveFallback>
       <Sequence>
         <IsAttacked robotstatus_port="{@referee_robotStatus}"
                     hurtdata_port="{@referee_hurtData}"/>
         <PublishChassisStatus chassis_status="255"
-                              duration="300.0"
+                              duration="500.0"
                               topic_name="cmd_chassis_status"/>
-        <PublishChassisStatus chassis_status="150"
+        <PublishChassisStatus chassis_status="200"
                               duration="300.0"
                               topic_name="cmd_chassis_status"/>
       </Sequence>
@@ -60,10 +43,10 @@
                               topic_name="cmd_chassis_status"/>
       </Sequence>
       <Sequence>
-        <PublishChassisStatus chassis_status="255"
+        <PublishChassisStatus chassis_status="200"
                               duration="500.0"
                               topic_name="cmd_chassis_status"/>
-        <PublishChassisStatus chassis_status="100"
+        <PublishChassisStatus chassis_status="150"
                               duration="300.0"
                               topic_name="cmd_chassis_status"/>
       </Sequence>
@@ -81,7 +64,7 @@
           <PubNav2Goal goal="3.5;5.5;0"
                       topic_name="goal_pose"/>
           <!-- 被占领，选择目标点 -->
-          <PubNav2Goal goal="3.5;5.5;0"
+          <PubNav2Goal goal="2.5;6.5;0"
                       topic_name="goal_pose"/>
         </IfThenElse>
       </Sequence>
