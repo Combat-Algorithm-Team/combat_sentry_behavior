@@ -27,36 +27,24 @@
   <BehaviorTree ID="control_robot_status">
     <ReactiveFallback>
       <Sequence>
-        <IsAttacked robotstatus_port="{@referee_robotStatus}"
-                    hurtdata_port="{@referee_hurtData}"/>
-        <PublishChassisStatus chassis_status="255"
-                              duration="500.0"
-                              topic_name="cmd_chassis_status"/>
-        <PublishChassisStatus chassis_status="200"
-                              duration="300.0"
-                              topic_name="cmd_chassis_status"/>
-      </Sequence>
-      <Sequence>
-        <IsRfidDetected ally_supply_point_non_exchange="false"
-                        center_gain_point="true"
-                        key_port="{@referee_rfidStatus}"/>
-        <PublishChassisStatus chassis_status="255"
-                              duration="500.0"
-                              topic_name="cmd_chassis_status"/>
-        <PublishChassisStatus chassis_status="200"
-                              duration="300.0"
-                              topic_name="cmd_chassis_status"/>
-      </Sequence>
-      <Sequence>
-        <IsDetectEnemy armor_id="1;2;3;4;7"
-                      max_distance="6.0"
-                      key_port="{@detector_armors}"/>
-        <PublishChassisStatus chassis_status="255"
-                              duration="500.0"
-                              topic_name="cmd_chassis_status"/>
-        <PublishChassisStatus chassis_status="200"
-                              duration="300.0"
-                              topic_name="cmd_chassis_status"/>
+        <Fallback>
+          <IsAttacked robotstatus_port="{@referee_robotStatus}"
+                      hurtdata_port="{@referee_hurtData}"/>
+          <IsRfidDetected ally_supply_point_non_exchange="false"
+                          center_gain_point="true"
+                          key_port="{@referee_rfidStatus}"/>
+          <IsDetectEnemy armor_id="1;2;3;4;7"
+                        max_distance="6.0"
+                        key_port="{@detector_armors}"/>
+        </Fallback>
+        <Sequence>
+          <PublishChassisStatus chassis_status="255"
+                                duration="500.0"
+                                topic_name="cmd_chassis_status"/>
+          <PublishChassisStatus chassis_status="200"
+                                duration="300.0"
+                                topic_name="cmd_chassis_status"/>
+        </Sequence>
       </Sequence>
       <Sequence>
         <CheckFieldEvent key_port="{@referee_eventData}"
@@ -114,25 +102,16 @@
     <ForceSuccess>
       <Sequence>
         <SubTree ID="check_min_hp"/>
-        <Fallback>
-          <RateController hz='0.5'>
-            <Sequence>
-              <CheckFieldEvent key_port="{@referee_eventData}"
-                              center_gain_point="1"/>
-              <SubTree ID="calculate_attack_pose"/>
-            </Sequence>
-          </RateController>
-          <IfThenElse>
-            <CheckFieldEvent key_port="{@referee_eventData}"
-                             center_gain_point="0"/>
-            <!-- 如果没有被占领，选择最近的中心增益点 -->
-            <PubNav2Goal goal="3.5;5.5;0"
-                        topic_name="goal_pose"/>
-            <!-- 被占领，选择目标点 -->
-            <PubNav2Goal goal="2.5;6.5;0"
-                        topic_name="goal_pose"/>
-          </IfThenElse>
-        </Fallback>
+        <IfThenElse>
+          <CheckFieldEvent key_port="{@referee_eventData}"
+                            center_gain_point="0"/>
+          <!-- 如果没有被占领，选择最近的中心增益点 -->
+          <PubNav2Goal goal="3.5;5.5;0"
+                      topic_name="goal_pose"/>
+          <!-- 被占领，选择目标点 -->
+          <PubNav2Goal goal="2.5;6.5;0"
+                      topic_name="goal_pose"/>
+        </IfThenElse>
       </Sequence>
     </ForceSuccess>
   </BehaviorTree>
