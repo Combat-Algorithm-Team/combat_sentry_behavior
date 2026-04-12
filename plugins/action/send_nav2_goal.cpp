@@ -14,6 +14,8 @@
 
 #include "combat_sentry_behavior/plugins/action/send_nav2_goal.hpp"
 
+#include <cmath>
+
 #include "combat_sentry_behavior/custom_types.hpp"
 
 namespace combat_sentry_behavior
@@ -28,20 +30,32 @@ SendNav2GoalAction::SendNav2GoalAction(
 bool SendNav2GoalAction::setGoal(nav2_msgs::action::NavigateToPose::Goal & goal)
 {
   Pose3D received_goal{};
-  getInput("goal", received_goal);
+  if (!getInput("goal", received_goal)) {
+    RCLCPP_ERROR(logger(), "Invalid or missing required input [goal]");
+    return false;
+  }
+
+  // Normalize yaw and snap tiny numeric noise to exact zero for stable origin returns.
+  constexpr double kSnapEps = 1e-6;
+  received_goal.x = std::abs(received_goal.x) < kSnapEps ? 0.0 : received_goal.x;
+  received_goal.y = std::abs(received_goal.y) < kSnapEps ? 0.0 : received_goal.y;
+  const double normalized_yaw = std::atan2(std::sin(received_goal.yaw), std::cos(received_goal.yaw));
+  const double snapped_yaw = std::abs(normalized_yaw) < kSnapEps ? 0.0 : normalized_yaw;
 
   goal.pose.header.frame_id = "map";
   goal.pose.header.stamp = now();
 
   goal.pose.pose.position.x = received_goal.x;
   goal.pose.pose.position.y = received_goal.y;
+  goal.pose.pose.position.z = 0.0;
   tf2::Quaternion q;
-  q.setRPY(0, 0, received_goal.yaw);
+  q.setRPY(0, 0, snapped_yaw);
+  q.normalize();
   goal.pose.pose.orientation = tf2::toMsg(q);
 
   RCLCPP_INFO(
-    logger(), "Setting goal to (%.2f, %.2f, %.2f)", received_goal.x, received_goal.y,
-    received_goal.yaw);
+    logger(), "Setting nav2 goal to (x=%.6f, y=%.6f, yaw=%.6f)", received_goal.x, received_goal.y,
+    snapped_yaw);
 
   return true;
 }
@@ -76,12 +90,9 @@ BT::NodeStatus SendNav2GoalAction::onFeedback(
 
 void SendNav2GoalAction::onHalt()
 {
-  RCLCPP_INFO(logger(), "SendNav2GoalAction halted, canceling goal");
-
-  // cancelGoal();
-
-  // RosActionNode<nav2_msgs::action::NavigateToPose>::onHalt();
-  // goal_handle_.reset();
+  RCLCPP_INFO(
+    logger(),
+    "SendNav2GoalAction halted. Goal cancellation is handled by RosActionNode::halt().");
 }
 
 BT::NodeStatus SendNav2GoalAction::onFailure(BT::ActionNodeErrorCode error)
