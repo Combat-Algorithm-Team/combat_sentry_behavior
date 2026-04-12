@@ -26,7 +26,7 @@ IsDetectEnemyCondition::IsDetectEnemyCondition(
 BT::PortsList IsDetectEnemyCondition::providedPorts()
 {
   return {
-    BT::InputPort<rm_interfaces::msg::Armors>(
+    BT::InputPort<combat_rm_interfaces::msg::Armors>(
       "key_port", "{@detector_armors}", "Vision detector port on blackboard"),
     BT::InputPort<std::vector<int>>(
       "armor_id", "1;2;3;4;5;7",
@@ -39,7 +39,7 @@ BT::NodeStatus IsDetectEnemyCondition::checkEnemy()
 {
   std::vector<int> expected_armor_ids;
   float max_distance;
-  auto msg = getInput<rm_interfaces::msg::Armors>("key_port");
+  auto msg = getInput<combat_rm_interfaces::msg::Armors>("key_port");
   if (!msg) {
     RCLCPP_ERROR(logger_, "Detector message is not available");
     return BT::NodeStatus::FAILURE;
@@ -75,3 +75,4 @@ BT_REGISTER_NODES(factory)
 {
   factory.registerNodeType<combat_sentry_behavior::IsDetectEnemyCondition>("IsDetectEnemy");
 }
+

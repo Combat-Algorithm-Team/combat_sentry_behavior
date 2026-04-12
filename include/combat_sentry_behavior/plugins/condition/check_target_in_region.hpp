@@ -3,7 +3,7 @@
 
 #include "behaviortree_ros2/bt_topic_pub_node.hpp"
 #include "rclcpp/rclcpp.hpp"
-#include "rm_interfaces/msg/target.hpp"
+#include "combat_rm_interfaces/msg/target.hpp"
 #include "std_msgs/msg/bool.hpp"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"

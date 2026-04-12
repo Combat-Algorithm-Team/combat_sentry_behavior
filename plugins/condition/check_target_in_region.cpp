@@ -39,14 +39,14 @@ CheckTargetInRegion::CheckTargetInRegion(
 BT::PortsList CheckTargetInRegion::providedPorts()
 {
   return providedBasicPorts({
-    BT::InputPort<rm_interfaces::msg::Target>(
+    BT::InputPort<combat_rm_interfaces::msg::Target>(
       "tracker_port", "{@tracker_target}", "Vision target from blackboard")
   });
 }
 
 bool CheckTargetInRegion::setMessage(std_msgs::msg::Bool & msg)
 {
-  auto tracker_target = getInput<rm_interfaces::msg::Target>("tracker_port");
+  auto tracker_target = getInput<combat_rm_interfaces::msg::Target>("tracker_port");
 
   if (!tracker_target) {
     RCLCPP_ERROR(node_->get_logger(), "Missing required input: tracker_port");

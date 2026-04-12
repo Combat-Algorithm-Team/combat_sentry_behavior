@@ -17,8 +17,8 @@
 #include <filesystem>
 #include <fstream>
 
-#include "rm_interfaces/msg/armors.hpp"
-#include "rm_interfaces/msg/target.hpp"
+#include "combat_rm_interfaces/msg/armors.hpp"
+#include "combat_rm_interfaces/msg/target.hpp"
 #include "behaviortree_cpp/xml_parsing.h"
 #include "nav_msgs/msg/occupancy_grid.hpp"
 #include "combat_rm_interfaces/msg/buff.hpp"
@@ -63,9 +63,9 @@ SentryBehaviorServer::SentryBehaviorServer(const rclcpp::NodeOptions & options)
   subscribe<combat_rm_interfaces::msg::SentryInfo>("referee/sentry_info", "referee_sentryInfo");
 
   auto detector_qos = rclcpp::SensorDataQoS();
-  subscribe<rm_interfaces::msg::Armors>("armor_detector/armors", "detector_armors", detector_qos);
+  subscribe<combat_rm_interfaces::msg::Armors>("armor_detector/armors", "detector_armors", detector_qos);
   auto tracker_qos = rclcpp::SensorDataQoS();
-  subscribe<rm_interfaces::msg::Target>("armor_solver/target", "tracker_target", tracker_qos);
+  subscribe<combat_rm_interfaces::msg::Target>("armor_solver/target", "tracker_target", tracker_qos);
 
   auto costmap_qos = rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable();
   subscribe<nav_msgs::msg::OccupancyGrid>(
@@ -136,3 +136,6 @@ int main(int argc, char * argv[])
 
   rclcpp::shutdown();
 }
+
+
+
