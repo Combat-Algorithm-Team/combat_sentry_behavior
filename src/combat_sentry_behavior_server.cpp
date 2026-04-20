@@ -17,10 +17,9 @@
 #include <filesystem>
 #include <fstream>
 
-#include "combat_rm_interfaces/msg/armors.hpp"
-#include "combat_rm_interfaces/msg/target.hpp"
+#include "action_msgs/msg/goal_status_array.hpp"
 #include "behaviortree_cpp/xml_parsing.h"
-#include "nav_msgs/msg/occupancy_grid.hpp"
+#include "combat_rm_interfaces/msg/armors.hpp"
 #include "combat_rm_interfaces/msg/buff.hpp"
 #include "combat_rm_interfaces/msg/event_data.hpp"
 #include "combat_rm_interfaces/msg/game_robot_hp.hpp"
@@ -31,6 +30,12 @@
 #include "combat_rm_interfaces/msg/robot_pos.hpp"
 #include "combat_rm_interfaces/msg/robot_status.hpp"
 #include "combat_rm_interfaces/msg/sentry_info.hpp"
+#include "combat_rm_interfaces/msg/target.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "nav2_msgs/action/navigate_to_pose.hpp"
+#include "nav_msgs/msg/occupancy_grid.hpp"
+#include "nav_msgs/msg/path.hpp"
+#include "rclcpp_action/qos.hpp"
 
 namespace combat_sentry_behavior
 {
@@ -45,11 +50,32 @@ void SentryBehaviorServer::subscribe(
   subscriptions_.push_back(sub);
 }
 
+template <typename T>
+void SentryBehaviorServer::subscribeWithCallback(
+  const std::string & topic,
+  std::function<void(const typename T::SharedPtr)> callback,
+  const rclcpp::QoS & qos)
+{
+  auto sub = node()->create_subscription<T>(topic, qos, std::move(callback));
+  subscriptions_.push_back(sub);
+}
+
 SentryBehaviorServer::SentryBehaviorServer(const rclcpp::NodeOptions & options)
 : TreeExecutionServer(options)
 {
   node()->declare_parameter("use_cout_logger", false);
+  node()->declare_parameter("nav_goal_topic", "goal_pose");
+  node()->declare_parameter("nav_plan_topic", "plan");
+  node()->declare_parameter("nav_action_name", "navigate_to_pose");
+
   node()->get_parameter("use_cout_logger", use_cout_logger_);
+
+  std::string nav_goal_topic;
+  std::string nav_plan_topic;
+  std::string nav_action_name;
+  node()->get_parameter("nav_goal_topic", nav_goal_topic);
+  node()->get_parameter("nav_plan_topic", nav_plan_topic);
+  node()->get_parameter("nav_action_name", nav_action_name);
 
   subscribe<combat_rm_interfaces::msg::Buff>("referee/buff", "referee_buff");
   subscribe<combat_rm_interfaces::msg::EventData>("referee/event_data", "referee_eventData");
@@ -70,6 +96,20 @@ SentryBehaviorServer::SentryBehaviorServer(const rclcpp::NodeOptions & options)
   auto costmap_qos = rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable();
   subscribe<nav_msgs::msg::OccupancyGrid>(
     "global_costmap/costmap", "nav_globalCostmap", costmap_qos);
+
+  subscribe<geometry_msgs::msg::PoseStamped>(nav_goal_topic, "nav2_goal_pose");
+  subscribe<nav_msgs::msg::Path>(nav_plan_topic, "nav2_plan");
+  subscribe<action_msgs::msg::GoalStatusArray>(
+    nav_action_name + "/_action/status", "nav2_navigate_to_pose_status",
+    rclcpp_action::DefaultActionStatusQoS());
+
+  using NavigateToPoseFeedbackMessage = nav2_msgs::action::NavigateToPose::Impl::FeedbackMessage;
+  subscribeWithCallback<NavigateToPoseFeedbackMessage>(
+    nav_action_name + "/_action/feedback",
+    [this](const NavigateToPoseFeedbackMessage::SharedPtr msg) {
+      globalBlackboard()->set("nav2_navigate_to_pose_feedback", msg->feedback);
+    },
+    rclcpp::QoS(10).reliable());
 }
 
 bool SentryBehaviorServer::onGoalReceived(
@@ -136,6 +176,5 @@ int main(int argc, char * argv[])
 
   rclcpp::shutdown();
 }
-
 
 

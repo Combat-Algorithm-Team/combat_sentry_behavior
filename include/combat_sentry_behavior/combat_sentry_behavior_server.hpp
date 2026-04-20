@@ -17,6 +17,7 @@
 
 #include <behaviortree_cpp/loggers/bt_cout_logger.h>
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -71,6 +72,11 @@ private:
   template <typename T>
   void subscribe(
     const std::string & topic, const std::string & bb_key,
+    const rclcpp::QoS & qos = rclcpp::QoS(10));
+
+  template <typename T>
+  void subscribeWithCallback(
+    const std::string & topic, std::function<void(const typename T::SharedPtr)> callback,
     const rclcpp::QoS & qos = rclcpp::QoS(10));
 
   std::vector<std::shared_ptr<rclcpp::SubscriptionBase>> subscriptions_;
