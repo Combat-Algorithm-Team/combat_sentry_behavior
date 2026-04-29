@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
   <BehaviorTree ID="check_game_start">
-    <Fallback>
-      <IsGameStatus name="IsGameStart"
+    <ReactiveFallback>
+      <IsGameStart name="IsGameStart"
                     max_remain_time="420"
                     min_remain_time="0"
                     expected_game_progress="4"
                     key_port="{@referee_gameStatus}"/>
       <ForceFailure>
-        <Sequence>
+        <ReactiveSequence>
           <PublishChassisStatus chassis_status="0"
                                 duration="0.0"
                                 topic_name="cmd_chassis_status"/>
@@ -19,15 +19,15 @@
                         topic_name="cmd_vel"/>
           <PubNav2Goal goal="0;0;0"
                        topic_name="goal_pose"/>
-        </Sequence>
+        </ReactiveSequence>
       </ForceFailure>
-    </Fallback>
+    </ReactiveFallback>
   </BehaviorTree>
 
   <BehaviorTree ID="control_robot_status">
     <ReactiveFallback>
-      <Sequence>
-        <Fallback>
+      <ReactiveSequence>
+        <ReactiveFallback>
           <IsAttacked robotstatus_port="{@referee_robotStatus}"
                       hurtdata_port="{@referee_hurtData}"/>
           <IsRfidDetected ally_supply_point_non_exchange="false"
@@ -36,36 +36,36 @@
           <IsDetectEnemy armor_id="1;2;3;4;7"
                         max_distance="6.0"
                         key_port="{@detector_armors}"/>
-        </Fallback>
-        <Sequence>
+        </ReactiveFallback>
+        <ReactiveSequence>
           <PublishChassisStatus chassis_status="255"
                                 duration="500.0"
                                 topic_name="cmd_chassis_status"/>
           <PublishChassisStatus chassis_status="200"
                                 duration="300.0"
                                 topic_name="cmd_chassis_status"/>
-        </Sequence>
-      </Sequence>
-      <Sequence>
+        </ReactiveSequence>
+      </ReactiveSequence>
+      <ReactiveSequence>
         <CheckFieldEvent key_port="{@referee_eventData}"
                           center_gain_point="0"/>
         <PublishChassisStatus chassis_status="100"
                               duration="0.0"
                               topic_name="cmd_chassis_status"/>
-      </Sequence>
-      <Sequence>
+      </ReactiveSequence>
+      <ReactiveSequence>
         <PublishChassisStatus chassis_status="200"
                               duration="500.0"
                               topic_name="cmd_chassis_status"/>
         <PublishChassisStatus chassis_status="150"
                               duration="300.0"
                               topic_name="cmd_chassis_status"/>
-      </Sequence>
+      </ReactiveSequence>
     </ReactiveFallback>
   </BehaviorTree>
 
   <BehaviorTree ID="calculate_attack_pose">
-    <Sequence>
+    <ReactiveSequence>
       <IsDetectEnemy armor_id="1;2;3;4;7"
                       max_distance="6.0"
                       key_port="{@detector_armors}"/>
@@ -78,41 +78,45 @@
                        goal="{attack_pose}"/>
       <PubNav2Goal goal="{attack_pose}"
                    topic_name="goal_pose"/>
-    </Sequence>
+    </ReactiveSequence>
   </BehaviorTree>
 
   <BehaviorTree ID="check_min_hp">
-    <Fallback>
+    <ReactiveFallback>
       <IsStatusOK hp_min="200"
                   hp_max="399"
                   key_port="{@referee_robotStatus}"/>
       <ForceFailure>
-        <Fallback>
+        <ReactiveFallback>
           <IsRfidDetected ally_supply_point_non_exchange="true"
                           center_gain_point="false"
                           key_port="{@referee_rfidStatus}"/>
           <PubNav2Goal goal="0;0;0"
                        topic_name="goal_pose"/>
-        </Fallback>
+        </ReactiveFallback>
       </ForceFailure>
-    </Fallback>
+    </ReactiveFallback>
   </BehaviorTree>
 
   <BehaviorTree ID="decide_goal">
     <ForceSuccess>
-      <Sequence>
-        <SubTree ID="check_min_hp"/>
-        <IfThenElse>
-          <CheckFieldEvent key_port="{@referee_eventData}"
-                            center_gain_point="0"/>
-          <!-- 如果没有被占领，选择最近的中心增益点 -->
-          <PubNav2Goal goal="3.5;5.5;0"
-                      topic_name="goal_pose"/>
-          <!-- 被占领，选择目标点 -->
-          <PubNav2Goal goal="2.5;6.5;0"
-                      topic_name="goal_pose"/>
-        </IfThenElse>
-      </Sequence>
+      <ReactiveFallback>
+        
+        <SubTree ID="calculate_attack_pose"/>
+        
+        <ReactiveSequence>
+          <SubTree ID="check_min_hp"/>
+          <IfThenElse>
+            <CheckFieldEvent key_port="{@referee_eventData}"
+                              center_gain_point="0"/>
+            <PubNav2Goal goal="3.5;5.5;0"
+                        topic_name="goal_pose"/>
+            <PubNav2Goal goal="2.5;6.5;0"
+                        topic_name="goal_pose"/>
+          </IfThenElse>
+        </ReactiveSequence>
+
+      </ReactiveFallback>
     </ForceSuccess>
   </BehaviorTree>
 
