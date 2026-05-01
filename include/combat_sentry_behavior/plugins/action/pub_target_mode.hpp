@@ -15,27 +15,16 @@
 #ifndef COMBAT_SENTRY_BEHAVIOR__PLUGINS__ACTION__PUB_TARGET_MODE_HPP_
 #define COMBAT_SENTRY_BEHAVIOR__PLUGINS__ACTION__PUB_TARGET_MODE_HPP_
 
-#include <chrono>
-#include <string>
-
-#include "behaviortree_ros2/bt_topic_pub_action_node.hpp"
-#include "example_interfaces/msg/u_int8.hpp"
+#include "combat_sentry_behavior/plugins/action/pub_uint8_base.hpp"
 
 namespace combat_sentry_behavior
 {
-
-class PublishTargetModeAction
-: public BT::RosTopicPubStatefulActionNode<example_interfaces::msg::UInt8>
+class PublishTargetModeAction : public PubUInt8Base
 {
 public:
-  PublishTargetModeAction(
-    const std::string & name, const BT::NodeConfig & config, const BT::RosNodeParams & params);
+  PublishTargetModeAction(const std::string & name, const BT::NodeConfig & config, const BT::RosNodeParams & params);
 
   static BT::PortsList providedPorts();
-
-  bool setMessage(example_interfaces::msg::UInt8 & msg) override;
-
-  bool setHaltMessage(example_interfaces::msg::UInt8 & msg) override;
 };
 
 }  // namespace combat_sentry_behavior

@@ -19,7 +19,7 @@ namespace combat_sentry_behavior
 
 PublishTargetModeAction::PublishTargetModeAction(
   const std::string & name, const BT::NodeConfig & config, const BT::RosNodeParams & params)
-: RosTopicPubStatefulActionNode(name, config, params)
+: PubUInt8Base(name, config, params, "target_mode")
 {
 }
 
@@ -28,21 +28,6 @@ BT::PortsList PublishTargetModeAction::providedPorts()
   return providedBasicPorts({
     BT::InputPort<uint8_t>("target_mode", 0, "Target mode (0-255)"),
   });
-}
-
-bool PublishTargetModeAction::setMessage(example_interfaces::msg::UInt8 & msg)
-{
-  uint8_t target_mode = 0;
-  getInput("target_mode", target_mode);
-
-  msg.data = static_cast<uint8_t>(target_mode);
-  return true;
-}
-
-bool PublishTargetModeAction::setHaltMessage(example_interfaces::msg::UInt8 & msg)
-{
-  msg.data = 0;
-  return true;
 }
 
 }  // namespace combat_sentry_behavior
