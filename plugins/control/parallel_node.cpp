@@ -24,7 +24,7 @@ constexpr const char* ParallelNode::THRESHOLD_SUCCESS;
 ParallelNode::ParallelNode(const std::string& name)
   : ControlNode::ControlNode(name, {})
   , success_threshold_(-1)
-  , failure_threshold_(1
+  , failure_threshold_(1)
   , read_parameter_from_ports_(false)
 {
   setRegistrationID("Parallel");
