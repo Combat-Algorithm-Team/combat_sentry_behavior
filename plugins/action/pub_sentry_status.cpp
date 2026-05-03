@@ -19,7 +19,7 @@ namespace combat_sentry_behavior
 
 PublishSentryStatusAction::PublishSentryStatusAction(
   const std::string & name, const BT::NodeConfig & config, const BT::RosNodeParams & params)
-: RosTopicPubStatefulActionNode(name, config, params)
+: PubUInt8Base(name, config, params, "sentry_status")
 {
 }
 
@@ -28,21 +28,6 @@ BT::PortsList PublishSentryStatusAction::providedPorts()
   return providedBasicPorts({
     BT::InputPort<uint8_t>("sentry_status", 0, "Sentry status (0-5)"),
   });
-}
-
-bool PublishSentryStatusAction::setMessage(example_interfaces::msg::UInt8 & msg)
-{
-  uint8_t sentry_status = 0;
-  getInput("sentry_status", sentry_status);
-
-  msg.data = static_cast<uint8_t>(sentry_status);
-  return true;
-}
-
-bool PublishSentryStatusAction::setHaltMessage(example_interfaces::msg::UInt8 & msg)
-{
-  msg.data = 0;
-  return true;
 }
 
 }  // namespace combat_sentry_behavior
