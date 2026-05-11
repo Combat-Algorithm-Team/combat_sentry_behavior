@@ -45,8 +45,21 @@ private:
    * @brief Tick function for game status ports
    */
   BT::NodeStatus checkRfidStatus();
+  bool readExpectedValues();
+  bool readExpectedValue(const char * port_name, bool & value);
 
   rclcpp::Logger logger_ = rclcpp::get_logger("IsRfidDetectedCondition");
+
+  bool ally_base_gain_point_{false};
+  bool ally_central_highland_gain_point_{false};
+  bool ally_fortress_gain_point_{false};
+  bool ally_outpost_gain_point_{false};
+  bool ally_supply_point_non_exchange_{false};
+  bool ally_supply_point_exchange_{false};
+  bool enemy_central_highland_gain_point_{false};
+  bool enemy_fortress_gain_point_{false};
+  bool enemy_outpost_gain_point_{false};
+  bool center_gain_point_{false};
 };
 }  // namespace combat_sentry_behavior
 

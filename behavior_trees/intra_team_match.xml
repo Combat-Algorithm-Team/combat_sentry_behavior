@@ -37,7 +37,7 @@
           <IsAttacked robotstatus_port="{@referee_robotStatus}"
                       hurtdata_port="{@referee_hurtData}"/>
           <IsRfidDetected ally_supply_point_non_exchange="false"
-                          center_gain_point="true"
+                          ally_fortress_gain_point="true"
                           key_port="{@referee_rfidStatus}"/>
         </Fallback>
         <Sequence>
@@ -51,7 +51,7 @@
       </Sequence>
       <Sequence>
         <CheckFieldEvent key_port="{@referee_eventData}"
-                         center_gain_point="0"/>
+                         ally_fortress_gain_point="0"/>
         <PublishChassisStatus chassis_status="100"
                               duration="0.0"
                               topic_name="cmd_chassis_status"/>
@@ -81,7 +81,7 @@
       </Sequence>
       <Sequence>
         <IsRfidDetected ally_supply_point_non_exchange="true"
-                        center_gain_point="true"
+                        ally_fortress_gain_point="true"
                         key_port="{@referee_rfidStatus}"/>
         <PublishSentryStatus sentry_status="2"
                              duration="0.0"
@@ -101,45 +101,24 @@
                     key_port="{@referee_robotStatus}"/>
       </Inverter>
       <Fallback>
-        <Sequence>
-          <IsRfidDetected ally_supply_point_non_exchange="true"
-                          center_gain_point="false"
-                          key_port="{@referee_rfidStatus}"/>
-          <PublishSentryStatus sentry_status="2"
-                               duration="0.0"
-                               topic_name="cmd_sentry_status"/>
-        </Sequence>
-        <Sequence>
-          <PublishSentryStatus sentry_status="2"
-                               duration="0.0"
-                               topic_name="cmd_sentry_status"/>
-          <PubNav2Goal goal="0;0;0"
-                       topic_name="goal_pose"
-                       success_distance_tolerance="0.15"
-                       nav_observation_timeout="2000"/>
-        </Sequence>
+        <IsRfidDetected ally_supply_point_non_exchange="true"
+                        key_port="{@referee_rfidStatus}"/>
+        <PubNav2Goal goal="0;0;0"
+                     topic_name="goal_pose"
+                     success_distance_tolerance="0.15"
+                     nav_observation_timeout="2000"/>
       </Fallback>
     </ReactiveSequence>
-  </BehaviorTree>
-
-  <BehaviorTree ID="intra_team_match_waypoint_mission">
-    <Sequence>
-      <PubNav2Goal goal="3.5;5.5;0"
-                   topic_name="goal_pose"
-                   success_distance_tolerance="0.15"
-                   nav_observation_timeout="2000"/>
-      <PubNav2Goal goal="2.5;6.5;0"
-                   topic_name="goal_pose"
-                   success_distance_tolerance="0.15"
-                   nav_observation_timeout="2000"/>
-    </Sequence>
   </BehaviorTree>
 
   <BehaviorTree ID="intra_team_match_decide_goal">
     <ForceSuccess>
       <ReactiveFallback>
         <SubTree ID="intra_team_match_check_min_hp"/>
-        <SubTree ID="intra_team_match_waypoint_mission"/>
+        <PubNav2Goal goal="3.5;5.5;0"
+                   topic_name="goal_pose"
+                   success_distance_tolerance="0.15"
+                   nav_observation_timeout="2000"/>
       </ReactiveFallback>
     </ForceSuccess>
   </BehaviorTree>
@@ -151,13 +130,13 @@
           <SubTree ID="intra_team_match_check_game_start"/>
           <Parallel success_count="1"
                     failure_count="1">
-            <SubTree ID="intra_team_match_decide_goal"/>
             <KeepRunningUntilFailure>
               <SubTree ID="intra_team_match_control_robot_status"/>
             </KeepRunningUntilFailure>
             <KeepRunningUntilFailure>
               <SubTree ID="intra_team_match_control_sentry_status"/>
             </KeepRunningUntilFailure>
+            <SubTree ID="intra_team_match_decide_goal"/>
           </Parallel>
         </ReactiveSequence>
       </ForceSuccess>

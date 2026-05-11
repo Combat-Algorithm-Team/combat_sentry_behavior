@@ -46,9 +46,17 @@
             <input_port name="max_x" type="float" default="8.0">the maximum x coordinate of the goal position</input_port>
         </Condition>
         <Condition ID="IsRfidDetected">
-            <input_port name="center_gain_point" type="bool" default="false">中心增益点（仅 RMUL 适用）</input_port>
-            <input_port name="ally_supply_point_non_exchange" type="bool" default="false">己方与兑换区不重叠的补给区 / RMUL 补给区</input_port>
             <input_port name="key_port" type="combat_rm_interfaces::msg::RfidStatus_&lt;std::allocator&lt;void&gt; &gt;" default="{@referee_rfidStatus}">RfidStatus port on blackboard</input_port>
+            <input_port name="ally_base_gain_point" type="bool" default="false">己方基地增益点</input_port>
+            <input_port name="ally_central_highland_gain_point" type="bool" default="false">己方中央高地增益点</input_port>
+            <input_port name="ally_fortress_gain_point" type="bool" default="false">己方堡垒增益点</input_port>
+            <input_port name="ally_outpost_gain_point" type="bool" default="false">己方前哨站增益点</input_port>
+            <input_port name="ally_supply_point_non_exchange" type="bool" default="false">己方与兑换区不重叠的补给区 / RMUL 补给区</input_port>
+            <input_port name="ally_supply_point_exchange" type="bool" default="false">己方与兑换区重叠的补给区</input_port>
+            <input_port name="enemy_central_highland_gain_point" type="bool" default="false">对方中央高地增益点</input_port>
+            <input_port name="enemy_fortress_gain_point" type="bool" default="false">对方堡垒增益点</input_port>
+            <input_port name="enemy_outpost_gain_point" type="bool" default="false">对方前哨站增益点</input_port>
+            <input_port name="center_gain_point" type="bool" default="false">中心增益点（仅 RMUL 适用）</input_port>
         </Condition>
         <Condition ID="IsStatusOK">
             <input_port name="hp_max" type="int" default="399">Maximum HP. NOTE: Sentry init/max HP is 400</input_port>
