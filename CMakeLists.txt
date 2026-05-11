@@ -82,6 +82,9 @@ list(APPEND plugin_libs pub_sentry_status)
 ament_auto_add_library(pub_target_mode SHARED plugins/action/pub_target_mode.cpp)
 list(APPEND plugin_libs pub_target_mode)
 
+ament_auto_add_library(pub_bump_status SHARED plugins/action/pub_bump_status.cpp)
+list(APPEND plugin_libs pub_bump_status)
+
 ament_auto_add_library(wait_until_reached SHARED plugins/action/wait_until_reached.cpp)
 list(APPEND plugin_libs wait_until_reached)
 
