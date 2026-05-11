@@ -341,9 +341,12 @@ BT::PortsList PubNav2GoalAction::providedPorts()
     BT::InputPort<std::chrono::milliseconds>(
       "nav_observation_timeout", std::chrono::milliseconds(2000),
       "How long to wait for fresh nav2 status, feedback, or plan before failing"),
-    BT::OutputPort<double>("distance_remaining", "Latest nav2 distance remaining"),
-    BT::OutputPort<double>("path_remaining", "Latest computed remaining path length"),
-    BT::OutputPort<int>("nav_status_code", "Latest nav2 action status code"),
+    BT::OutputPort<double>(
+      "distance_remaining", "{nav_distance_remaining}", "Latest nav2 distance remaining"),
+    BT::OutputPort<double>(
+      "path_remaining", "{nav_path_remaining}", "Latest computed remaining path length"),
+    BT::OutputPort<int>(
+      "nav_status_code", "{nav_status_code}", "Latest nav2 action status code"),
   };
 }
 

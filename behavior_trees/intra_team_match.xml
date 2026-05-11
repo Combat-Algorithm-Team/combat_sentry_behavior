@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+
+  <BehaviorTree ID="intra_team_match_check_game_start">
+    <Fallback>
+      <IsGameStatus name="IsGameStart"
+                    max_remain_time="420"
+                    min_remain_time="0"
+                    expected_game_progress="4"
+                    key_port="{@referee_gameStatus}"/>
+      <ForceFailure>
+        <Sequence>
+          <PublishChassisStatus chassis_status="0"
+                                duration="0.0"
+                                topic_name="cmd_chassis_status"/>
+          <PublishSentryStatus sentry_status="0"
+                               duration="0.0"
+                               topic_name="cmd_sentry_status"/>
+          <PublishTwist v_y="0.0"
+                        v_yaw="0.0"
+                        v_x="0.0"
+                        duration="0.0"
+                        topic_name="cmd_vel"/>
+          <PubNav2Goal goal="0;0;0"
+                       topic_name="goal_pose"
+                       success_distance_tolerance="0.15"
+                       nav_observation_timeout="2000"/>
+        </Sequence>
+      </ForceFailure>
+    </Fallback>
+  </BehaviorTree>
+
+  <BehaviorTree ID="intra_team_match_control_robot_status">
+    <ReactiveFallback>
+      <Sequence>
+        <Fallback>
+          <IsAttacked robotstatus_port="{@referee_robotStatus}"
+                      hurtdata_port="{@referee_hurtData}"/>
+          <IsRfidDetected ally_supply_point_non_exchange="false"
+                          center_gain_point="true"
+                          key_port="{@referee_rfidStatus}"/>
+        </Fallback>
+        <Sequence>
+          <PublishChassisStatus chassis_status="200"
+                                duration="500.0"
+                                topic_name="cmd_chassis_status"/>
+          <PublishChassisStatus chassis_status="255"
+                                duration="300.0"
+                                topic_name="cmd_chassis_status"/>
+        </Sequence>
+      </Sequence>
+      <Sequence>
+        <CheckFieldEvent key_port="{@referee_eventData}"
+                         center_gain_point="0"/>
+        <PublishChassisStatus chassis_status="100"
+                              duration="0.0"
+                              topic_name="cmd_chassis_status"/>
+      </Sequence>
+      <Sequence>
+        <PublishChassisStatus chassis_status="100"
+                              duration="500.0"
+                              topic_name="cmd_chassis_status"/>
+        <PublishChassisStatus chassis_status="150"
+                              duration="300.0"
+                              topic_name="cmd_chassis_status"/>
+      </Sequence>
+    </ReactiveFallback>
+  </BehaviorTree>
+
+  <BehaviorTree ID="intra_team_match_control_sentry_status">
+    <ReactiveFallback>
+      <Sequence>
+        <Inverter>
+          <IsStatusOK hp_min="200"
+                      hp_max="399"
+                      key_port="{@referee_robotStatus}"/>
+        </Inverter>
+        <PublishSentryStatus sentry_status="2"
+                             duration="0.0"
+                             topic_name="cmd_sentry_status"/>
+      </Sequence>
+      <Sequence>
+        <IsRfidDetected ally_supply_point_non_exchange="true"
+                        center_gain_point="true"
+                        key_port="{@referee_rfidStatus}"/>
+        <PublishSentryStatus sentry_status="2"
+                             duration="0.0"
+                             topic_name="cmd_sentry_status"/>
+      </Sequence>
+      <PublishSentryStatus sentry_status="3"
+                           duration="0.0"
+                           topic_name="cmd_sentry_status"/>
+    </ReactiveFallback>
+  </BehaviorTree>
+
+  <BehaviorTree ID="intra_team_match_check_min_hp">
+    <ReactiveSequence>
+      <Inverter>
+        <IsStatusOK hp_min="200"
+                    hp_max="399"
+                    key_port="{@referee_robotStatus}"/>
+      </Inverter>
+      <Fallback>
+        <Sequence>
+          <IsRfidDetected ally_supply_point_non_exchange="true"
+                          center_gain_point="false"
+                          key_port="{@referee_rfidStatus}"/>
+          <PublishSentryStatus sentry_status="2"
+                               duration="0.0"
+                               topic_name="cmd_sentry_status"/>
+        </Sequence>
+        <Sequence>
+          <PublishSentryStatus sentry_status="2"
+                               duration="0.0"
+                               topic_name="cmd_sentry_status"/>
+          <PubNav2Goal goal="0;0;0"
+                       topic_name="goal_pose"
+                       success_distance_tolerance="0.15"
+                       nav_observation_timeout="2000"/>
+        </Sequence>
+      </Fallback>
+    </ReactiveSequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="intra_team_match_waypoint_mission">
+    <Sequence>
+      <PubNav2Goal goal="3.5;5.5;0"
+                   topic_name="goal_pose"
+                   success_distance_tolerance="0.15"
+                   nav_observation_timeout="2000"/>
+      <PubNav2Goal goal="2.5;6.5;0"
+                   topic_name="goal_pose"
+                   success_distance_tolerance="0.15"
+                   nav_observation_timeout="2000"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="intra_team_match_decide_goal">
+    <ForceSuccess>
+      <ReactiveFallback>
+        <SubTree ID="intra_team_match_check_min_hp"/>
+        <SubTree ID="intra_team_match_waypoint_mission"/>
+      </ReactiveFallback>
+    </ForceSuccess>
+  </BehaviorTree>
+
+  <BehaviorTree ID="intra_team_match">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <ReactiveSequence>
+          <SubTree ID="intra_team_match_check_game_start"/>
+          <Parallel success_count="1"
+                    failure_count="1">
+            <SubTree ID="intra_team_match_decide_goal"/>
+            <KeepRunningUntilFailure>
+              <SubTree ID="intra_team_match_control_robot_status"/>
+            </KeepRunningUntilFailure>
+            <KeepRunningUntilFailure>
+              <SubTree ID="intra_team_match_control_sentry_status"/>
+            </KeepRunningUntilFailure>
+          </Parallel>
+        </ReactiveSequence>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+</root>
