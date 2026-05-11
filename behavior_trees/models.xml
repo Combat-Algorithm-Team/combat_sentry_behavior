@@ -6,7 +6,7 @@
             <output_port name="goal" type="Pose3D" default="{attack_pose}">Expected goal pose that send to nav2. Fill with format `x;y;yaw`</output_port>
             <input_port name="topic_name" type="std::string" default="__default__placeholder__">Topic name</input_port>
         </Condition>
-        <Condition ID="CheckFieldEvent">
+        <Action ID="CheckFieldEvent">
             <input_port name="center_gain_point" type="int" default="-1">中心增益点</input_port>
             <input_port name="ally_outpost_gain_point" type="int" default="-1">前哨站增益点</input_port>
             <input_port name="trapezoidal_highland" type="int" default="-1">梯形高地</input_port>
@@ -19,7 +19,8 @@
             <input_port name="ally_supply_zone_non_exchange" type="int" default="-1">补给区(非兑换区)</input_port>
             <input_port name="base_gain_point" type="int" default="-1">基地增益点</input_port>
             <input_port name="key_port" type="combat_rm_interfaces::msg::EventData_&lt;std::allocator&lt;void&gt; &gt;" default="{@referee_eventData}">EventData message</input_port>
-        </Condition>
+            <input_port name="wait_time" type="double" default="0.0">等待超时时间(ms)，0 表示直接判断</input_port>
+        </Action>
         <Condition ID="CheckTargetInRegion">
             <input_port name="tracker_port" type="combat_rm_interfaces::msg::Target_&lt;std::allocator&lt;void&gt; &gt;" default="{@tracker_target}">Vision target from blackboard</input_port>
             <input_port name="topic_name" type="std::string" default="__default__placeholder__">Topic name</input_port>
@@ -90,5 +91,4 @@
         </Decorator>
     </TreeNodesModel>
 </root>
-
 

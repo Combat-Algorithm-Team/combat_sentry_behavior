@@ -16,6 +16,7 @@
 
 #include <cmath>
 #include <limits>
+#include <optional>
 #include <string>
 
 #include "nav_msgs/msg/path.hpp"
@@ -77,7 +78,8 @@ bool PubNav2GoalAction::ensurePublisher()
   }
 
   if (!publisher_ || current_topic_name_ != topic_name) {
-    publisher_ = node_->create_publisher<geometry_msgs::msg::PoseStamped>(topic_name, rclcpp::QoS(10));
+    publisher_ =
+      node_->create_publisher<geometry_msgs::msg::PoseStamped>(topic_name, rclcpp::QoS(10));
     current_topic_name_ = topic_name;
   }
   return true;
@@ -94,6 +96,7 @@ bool PubNav2GoalAction::publishGoal()
     return false;
   }
 
+  goal_sent_ros_nanoseconds_ = rclcpp::Time(message.header.stamp).nanoseconds();
   publisher_->publish(message);
   last_republish_time_ = SteadyClock::now();
   return true;
@@ -104,7 +107,6 @@ void PubNav2GoalAction::resetOutputs()
   last_distance_remaining_ = std::numeric_limits<double>::infinity();
   last_path_remaining_ = std::numeric_limits<double>::infinity();
   last_status_code_ = action_msgs::msg::GoalStatus::STATUS_UNKNOWN;
-  last_status_text_ = "WAITING_FOR_NAV2";
 }
 
 void PubNav2GoalAction::publishOutputs()
@@ -112,7 +114,6 @@ void PubNav2GoalAction::publishOutputs()
   setOutputOrThrow("distance_remaining", last_distance_remaining_);
   setOutputOrThrow("path_remaining", last_path_remaining_);
   setOutputOrThrow("nav_status_code", last_status_code_);
-  setOutputOrThrow("nav_status_text", last_status_text_);
 }
 
 bool PubNav2GoalAction::isFresh(
@@ -122,53 +123,45 @@ bool PubNav2GoalAction::isFresh(
   return now >= stamp.time && (now - stamp.time) <= timeout;
 }
 
-int PubNav2GoalAction::latestStatusCode(
+bool PubNav2GoalAction::isFromCurrentRun(const BT::Timestamp & stamp) const
+{
+  return stamp.time >= start_time_.time_since_epoch();
+}
+
+std::optional<int> PubNav2GoalAction::latestStatusCodeAfterGoal(
   const action_msgs::msg::GoalStatusArray & status_array) const
 {
   if (status_array.status_list.empty()) {
-    return action_msgs::msg::GoalStatus::STATUS_UNKNOWN;
+    return std::nullopt;
   }
 
-  const auto * latest_status = &status_array.status_list.front();
-  auto latest_stamp = rclcpp::Time(latest_status->goal_info.stamp);
+  const action_msgs::msg::GoalStatus * latest_status = nullptr;
+  int64_t latest_stamp_nanoseconds = 0;
 
   for (const auto & status : status_array.status_list) {
-    const auto current_stamp = rclcpp::Time(status.goal_info.stamp);
-    if (current_stamp > latest_stamp) {
+    const auto current_stamp_nanoseconds = rclcpp::Time(status.goal_info.stamp).nanoseconds();
+    if (current_stamp_nanoseconds < goal_sent_ros_nanoseconds_) {
+      continue;
+    }
+    if (latest_status == nullptr || current_stamp_nanoseconds > latest_stamp_nanoseconds) {
       latest_status = &status;
-      latest_stamp = current_stamp;
+      latest_stamp_nanoseconds = current_stamp_nanoseconds;
     }
   }
 
-  return latest_status->status;
-}
-
-std::string PubNav2GoalAction::statusText(int status_code) const
-{
-  switch (status_code) {
-    case action_msgs::msg::GoalStatus::STATUS_ACCEPTED:
-      return "ACCEPTED";
-    case action_msgs::msg::GoalStatus::STATUS_EXECUTING:
-      return "EXECUTING";
-    case action_msgs::msg::GoalStatus::STATUS_CANCELING:
-      return "CANCELING";
-    case action_msgs::msg::GoalStatus::STATUS_SUCCEEDED:
-      return "SUCCEEDED";
-    case action_msgs::msg::GoalStatus::STATUS_CANCELED:
-      return "CANCELED";
-    case action_msgs::msg::GoalStatus::STATUS_ABORTED:
-      return "ABORTED";
-    case action_msgs::msg::GoalStatus::STATUS_UNKNOWN:
-    default:
-      return "UNKNOWN";
+  if (latest_status == nullptr) {
+    return std::nullopt;
   }
+
+  return latest_status->status;
 }
 
 BT::NodeStatus PubNav2GoalAction::onStart()
 {
   const auto goal_result = getInput("goal", current_goal_);
   if (!goal_result) {
-    RCLCPP_ERROR(logger(), "Invalid or missing required input [goal]: %s", goal_result.error().c_str());
+    RCLCPP_ERROR(
+      logger(), "Invalid or missing required input [goal]: %s", goal_result.error().c_str());
     return BT::NodeStatus::FAILURE;
   }
 
@@ -190,7 +183,7 @@ BT::NodeStatus PubNav2GoalAction::onStart()
 
 BT::NodeStatus PubNav2GoalAction::onRunning()
 {
-  std::chrono::milliseconds republish_period(1000);
+  std::chrono::milliseconds republish_period(0);
   const auto republish_result = getInput("goal_republish_period", republish_period);
   if (!republish_result) {
     RCLCPP_ERROR(
@@ -217,52 +210,52 @@ BT::NodeStatus PubNav2GoalAction::onRunning()
   }
 
   const auto now_steady = SteadyClock::now();
-  if ((now_steady - last_republish_time_) >= republish_period && !publishGoal()) {
+  if (republish_period.count() > 0 &&
+    (now_steady - last_republish_time_) >= republish_period && !publishGoal())
+  {
     return BT::NodeStatus::FAILURE;
   }
 
-  bool has_fresh_observation = false;
+  bool has_current_goal_status = false;
   bool has_fresh_distance_remaining = false;
   bool has_fresh_path_remaining = false;
-  bool has_fresh_status = false;
 
   if (const auto stamped_feedback =
         getInputStamped<nav2_msgs::action::NavigateToPose::Feedback>("feedback_port")) {
-    if (isFresh(stamped_feedback->stamp, observation_timeout)) {
+    if (isFresh(stamped_feedback->stamp, observation_timeout) &&
+      isFromCurrentRun(stamped_feedback->stamp))
+    {
       last_distance_remaining_ = stamped_feedback->value.distance_remaining;
       has_fresh_distance_remaining = true;
-      has_fresh_observation = true;
     }
   }
 
   if (const auto stamped_plan = getInputStamped<nav_msgs::msg::Path>("plan_port")) {
-    if (isFresh(stamped_plan->stamp, observation_timeout)) {
+    if (isFresh(stamped_plan->stamp, observation_timeout) &&
+      isFromCurrentRun(stamped_plan->stamp))
+    {
       last_path_remaining_ = computePathLength(stamped_plan->value);
       has_fresh_path_remaining = true;
-      has_fresh_observation = true;
     }
   }
 
-  if (const auto stamped_status = getInputStamped<action_msgs::msg::GoalStatusArray>("status_port")) {
-    if (isFresh(stamped_status->stamp, observation_timeout)) {
-      last_status_code_ = latestStatusCode(stamped_status->value);
-      last_status_text_ = statusText(last_status_code_);
-      has_fresh_status = true;
-      has_fresh_observation = true;
+  if (const auto stamped_status =
+        getInputStamped<action_msgs::msg::GoalStatusArray>("status_port")) {
+    if (isFresh(stamped_status->stamp, observation_timeout) &&
+      isFromCurrentRun(stamped_status->stamp))
+    {
+      const auto current_goal_status = latestStatusCodeAfterGoal(stamped_status->value);
+      if (current_goal_status) {
+        last_status_code_ = *current_goal_status;
+        has_current_goal_status = true;
+      } else {
+        last_status_code_ = action_msgs::msg::GoalStatus::STATUS_UNKNOWN;
+      }
     }
   }
 
-  if (!has_fresh_observation && last_status_text_ == "WAITING_FOR_NAV2") {
+  if (!has_current_goal_status) {
     last_status_code_ = action_msgs::msg::GoalStatus::STATUS_UNKNOWN;
-  } else if (!has_fresh_status &&
-    has_fresh_observation &&
-    last_status_code_ == action_msgs::msg::GoalStatus::STATUS_UNKNOWN)
-  {
-    last_status_text_ = "UNKNOWN";
-  } else if (!has_fresh_observation &&
-    last_status_code_ == action_msgs::msg::GoalStatus::STATUS_UNKNOWN)
-  {
-    last_status_text_ = "UNKNOWN";
   }
 
   publishOutputs();
@@ -279,22 +272,24 @@ BT::NodeStatus PubNav2GoalAction::onRunning()
       break;
   }
 
-  if (has_fresh_distance_remaining && last_distance_remaining_ <= success_distance_tolerance) {
+  if (has_current_goal_status && has_fresh_distance_remaining &&
+    last_distance_remaining_ <= success_distance_tolerance)
+  {
     return BT::NodeStatus::SUCCESS;
   }
 
-  if (!has_fresh_distance_remaining && has_fresh_path_remaining &&
+  if (has_current_goal_status && !has_fresh_distance_remaining && has_fresh_path_remaining &&
     last_path_remaining_ <= success_distance_tolerance)
   {
     return BT::NodeStatus::SUCCESS;
   }
 
-  if (!has_fresh_observation && (now_steady - start_time_) > observation_timeout) {
-    last_status_text_ = "STALE_NAV_STATE";
+  if (!has_current_goal_status && (now_steady - start_time_) > observation_timeout) {
     publishOutputs();
     RCLCPP_WARN(
       logger(),
-      "PubNav2GoalAction timed out waiting for fresh nav2 observations for goal (%.3f, %.3f, %.3f)",
+      "PubNav2GoalAction timed out waiting for current nav2 goal status for goal "
+      "(%.3f, %.3f, %.3f)",
       current_goal_.x, current_goal_.y, current_goal_.yaw);
     return BT::NodeStatus::FAILURE;
   }
@@ -341,15 +336,14 @@ BT::PortsList PubNav2GoalAction::providedPorts()
     BT::InputPort<double>(
       "success_distance_tolerance", 0.15, "Distance threshold that can finish navigation"),
     BT::InputPort<std::chrono::milliseconds>(
-      "goal_republish_period", std::chrono::milliseconds(1000),
-      "How often to republish the same goal while running"),
+      "goal_republish_period", std::chrono::milliseconds(0),
+      "How often to republish the same goal while running. Use 0 to publish only on start"),
     BT::InputPort<std::chrono::milliseconds>(
       "nav_observation_timeout", std::chrono::milliseconds(2000),
       "How long to wait for fresh nav2 status, feedback, or plan before failing"),
     BT::OutputPort<double>("distance_remaining", "Latest nav2 distance remaining"),
     BT::OutputPort<double>("path_remaining", "Latest computed remaining path length"),
     BT::OutputPort<int>("nav_status_code", "Latest nav2 action status code"),
-    BT::OutputPort<std::string>("nav_status_text", "Latest nav2 action status text"),
   };
 }
 

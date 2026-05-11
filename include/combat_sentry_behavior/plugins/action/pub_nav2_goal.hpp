@@ -16,7 +16,9 @@
 #define COMBAT_SENTRY_BEHAVIOR__PLUGINS__ACTION__PUB_NAV2_GOAL_HPP_
 
 #include <chrono>
+#include <cstdint>
 #include <memory>
+#include <optional>
 #include <string>
 
 #include "action_msgs/msg/goal_status_array.hpp"
@@ -59,9 +61,10 @@ private:
 
   bool isFresh(const BT::Timestamp & stamp, const std::chrono::milliseconds & timeout) const;
 
-  int latestStatusCode(const action_msgs::msg::GoalStatusArray & status_array) const;
+  bool isFromCurrentRun(const BT::Timestamp & stamp) const;
 
-  std::string statusText(int status_code) const;
+  std::optional<int> latestStatusCodeAfterGoal(
+    const action_msgs::msg::GoalStatusArray & status_array) const;
 
   rclcpp::Logger logger() { return node_->get_logger(); }
   rclcpp::Time now() { return node_->now(); }
@@ -71,10 +74,10 @@ private:
   Pose3D current_goal_{};
   SteadyClock::time_point start_time_{};
   SteadyClock::time_point last_republish_time_{};
+  int64_t goal_sent_ros_nanoseconds_{0};
   double last_distance_remaining_{0.0};
   double last_path_remaining_{0.0};
   int last_status_code_{0};
-  std::string last_status_text_;
 };
 }  // namespace combat_sentry_behavior
 

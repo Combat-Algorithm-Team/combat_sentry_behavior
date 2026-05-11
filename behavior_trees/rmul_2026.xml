@@ -12,13 +12,24 @@
           <PublishChassisStatus chassis_status="0"
                                 duration="0.0"
                                 topic_name="cmd_chassis_status"/>
+          <PublishSentryStatus sentry_status="0"
+                               duration="0.0"
+                               topic_name="cmd_sentry_status"/>
           <PublishTwist v_y="0.0"
                         v_yaw="0.0"
                         v_x="0.0"
                         duration="0.0"
                         topic_name="cmd_vel"/>
           <PubNav2Goal goal="0;0;0"
-                       topic_name="goal_pose"/>
+                       topic_name="goal_pose"
+                       status_port="{@nav2_navigate_to_pose_status}"
+                       feedback_port="{@nav2_navigate_to_pose_feedback}"
+                       plan_port="{@nav2_plan}"
+                       success_distance_tolerance="0.15"
+                       nav_observation_timeout="2000"
+                       distance_remaining="{nav_distance_remaining}"
+                       path_remaining="{nav_path_remaining}"
+                       nav_status_code="{nav_status_code}"/>
         </Sequence>
       </ForceFailure>
     </Fallback>
@@ -64,6 +75,40 @@
     </ReactiveFallback>
   </BehaviorTree>
 
+  <BehaviorTree ID="control_sentry_status">
+    <ReactiveFallback>
+      <Sequence>
+        <Inverter>
+          <IsStatusOK hp_min="200"
+                      hp_max="399"
+                      key_port="{@referee_robotStatus}"/>
+        </Inverter>
+        <PublishSentryStatus sentry_status="2"
+                             duration="0.0"
+                             topic_name="cmd_sentry_status"/>
+      </Sequence>
+      <Sequence>
+        <IsDetectEnemy armor_id="1;2;3;4;7"
+                       max_distance="6.0"
+                       key_port="{@detector_armors}"/>
+        <PublishSentryStatus sentry_status="1"
+                             duration="0.0"
+                             topic_name="cmd_sentry_status"/>
+      </Sequence>
+      <Sequence>
+        <IsRfidDetected ally_supply_point_non_exchange="true"
+                        center_gain_point="true"
+                        key_port="{@referee_rfidStatus}"/>
+        <PublishSentryStatus sentry_status="2"
+                             duration="0.0"
+                             topic_name="cmd_sentry_status"/>
+      </Sequence>
+      <PublishSentryStatus sentry_status="3"
+                           duration="0.0"
+                           topic_name="cmd_sentry_status"/>
+    </ReactiveFallback>
+  </BehaviorTree>
+
   <BehaviorTree ID="calculate_attack_pose">
     <Sequence>
       <IsDetectEnemy armor_id="1;2;3;4;7"
@@ -77,42 +122,88 @@
                        max_y="8.0"
                        goal="{attack_pose}"/>
       <PubNav2Goal goal="{attack_pose}"
-                   topic_name="goal_pose"/>
+                   topic_name="goal_pose"
+                   status_port="{@nav2_navigate_to_pose_status}"
+                   feedback_port="{@nav2_navigate_to_pose_feedback}"
+                   plan_port="{@nav2_plan}"
+                   success_distance_tolerance="0.15"
+                   nav_observation_timeout="2000"
+                   distance_remaining="{nav_distance_remaining}"
+                   path_remaining="{nav_path_remaining}"
+                   nav_status_code="{nav_status_code}"/>
     </Sequence>
   </BehaviorTree>
 
   <BehaviorTree ID="check_min_hp">
-    <Fallback>
-      <IsStatusOK hp_min="200"
-                  hp_max="399"
-                  key_port="{@referee_robotStatus}"/>
-      <ForceFailure>
-        <Fallback>
+    <ReactiveSequence>
+      <Inverter>
+        <IsStatusOK hp_min="200"
+                    hp_max="399"
+                    key_port="{@referee_robotStatus}"/>
+      </Inverter>
+      <Fallback>
+        <Sequence>
           <IsRfidDetected ally_supply_point_non_exchange="true"
                           center_gain_point="false"
                           key_port="{@referee_rfidStatus}"/>
+          <PublishSentryStatus sentry_status="2"
+                               duration="0.0"
+                               topic_name="cmd_sentry_status"/>
+        </Sequence>
+        <Sequence>
+          <PublishSentryStatus sentry_status="2"
+                               duration="0.0"
+                               topic_name="cmd_sentry_status"/>
           <PubNav2Goal goal="0;0;0"
-                       topic_name="goal_pose"/>
-        </Fallback>
-      </ForceFailure>
-    </Fallback>
+                       topic_name="goal_pose"
+                       status_port="{@nav2_navigate_to_pose_status}"
+                       feedback_port="{@nav2_navigate_to_pose_feedback}"
+                       plan_port="{@nav2_plan}"
+                       success_distance_tolerance="0.15"
+                       nav_observation_timeout="2000"
+                       distance_remaining="{nav_distance_remaining}"
+                       path_remaining="{nav_path_remaining}"
+                       nav_status_code="{nav_status_code}"/>
+        </Sequence>
+      </Fallback>
+    </ReactiveSequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="waypoint_mission">
+    <Sequence>
+      <!-- 航点任务：低血量恢复后整组任务会从第一个航点重新执行 -->
+      <PubNav2Goal goal="3.5;5.5;0"
+                   topic_name="goal_pose"
+                   status_port="{@nav2_navigate_to_pose_status}"
+                   feedback_port="{@nav2_navigate_to_pose_feedback}"
+                   plan_port="{@nav2_plan}"
+                   success_distance_tolerance="0.15"
+                   nav_observation_timeout="2000"
+                   distance_remaining="{nav_distance_remaining}"
+                   path_remaining="{nav_path_remaining}"
+                   nav_status_code="{nav_status_code}"/>
+      <PubNav2Goal goal="2.5;6.5;0"
+                   topic_name="goal_pose"
+                   status_port="{@nav2_navigate_to_pose_status}"
+                   feedback_port="{@nav2_navigate_to_pose_feedback}"
+                   plan_port="{@nav2_plan}"
+                   success_distance_tolerance="0.15"
+                   nav_observation_timeout="2000"
+                   distance_remaining="{nav_distance_remaining}"
+                   path_remaining="{nav_path_remaining}"
+                   nav_status_code="{nav_status_code}"/>
+    </Sequence>
   </BehaviorTree>
 
   <BehaviorTree ID="decide_goal">
     <ForceSuccess>
-      <Sequence>
+      <ReactiveFallback>
         <SubTree ID="check_min_hp"/>
-        <IfThenElse>
-          <CheckFieldEvent key_port="{@referee_eventData}"
-                            center_gain_point="0"/>
-          <!-- 如果没有被占领，选择最近的中心增益点 -->
-          <PubNav2Goal goal="3.5;5.5;0"
-                      topic_name="goal_pose"/>
-          <!-- 被占领，选择目标点 -->
-          <PubNav2Goal goal="2.5;6.5;0"
-                      topic_name="goal_pose"/>
-        </IfThenElse>
-      </Sequence>
+        <Fallback>
+          <SubTree ID="calculate_attack_pose"/>
+          <SubTree ID="waypoint_mission"/>
+        </Fallback>
+      </ReactiveFallback>
     </ForceSuccess>
   </BehaviorTree>
 
@@ -121,8 +212,16 @@
       <ForceSuccess>
         <ReactiveSequence>
           <SubTree ID="check_game_start"/>
-          <SubTree ID="decide_goal"/>
-          <SubTree ID="control_robot_status"/>
+          <Parallel success_count="1"
+                    failure_count="1">
+            <SubTree ID="decide_goal"/>
+            <KeepRunningUntilFailure>
+              <SubTree ID="control_robot_status"/>
+            </KeepRunningUntilFailure>
+            <KeepRunningUntilFailure>
+              <SubTree ID="control_sentry_status"/>
+            </KeepRunningUntilFailure>
+          </Parallel>
         </ReactiveSequence>
       </ForceSuccess>
     </KeepRunningUntilFailure>
