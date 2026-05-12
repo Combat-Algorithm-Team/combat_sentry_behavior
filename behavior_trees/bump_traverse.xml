@@ -10,6 +10,9 @@
       <PublishBumpStatus bump_status="1"
                          duration="0.0"
                          topic_name="bump_status"/>
+      <WaitForSentryInfoState expected_state="3"
+                              timeout="5000.0"
+                              key_port="{@referee_sentryInfo}"/>
       <RecoveryNode num_attempts="999">
         <Timeout msec="10000">
           <PubNav2Goal goal="{bump_after_goal}"

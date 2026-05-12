@@ -60,6 +60,9 @@ list(APPEND plugin_libs is_detect_enemy)
 ament_auto_add_library(check_field_event SHARED plugins/condition/check_field_event.cpp)
 list(APPEND plugin_libs check_field_event)
 
+ament_auto_add_library(wait_for_sentry_info_state SHARED plugins/condition/wait_for_sentry_info_state.cpp)
+list(APPEND plugin_libs wait_for_sentry_info_state)
+
 ####### Actions #######
 ament_auto_add_library(calculate_attack_pose SHARED plugins/action/calculate_attack_pose.cpp)
 list(APPEND plugin_libs calculate_attack_pose)
