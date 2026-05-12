@@ -18,6 +18,8 @@
                      value="2.5;6.5;0"/>
       <SetBlackboard output_key="rmuc_bump_from_highland_after_goal"
                      value="3.5;5.5;0"/>
+      <SetBlackboard output_key="rmuc_fortress_guard_goal"
+                     value="0;0;0"/>
       <SetBlackboard output_key="rmuc_assembly_guard_goal"
                      value="2.5;6.5;0"/>
     </Sequence>
