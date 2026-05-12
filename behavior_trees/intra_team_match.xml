@@ -21,10 +21,7 @@
                         v_x="0.0"
                         duration="0.0"
                         topic_name="cmd_vel"/>
-          <PubNav2Goal goal="0;0;0"
-                       topic_name="goal_pose"
-                       success_distance_tolerance="0.15"
-                       nav_observation_timeout="2000"/>
+          <PubNav2Goal topic_name="goal_pose"/>
         </Sequence>
       </ForceFailure>
     </Fallback>
@@ -103,10 +100,7 @@
       <Fallback>
         <IsRfidDetected ally_supply_point_non_exchange="true"
                         key_port="{@referee_rfidStatus}"/>
-        <PubNav2Goal goal="0;0;0"
-                     topic_name="goal_pose"
-                     success_distance_tolerance="0.15"
-                     nav_observation_timeout="2000"/>
+        <PubNav2Goal topic_name="goal_pose"/>
       </Fallback>
     </ReactiveSequence>
   </BehaviorTree>
@@ -116,9 +110,7 @@
       <ReactiveFallback>
         <SubTree ID="intra_team_match_check_min_hp"/>
         <PubNav2Goal goal="3.5;5.5;0"
-                   topic_name="goal_pose"
-                   success_distance_tolerance="0.15"
-                   nav_observation_timeout="2000"/>
+                   topic_name="goal_pose"/>
       </ReactiveFallback>
     </ForceSuccess>
   </BehaviorTree>
@@ -128,16 +120,18 @@
       <ForceSuccess>
         <ReactiveSequence>
           <SubTree ID="intra_team_match_check_game_start"/>
-          <Parallel success_count="1"
-                    failure_count="1">
+          <ReactiveParallel success_count="1"
+                            failure_count="1">
             <KeepRunningUntilFailure>
               <SubTree ID="intra_team_match_control_robot_status"/>
             </KeepRunningUntilFailure>
             <KeepRunningUntilFailure>
               <SubTree ID="intra_team_match_control_sentry_status"/>
             </KeepRunningUntilFailure>
-            <SubTree ID="intra_team_match_decide_goal"/>
-          </Parallel>
+            <KeepRunningUntilFailure>
+              <SubTree ID="intra_team_match_decide_goal"/>
+            </KeepRunningUntilFailure>
+          </ReactiveParallel>
         </ReactiveSequence>
       </ForceSuccess>
     </KeepRunningUntilFailure>

@@ -101,6 +101,9 @@ list(APPEND plugin_libs mission_blackboard)
 ament_auto_add_library(recovery_node SHARED plugins/control/recovery_node.cpp)
 list(APPEND plugin_libs recovery_node)
 
+ament_auto_add_library(reactive_parallel_node SHARED plugins/control/reactive_parallel_node.cpp)
+list(APPEND plugin_libs reactive_parallel_node)
+
 ####### Decorators #######
 ament_auto_add_library(rate_controller SHARED plugins/decorator/rate_controller.cpp)
 list(APPEND plugin_libs rate_controller)

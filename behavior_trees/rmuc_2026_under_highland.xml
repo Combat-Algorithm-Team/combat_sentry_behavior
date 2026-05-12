@@ -6,97 +6,72 @@
       <CheckMissionFlag flag="rmuc_outpost_attack_done"
                         expected="false"
                         default_value="false"/>
-      <SetMissionFlag flag="rmuc_outpost_attack_done"
-                      value="true"/>
       <ForceSuccess>
         <Timeout msec="45000">
           <Sequence>
-            <PubNav2Goal goal="{rmuc_trapezoid_right_goal}"
-                         topic_name="goal_pose"
-                         status_port="{@nav2_navigate_to_pose_status}"
-                         feedback_port="{@nav2_navigate_to_pose_feedback}"
-                         plan_port="{@nav2_plan}"
-                         success_distance_tolerance="0.15"
-                         nav_observation_timeout="2000"
-                         distance_remaining="{nav_distance_remaining}"
-                         path_remaining="{nav_path_remaining}"
-                         nav_status_code="{nav_status_code}"/>
-            <PubNav2Goal goal="{rmuc_central_highland_lower_goal}"
-                         topic_name="goal_pose"
-                         status_port="{@nav2_navigate_to_pose_status}"
-                         feedback_port="{@nav2_navigate_to_pose_feedback}"
-                         plan_port="{@nav2_plan}"
-                         success_distance_tolerance="0.15"
-                         nav_observation_timeout="2000"
-                         distance_remaining="{nav_distance_remaining}"
-                         path_remaining="{nav_path_remaining}"
-                         nav_status_code="{nav_status_code}"/>
             <PublishTargetMode target_mode="1"
                                duration="0.0"
                                topic_name="target_mode"/>
             <PubNav2Goal goal="{rmuc_enemy_outpost_attack_goal}"
-                         topic_name="goal_pose"
-                         status_port="{@nav2_navigate_to_pose_status}"
-                         feedback_port="{@nav2_navigate_to_pose_feedback}"
-                         plan_port="{@nav2_plan}"
-                         success_distance_tolerance="0.15"
-                         nav_observation_timeout="2000"
-                         distance_remaining="{nav_distance_remaining}"
-                         path_remaining="{nav_path_remaining}"
-                         nav_status_code="{nav_status_code}"/>
-            <Sleep msec="8000"/>
+                         topic_name="goal_pose"/>
+            <Sleep msec="30000"/>
             <PublishTargetMode target_mode="0"
                                duration="0.0"
                                topic_name="target_mode"/>
+            <SetMissionFlag flag="rmuc_outpost_attack_done"
+                            value="true"/>
           </Sequence>
         </Timeout>
       </ForceSuccess>
     </Sequence>
   </BehaviorTree>
 
-  <BehaviorTree ID="rmuc_2026_activate_power_rune_if_ready">
+  <BehaviorTree ID="rmuc_2026_small_power_rune_ready">
     <Sequence>
-      <Inverter>
-        <CheckFieldEvent key_port="{@referee_eventData}"
-                         ally_small_power_rune="1"/>
-      </Inverter>
-      <CheckMissionCounter counter="rmuc_power_rune_attempts"
-                           max_count="2"
-                           default_value="0"/>
+      <CheckMissionFlag flag="rmuc_phase_on_highland"
+                        expected="false"
+                        default_value="false"/>
+      <IsGameStatus name="RMUC2026SmallPowerRuneTime"
+                    max_remain_time="420"
+                    min_remain_time="240"
+                    expected_game_progress="4"
+                    key_port="{@referee_gameStatus}"/>
+      <CheckFieldEvent key_port="{@referee_eventData}"
+                       ally_small_power_rune="0"/>
       <CheckSentryInfo key_port="{@referee_sentryInfo}"
                        ally_power_rune_state="1"/>
-      <IncrementMissionCounter counter="rmuc_power_rune_attempts"
-                               step="1"
-                               max_count="2"/>
-      <ForceSuccess>
-        <Sequence>
-          <Timeout msec="30000">
-            <Sequence>
-              <PubNav2Goal goal="{rmuc_trapezoid_low_platform_goal}"
-                           topic_name="goal_pose"
-                           status_port="{@nav2_navigate_to_pose_status}"
-                           feedback_port="{@nav2_navigate_to_pose_feedback}"
-                           plan_port="{@nav2_plan}"
-                           success_distance_tolerance="0.15"
-                           nav_observation_timeout="2000"
-                           distance_remaining="{nav_distance_remaining}"
-                           path_remaining="{nav_path_remaining}"
-                           nav_status_code="{nav_status_code}"/>
-              <PublishTargetMode target_mode="2"
-                                 duration="0.0"
-                                 topic_name="target_mode"/>
-              <Sleep msec="12000"/>
-              <PublishTargetMode target_mode="0"
-                                 duration="0.0"
-                                 topic_name="target_mode"/>
-            </Sequence>
-          </Timeout>
-          <CheckFieldEvent key_port="{@referee_eventData}"
-                           ally_small_power_rune="1"
-                           wait_time="5000.0"/>
-        </Sequence>
-      </ForceSuccess>
     </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="rmuc_2026_activate_power_rune_if_ready">
+    <Fallback>
+      <Sequence>
+        <ReactiveSequence>
+          <SubTree ID="rmuc_2026_small_power_rune_ready"/>
+          <PubNav2Goal goal="{rmuc_trapezoid_low_platform_goal}"
+                       topic_name="goal_pose"/>
+        </ReactiveSequence>
+        <ReactiveSequence>
+          <SubTree ID="rmuc_2026_small_power_rune_ready"/>
+          <PublishTargetMode target_mode="2"
+                             duration="0.0"
+                             topic_name="target_mode"/>
+          <ForceSuccess>
+            <CheckFieldEvent key_port="{@referee_eventData}"
+                             ally_small_power_rune="1"
+                             wait_time="20000.0"/>
+          </ForceSuccess>
+        </ReactiveSequence>
+        <PublishTargetMode target_mode="0"
+                           duration="0.0"
+                           topic_name="target_mode"/>
+      </Sequence>
+      <ForceFailure>
+        <PublishTargetMode target_mode="0"
+                           duration="0.0"
+                           topic_name="target_mode"/>
+      </ForceFailure>
+    </Fallback>
   </BehaviorTree>
 
   <BehaviorTree ID="rmuc_2026_enter_highland">

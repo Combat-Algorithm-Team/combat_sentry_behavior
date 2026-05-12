@@ -25,6 +25,7 @@
 #include "behaviortree_ros2/bt_topic_pub_action_node.hpp"
 #include "combat_sentry_behavior/custom_types.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "unique_identifier_msgs/msg/uuid.hpp"
 
 namespace combat_sentry_behavior
 {
@@ -63,8 +64,21 @@ private:
 
   bool isFromCurrentRun(const BT::Timestamp & stamp) const;
 
-  std::optional<int> latestStatusCodeAfterGoal(
+  bool matchesCurrentGoalPose(
+    const geometry_msgs::msg::PoseStamped & goal_pose, double position_tolerance) const;
+
+  bool updateObservedGoalPose(
+    const std::chrono::milliseconds & timeout, double position_tolerance);
+
+  std::optional<action_msgs::msg::GoalStatus> firstStatusAfterObservedGoal(
     const action_msgs::msg::GoalStatusArray & status_array) const;
+
+  std::optional<action_msgs::msg::GoalStatus> findStatusForGoal(
+    const action_msgs::msg::GoalStatusArray & status_array,
+    const unique_identifier_msgs::msg::UUID & goal_id) const;
+
+  std::optional<action_msgs::msg::GoalStatus> selectCurrentGoalStatus(
+    const action_msgs::msg::GoalStatusArray & status_array);
 
   rclcpp::Logger logger() { return node_->get_logger(); }
   rclcpp::Time now() { return node_->now(); }
@@ -72,6 +86,9 @@ private:
   std::shared_ptr<rclcpp::Publisher<geometry_msgs::msg::PoseStamped>> publisher_;
   std::string current_topic_name_;
   Pose3D current_goal_{};
+  std::optional<unique_identifier_msgs::msg::UUID> current_goal_id_;
+  bool observed_current_goal_pose_{false};
+  int64_t observed_goal_pose_ros_nanoseconds_{0};
   SteadyClock::time_point start_time_{};
   SteadyClock::time_point last_republish_time_{};
   int64_t goal_sent_ros_nanoseconds_{0};

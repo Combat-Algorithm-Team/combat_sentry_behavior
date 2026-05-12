@@ -6,10 +6,6 @@
       <!-- TODO: Replace these placeholders with RMUC2026 map-calibrated poses. -->
       <SetBlackboard output_key="rmuc_supply_goal"
                      value="0;0;0"/>
-      <SetBlackboard output_key="rmuc_trapezoid_right_goal"
-                     value="3.5;5.5;0"/>
-      <SetBlackboard output_key="rmuc_central_highland_lower_goal"
-                     value="2.5;6.5;0"/>
       <SetBlackboard output_key="rmuc_enemy_outpost_attack_goal"
                      value="2.5;6.5;0"/>
       <SetBlackboard output_key="rmuc_trapezoid_low_platform_goal"

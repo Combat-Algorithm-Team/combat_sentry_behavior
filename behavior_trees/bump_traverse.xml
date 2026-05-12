@@ -4,9 +4,7 @@
   <BehaviorTree ID="traverse_bump_segment">
     <Sequence>
       <PubNav2Goal goal="{bump_before_goal}"
-                   topic_name="goal_pose"
-                   success_distance_tolerance="0.15"
-                   nav_observation_timeout="2000"/>
+                   topic_name="goal_pose"/>
       <PublishBumpStatus bump_status="1"
                          duration="0.0"
                          topic_name="bump_status"/>
@@ -16,20 +14,16 @@
       <RecoveryNode num_attempts="999">
         <Timeout msec="10000">
           <PubNav2Goal goal="{bump_after_goal}"
-                       topic_name="goal_pose"
-                       success_distance_tolerance="0.15"
-                       nav_observation_timeout="2000"/>
+                       topic_name="goal_pose"/>
         </Timeout>
-        <Parallel success_count="1"
-                  failure_count="2">
+        <ReactiveParallel success_count="1"
+                          failure_count="2">
           <Sleep msec="5000"/>
           <KeepRunningUntilFailure>
             <PubNav2Goal goal="{bump_before_goal}"
-                         topic_name="goal_pose"
-                         success_distance_tolerance="0.15"
-                         nav_observation_timeout="2000"/>
+                         topic_name="goal_pose"/>
           </KeepRunningUntilFailure>
-        </Parallel>
+        </ReactiveParallel>
       </RecoveryNode>
       <PublishBumpStatus bump_status="0"
                          duration="0.0"

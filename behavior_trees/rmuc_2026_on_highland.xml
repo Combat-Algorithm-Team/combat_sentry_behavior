@@ -10,15 +10,7 @@
                          duration="0.0"
                          topic_name="target_mode"/>
       <PubNav2Goal goal="{rmuc_assembly_guard_goal}"
-                   topic_name="goal_pose"
-                   status_port="{@nav2_navigate_to_pose_status}"
-                   feedback_port="{@nav2_navigate_to_pose_feedback}"
-                   plan_port="{@nav2_plan}"
-                   success_distance_tolerance="0.15"
-                   nav_observation_timeout="2000"
-                   distance_remaining="{nav_distance_remaining}"
-                   path_remaining="{nav_path_remaining}"
-                   nav_status_code="{nav_status_code}"/>
+                   topic_name="goal_pose"/>
     </Sequence>
   </BehaviorTree>
 

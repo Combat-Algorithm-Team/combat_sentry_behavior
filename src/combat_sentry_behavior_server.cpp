@@ -107,7 +107,7 @@ SentryBehaviorServer::SentryBehaviorServer(const rclcpp::NodeOptions & options)
   subscribeWithCallback<NavigateToPoseFeedbackMessage>(
     nav_action_name + "/_action/feedback",
     [this](const NavigateToPoseFeedbackMessage::SharedPtr msg) {
-      globalBlackboard()->set("nav2_navigate_to_pose_feedback", msg->feedback);
+      globalBlackboard()->set("nav2_navigate_to_pose_feedback", *msg);
     },
     rclcpp::QoS(10).reliable());
 }
@@ -176,5 +176,4 @@ int main(int argc, char * argv[])
 
   rclcpp::shutdown();
 }
-
 

@@ -31,18 +31,22 @@
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <ReactiveSequence>
-          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <RunOnce then_skip="false">
+            <SubTree ID="rmuc_2026_initialize_goals"/>
+          </RunOnce>
           <SubTree ID="rmuc_2026_check_game_start"/>
-          <Parallel success_count="1"
-                    failure_count="1">
-            <SubTree ID="rmuc_2026_decide_goal"/>
+          <ReactiveParallel success_count="3"
+                            failure_count="1">
+            <KeepRunningUntilFailure>
+              <SubTree ID="rmuc_2026_decide_goal"/>
+            </KeepRunningUntilFailure>
             <KeepRunningUntilFailure>
               <SubTree ID="rmuc_2026_control_robot_status"/>
             </KeepRunningUntilFailure>
             <KeepRunningUntilFailure>
               <SubTree ID="rmuc_2026_control_sentry_status"/>
             </KeepRunningUntilFailure>
-          </Parallel>
+          </ReactiveParallel>
         </ReactiveSequence>
       </ForceSuccess>
     </KeepRunningUntilFailure>
