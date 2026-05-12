@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+
+  <BehaviorTree ID="rmuc_2026_check_game_start">
+    <Fallback>
+      <IsGameStatus name="RMUC2026IsGameStart"
+                    max_remain_time="420"
+                    min_remain_time="0"
+                    expected_game_progress="4"
+                    key_port="{@referee_gameStatus}"/>
+      <ForceFailure>
+        <Sequence>
+          <PublishChassisStatus chassis_status="0"
+                                duration="0.0"
+                                topic_name="cmd_chassis_status"/>
+          <PublishSentryStatus sentry_status="0"
+                               duration="0.0"
+                               topic_name="cmd_sentry_status"/>
+          <PublishTargetMode target_mode="0"
+                             duration="0.0"
+                             topic_name="target_mode"/>
+          <PublishTwist v_y="0.0"
+                        v_yaw="0.0"
+                        v_x="0.0"
+                        duration="0.0"
+                        topic_name="cmd_vel"/>
+          <PubNav2Goal goal="0;0;0"
+                       topic_name="goal_pose"
+                       status_port="{@nav2_navigate_to_pose_status}"
+                       feedback_port="{@nav2_navigate_to_pose_feedback}"
+                       plan_port="{@nav2_plan}"
+                       success_distance_tolerance="0.15"
+                       nav_observation_timeout="2000"
+                       distance_remaining="{nav_distance_remaining}"
+                       path_remaining="{nav_path_remaining}"
+                       nav_status_code="{nav_status_code}"/>
+        </Sequence>
+      </ForceFailure>
+    </Fallback>
+  </BehaviorTree>
+
+  <BehaviorTree ID="rmuc_2026_control_robot_status">
+    <ReactiveFallback>
+      <Sequence>
+        <Fallback>
+          <IsAttacked robotstatus_port="{@referee_robotStatus}"
+                      hurtdata_port="{@referee_hurtData}"/>
+          <IsDetectEnemy armor_id="1;2;3;4;7"
+                         max_distance="6.0"
+                         key_port="{@detector_armors}"/>
+        </Fallback>
+        <Sequence>
+          <PublishChassisStatus chassis_status="255"
+                                duration="500.0"
+                                topic_name="cmd_chassis_status"/>
+          <PublishChassisStatus chassis_status="200"
+                                duration="300.0"
+                                topic_name="cmd_chassis_status"/>
+        </Sequence>
+      </Sequence>
+      <Sequence>
+        <CheckFieldEvent key_port="{@referee_eventData}"
+                         central_highland="0"/>
+        <PublishChassisStatus chassis_status="100"
+                              duration="0.0"
+                              topic_name="cmd_chassis_status"/>
+      </Sequence>
+      <Sequence>
+        <PublishChassisStatus chassis_status="200"
+                              duration="500.0"
+                              topic_name="cmd_chassis_status"/>
+        <PublishChassisStatus chassis_status="150"
+                              duration="300.0"
+                              topic_name="cmd_chassis_status"/>
+      </Sequence>
+    </ReactiveFallback>
+  </BehaviorTree>
+
+  <BehaviorTree ID="rmuc_2026_control_sentry_status">
+    <ReactiveFallback>
+      <Sequence>
+        <Inverter>
+          <IsStatusOK hp_min="200"
+                      hp_max="399"
+                      key_port="{@referee_robotStatus}"/>
+        </Inverter>
+        <PublishSentryStatus sentry_status="2"
+                             duration="0.0"
+                             topic_name="cmd_sentry_status"/>
+      </Sequence>
+      <Sequence>
+        <IsDetectEnemy armor_id="1;2;3;4;7"
+                       max_distance="6.0"
+                       key_port="{@detector_armors}"/>
+        <PublishSentryStatus sentry_status="1"
+                             duration="0.0"
+                             topic_name="cmd_sentry_status"/>
+      </Sequence>
+      <PublishSentryStatus sentry_status="3"
+                           duration="0.0"
+                           topic_name="cmd_sentry_status"/>
+    </ReactiveFallback>
+  </BehaviorTree>
+
+</root>

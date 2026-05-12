@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+
+  <BehaviorTree ID="rmuc_2026_recover_under_highland">
+    <ReactiveSequence>
+      <Inverter>
+        <IsStatusOK hp_min="200"
+                    hp_max="399"
+                    key_port="{@referee_robotStatus}"/>
+      </Inverter>
+      <PublishSentryStatus sentry_status="2"
+                           duration="0.0"
+                           topic_name="cmd_sentry_status"/>
+      <Fallback>
+        <IsRfidDetected ally_supply_point_non_exchange="true"
+                        ally_supply_point_exchange="true"
+                        key_port="{@referee_rfidStatus}"/>
+        <PubNav2Goal goal="{rmuc_supply_goal}"
+                     topic_name="goal_pose"
+                     status_port="{@nav2_navigate_to_pose_status}"
+                     feedback_port="{@nav2_navigate_to_pose_feedback}"
+                     plan_port="{@nav2_plan}"
+                     success_distance_tolerance="0.15"
+                     nav_observation_timeout="2000"
+                     distance_remaining="{nav_distance_remaining}"
+                     path_remaining="{nav_path_remaining}"
+                     nav_status_code="{nav_status_code}"/>
+      </Fallback>
+    </ReactiveSequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="rmuc_2026_recover_from_highland">
+    <ReactiveSequence>
+      <Inverter>
+        <IsStatusOK hp_min="200"
+                    hp_max="399"
+                    key_port="{@referee_robotStatus}"/>
+      </Inverter>
+      <PublishSentryStatus sentry_status="2"
+                           duration="0.0"
+                           topic_name="cmd_sentry_status"/>
+      <Fallback>
+        <IsRfidDetected ally_supply_point_non_exchange="true"
+                        ally_supply_point_exchange="true"
+                        key_port="{@referee_rfidStatus}"/>
+        <Sequence>
+          <SubTree ID="traverse_bump_segment"
+                   bump_before_goal="{rmuc_bump_from_highland_before_goal}"
+                   bump_after_goal="{rmuc_bump_from_highland_after_goal}"/>
+          <SetMissionFlag flag="rmuc_phase_on_highland"
+                          value="false"/>
+          <PubNav2Goal goal="{rmuc_supply_goal}"
+                       topic_name="goal_pose"
+                       status_port="{@nav2_navigate_to_pose_status}"
+                       feedback_port="{@nav2_navigate_to_pose_feedback}"
+                       plan_port="{@nav2_plan}"
+                       success_distance_tolerance="0.15"
+                       nav_observation_timeout="2000"
+                       distance_remaining="{nav_distance_remaining}"
+                       path_remaining="{nav_path_remaining}"
+                       nav_status_code="{nav_status_code}"/>
+        </Sequence>
+      </Fallback>
+    </ReactiveSequence>
+  </BehaviorTree>
+
+</root>

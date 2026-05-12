@@ -63,6 +63,9 @@ list(APPEND plugin_libs check_field_event)
 ament_auto_add_library(wait_for_sentry_info_state SHARED plugins/condition/wait_for_sentry_info_state.cpp)
 list(APPEND plugin_libs wait_for_sentry_info_state)
 
+ament_auto_add_library(check_sentry_info SHARED plugins/condition/check_sentry_info.cpp)
+list(APPEND plugin_libs check_sentry_info)
+
 ####### Actions #######
 ament_auto_add_library(calculate_attack_pose SHARED plugins/action/calculate_attack_pose.cpp)
 list(APPEND plugin_libs calculate_attack_pose)
@@ -90,6 +93,9 @@ list(APPEND plugin_libs pub_bump_status)
 
 ament_auto_add_library(wait_until_reached SHARED plugins/action/wait_until_reached.cpp)
 list(APPEND plugin_libs wait_until_reached)
+
+ament_auto_add_library(mission_blackboard SHARED plugins/action/mission_blackboard.cpp)
+list(APPEND plugin_libs mission_blackboard)
 
 ####### Controls #######
 ament_auto_add_library(recovery_node SHARED plugins/control/recovery_node.cpp)

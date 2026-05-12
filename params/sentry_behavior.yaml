@@ -37,8 +37,9 @@ combat_sentry_behavior_server:
 combat_sentry_behavior_client:
   ros__parameters:
     use_sim_time: true
-    target_tree: rmul_2026_no_attack
+    target_tree: rmuc_2026
 
     # rmul_2026
     # decide_goal_no_attack
     # rmul_2026_no_event
+    # rmuc_2026

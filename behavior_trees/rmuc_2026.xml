@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+
+  <BehaviorTree ID="rmuc_2026_decide_goal">
+    <ForceSuccess>
+      <ReactiveFallback>
+        <Sequence>
+          <CheckMissionFlag flag="rmuc_phase_on_highland"
+                            expected="true"
+                            default_value="false"/>
+          <SubTree ID="rmuc_2026_recover_from_highland"/>
+        </Sequence>
+        <Sequence>
+          <CheckMissionFlag flag="rmuc_phase_on_highland"
+                            expected="false"
+                            default_value="false"/>
+          <SubTree ID="rmuc_2026_recover_under_highland"/>
+        </Sequence>
+        <Sequence>
+          <CheckMissionFlag flag="rmuc_phase_on_highland"
+                            expected="true"
+                            default_value="false"/>
+          <SubTree ID="rmuc_2026_on_highland_tasks"/>
+        </Sequence>
+        <SubTree ID="rmuc_2026_under_highland_tasks"/>
+      </ReactiveFallback>
+    </ForceSuccess>
+  </BehaviorTree>
+
+  <BehaviorTree ID="rmuc_2026">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <ReactiveSequence>
+          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_check_game_start"/>
+          <Parallel success_count="1"
+                    failure_count="1">
+            <SubTree ID="rmuc_2026_decide_goal"/>
+            <KeepRunningUntilFailure>
+              <SubTree ID="rmuc_2026_control_robot_status"/>
+            </KeepRunningUntilFailure>
+            <KeepRunningUntilFailure>
+              <SubTree ID="rmuc_2026_control_sentry_status"/>
+            </KeepRunningUntilFailure>
+          </Parallel>
+        </ReactiveSequence>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+</root>
