@@ -55,9 +55,6 @@
       <CheckProjectileRefillTime game_status_port="{@referee_gameStatus}"/>
       <CheckProjectileAllowance sentry_info_port="{@referee_sentryInfo}"
                                 projectile_allowance_17mm_below="20"/>
-      <PublishTargetMode target_mode="0"
-                         duration="0.0"
-                         topic_name="cmd_target_mode"/>
       <Fallback>
         <IsRfidDetected ally_supply_point_non_exchange="true"
                         ally_supply_point_exchange="true"
@@ -88,9 +85,6 @@
       <CheckProjectileRefillTime game_status_port="{@referee_gameStatus}"/>
       <CheckProjectileAllowance sentry_info_port="{@referee_sentryInfo}"
                                 projectile_allowance_17mm_below="20"/>
-      <PublishTargetMode target_mode="0"
-                         duration="0.0"
-                         topic_name="cmd_target_mode"/>
       <Fallback>
         <IsRfidDetected ally_supply_point_non_exchange="true"
                         ally_supply_point_exchange="true"

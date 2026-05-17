@@ -12,13 +12,13 @@
                               timeout="5000.0"
                               key_port="{@referee_sentryInfo}"/>
       <RecoveryNode num_attempts="999">
-        <Timeout msec="10000">
+        <Timeout msec="30000">
           <PubNav2Goal goal="{bump_after_goal}"
                        topic_name="goal_pose"/>
         </Timeout>
         <ReactiveParallel success_count="1"
                           failure_count="2">
-          <Sleep msec="5000"/>
+          <Sleep msec="10000"/>
           <KeepRunningUntilFailure>
             <PubNav2Goal goal="{bump_before_goal}"
                          topic_name="goal_pose"/>
