@@ -18,6 +18,8 @@
                      value="2.5;6.5;0"/>
       <SetBlackboard output_key="rmuc_fortress_guard_goal"
                      value="0;0;0"/>
+      <SetBlackboard output_key="rmuc_highland_fortress_defense_goal"
+                     value="2.5;6.5;0"/>
       <SetBlackboard output_key="rmuc_assembly_guard_goal"
                      value="2.5;6.5;0"/>
       <SetMissionFlag flag="rmuc_phase_on_highland"

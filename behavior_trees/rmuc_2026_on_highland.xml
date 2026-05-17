@@ -8,8 +8,16 @@
       <PublishTargetMode target_mode="1"
                          duration="0.0"
                          topic_name="cmd_target_mode"/>
-      <PubNav2Goal goal="{rmuc_assembly_guard_goal}"
-                   topic_name="goal_pose"/>
+      <ReactiveFallback>
+        <ReactiveSequence>
+          <CheckFieldEvent key_port="{@referee_eventData}"
+                           ally_fortress_gain_point="2"/>
+          <PubNav2Goal goal="{rmuc_highland_fortress_defense_goal}"
+                       topic_name="goal_pose"/>
+        </ReactiveSequence>
+        <PubNav2Goal goal="{rmuc_assembly_guard_goal}"
+                     topic_name="goal_pose"/>
+      </ReactiveFallback>
     </Sequence>
   </BehaviorTree>
 
