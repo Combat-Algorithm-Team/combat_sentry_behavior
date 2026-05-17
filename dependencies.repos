@@ -4,15 +4,10 @@
 repositories:
   BehaviorTree.ROS2:
     type: git
-    url: https://github.com/SMBU-PolarBear-Robotics-Team/BehaviorTree.ROS2.git
-    version: humble
+    url: https://github.com/Combat-Algorithm-Team/BehaviorTree.ROS2.git
+    version: RM2026_COMBAT_sentry
 
-  pb_rm_interfaces:
+  combat_rm_interfaces:
     type: git
-    url: https://github.com/SMBU-PolarBear-Robotics-Team/pb_rm_interfaces.git
-    version: protocol-v1.7.0
-
-  auto_aim_interfaces:
-    type: git
-    url: https://github.com/SMBU-PolarBear-Robotics-Team/auto_aim_interfaces.git
+    url: https://github.com/Combat-Algorithm-Team/combat_rm_interfaces.git
     version: main
