@@ -94,6 +94,12 @@
     </KeepRunningUntilFailure>
   </BehaviorTree>
 
+  <BehaviorTree ID="rmuc_2026_initialize_running">
+    <PublishTargetMode target_mode="1"
+                       duration="0.0"
+                       topic_name="cmd_target_mode"/>
+  </BehaviorTree>
+
   <BehaviorTree ID="rmuc_2026_control_robot_status">
     <ReactiveFallback>
       <Sequence>
@@ -102,7 +108,7 @@
                       hurtdata_port="{@referee_hurtData}"/>
           <IsDetectEnemy armor_id="1;2;3;4;7"
                          max_distance="6.0"
-                         key_port="{@detector_armors}"/>
+                         key_port="{@tracker_target}"/>
         </Fallback>
         <Sequence>
           <PublishChassisStatus chassis_status="200"
@@ -136,7 +142,7 @@
       <Sequence>
         <Inverter>
           <IsStatusOK hp_min="200"
-                      hp_max="399"
+                      hp_max="400"
                       key_port="{@referee_robotStatus}"/>
         </Inverter>
         <PublishSentryStatus sentry_status="2"
@@ -146,7 +152,7 @@
       <Sequence>
         <IsDetectEnemy armor_id="1;2;3;4;7"
                        max_distance="6.0"
-                       key_port="{@detector_armors}"/>
+                       key_port="{@tracker_target}"/>
         <PublishSentryStatus sentry_status="1"
                              duration="0.0"
                              topic_name="cmd_sentry_status"/>

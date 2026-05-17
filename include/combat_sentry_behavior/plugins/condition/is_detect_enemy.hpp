@@ -17,8 +17,8 @@
 
 #include <string>
 
-#include "combat_rm_interfaces/msg/armors.hpp"
 #include "behaviortree_cpp/condition_node.h"
+#include "combat_rm_interfaces/msg/target.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 namespace combat_sentry_behavior
@@ -49,4 +49,3 @@ private:
 }  // namespace combat_sentry_behavior
 
 #endif  // COMBAT_SENTRY_BEHAVIOR__PLUGINS__CONDITION__IS_DETECT_ENEMY_HPP_
-

@@ -4,33 +4,42 @@
   <BehaviorTree ID="rmuc_2026_attack_outpost_once">
     <Sequence>
       <CheckMissionFlag flag="rmuc_outpost_attack_done"
-                        expected="false"
-                        default_value="false"/>
-      <ForceSuccess>
-        <Timeout msec="45000">
+                        expected="false"/>
+      <RecoveryNode num_attempts="999">
+        <Sequence>
+          <PublishTargetMode target_mode="2"
+                             duration="0.0"
+                             topic_name="cmd_target_mode"/>
+          <PubNav2Goal goal="{rmuc_enemy_outpost_attack_goal}"
+                       topic_name="goal_pose"/>
+          <WaitForTargetLostStable target_id="8"
+                                   lost_duration="5000.0"
+                                   key_port="{@tracker_target}"/>
+          <PublishTargetMode target_mode="1"
+                             duration="0.0"
+                             topic_name="cmd_target_mode"/>
+          <SetMissionFlag flag="rmuc_outpost_attack_done"
+                          value="true"/>
+        </Sequence>
+        <ForceSuccess>
           <Sequence>
-            <PublishTargetMode target_mode="1"
+            <PublishTargetMode target_mode="2"
                                duration="0.0"
                                topic_name="cmd_target_mode"/>
             <PubNav2Goal goal="{rmuc_enemy_outpost_attack_goal}"
                          topic_name="goal_pose"/>
-            <Sleep msec="30000"/>
-            <PublishTargetMode target_mode="0"
-                               duration="0.0"
-                               topic_name="cmd_target_mode"/>
-            <SetMissionFlag flag="rmuc_outpost_attack_done"
-                            value="true"/>
           </Sequence>
-        </Timeout>
-      </ForceSuccess>
+        </ForceSuccess>
+      </RecoveryNode>
     </Sequence>
   </BehaviorTree>
 
   <BehaviorTree ID="rmuc_2026_small_power_rune_ready">
     <Sequence>
+      <CheckMissionCounter counter="rmuc_small_power_rune_activation_failures"
+                           max_count="2"/>
       <CheckMissionFlag flag="rmuc_phase_on_highland"
-                        expected="false"
-                        default_value="false"/>
+                        expected="false"/>
       <IsGameStatus name="RMUC2026SmallPowerRuneTime"
                     max_remain_time="420"
                     min_remain_time="240"
@@ -44,34 +53,54 @@
   </BehaviorTree>
 
   <BehaviorTree ID="rmuc_2026_activate_power_rune_if_ready">
-    <Fallback>
-      <Sequence>
-        <ReactiveSequence>
-          <SubTree ID="rmuc_2026_small_power_rune_ready"/>
-          <PubNav2Goal goal="{rmuc_trapezoid_low_platform_goal}"
-                       topic_name="goal_pose"/>
-        </ReactiveSequence>
-        <ReactiveSequence>
-          <SubTree ID="rmuc_2026_small_power_rune_ready"/>
-          <PublishTargetMode target_mode="2"
+    <Sequence>
+      <ReactiveSequence>
+        <SubTree ID="rmuc_2026_small_power_rune_ready"/>
+        <PubNav2Goal goal="{rmuc_trapezoid_low_platform_goal}"
+                     topic_name="goal_pose"/>
+      </ReactiveSequence>
+      <PublishTargetMode target_mode="3"
+                         duration="0.0"
+                         topic_name="cmd_target_mode"/>
+      <ReactiveFallback>
+        <Sequence>
+          <CheckFieldEvent key_port="{@referee_eventData}"
+                           ally_small_power_rune="1"/>
+          <PublishTargetMode target_mode="1"
                              duration="0.0"
                              topic_name="cmd_target_mode"/>
-          <ForceSuccess>
-            <CheckFieldEvent key_port="{@referee_eventData}"
-                             ally_small_power_rune="1"
-                             wait_time="20000.0"/>
-          </ForceSuccess>
-        </ReactiveSequence>
-        <PublishTargetMode target_mode="0"
-                           duration="0.0"
-                           topic_name="cmd_target_mode"/>
-      </Sequence>
-      <ForceFailure>
-        <PublishTargetMode target_mode="0"
-                           duration="0.0"
-                           topic_name="cmd_target_mode"/>
-      </ForceFailure>
-    </Fallback>
+        </Sequence>
+        <Sequence>
+          <WaitForSentryInfoState expected_state="-1"
+                                  ally_power_rune_state="0"
+                                  timeout="0.0"
+                                  key_port="{@referee_sentryInfo}"/>
+          <ReactiveFallback>
+            <Sequence>
+              <CheckFieldEvent key_port="{@referee_eventData}"
+                               ally_small_power_rune="1"/>
+              <PublishTargetMode target_mode="1"
+                                 duration="0.0"
+                                 topic_name="cmd_target_mode"/>
+            </Sequence>
+            <ForceFailure>
+              <Sequence>
+                <WaitForSentryInfoState expected_state="-1"
+                                        ally_power_rune_state="1"
+                                        timeout="0.0"
+                                        key_port="{@referee_sentryInfo}"/>
+                <PublishTargetMode target_mode="1"
+                                   duration="0.0"
+                                   topic_name="cmd_target_mode"/>
+                <IncrementMissionCounter counter="rmuc_small_power_rune_activation_failures"
+                                         step="1"
+                                         max_count="2"/>
+              </Sequence>
+            </ForceFailure>
+          </ReactiveFallback>
+        </Sequence>
+      </ReactiveFallback>
+    </Sequence>
   </BehaviorTree>
 
   <BehaviorTree ID="rmuc_2026_enter_highland">
@@ -89,8 +118,7 @@
   <BehaviorTree ID="rmuc_2026_under_highland_tasks">
     <Sequence>
       <CheckMissionFlag flag="rmuc_phase_on_highland"
-                        expected="false"
-                        default_value="false"/>
+                        expected="false"/>
       <Fallback>
         <SubTree ID="rmuc_2026_attack_outpost_once"/>
         <SubTree ID="rmuc_2026_activate_power_rune_if_ready"/>

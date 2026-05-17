@@ -4,8 +4,7 @@
   <BehaviorTree ID="rmuc_2026_on_highland_tasks">
     <Sequence>
       <CheckMissionFlag flag="rmuc_phase_on_highland"
-                        expected="true"
-                        default_value="false"/>
+                        expected="true"/>
       <PublishTargetMode target_mode="1"
                          duration="0.0"
                          topic_name="cmd_target_mode"/>

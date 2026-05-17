@@ -7,7 +7,7 @@
         <Sequence>
           <IsDetectEnemy armor_id="1;2;3;4;7"
                       max_distance="6.0"
-                      key_port="{@detector_armors}"/>
+                      key_port="{@tracker_target}"/>
           <CheckTargetInRegion target_port="{@tracker_target}"/>
           <CalculateAttackPose costmap_port="{@nav_globalCostmap}"
                                tracker_port="{@tracker_target}"

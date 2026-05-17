@@ -66,6 +66,9 @@ list(APPEND plugin_libs check_field_event)
 ament_auto_add_library(wait_for_sentry_info_state SHARED plugins/condition/wait_for_sentry_info_state.cpp)
 list(APPEND plugin_libs wait_for_sentry_info_state)
 
+ament_auto_add_library(wait_for_target_lost_stable SHARED plugins/condition/wait_for_target_lost_stable.cpp)
+list(APPEND plugin_libs wait_for_target_lost_stable)
+
 ament_auto_add_library(check_sentry_info SHARED plugins/condition/check_sentry_info.cpp)
 list(APPEND plugin_libs check_sentry_info)
 

@@ -24,34 +24,35 @@ IsStatusOKCondition::IsStatusOKCondition(const std::string & name, const BT::Nod
 
 BT::NodeStatus IsStatusOKCondition::checkRobotStatus()
 {
-  int hp_min;
-  int hp_max;
   auto msg = getInput<combat_rm_interfaces::msg::RobotStatus>("key_port");
   if (!msg) {
     RCLCPP_ERROR(logger_, "RobotStatus message is not available");
     return BT::NodeStatus::FAILURE;
   }
 
-  getInput("hp_min", hp_min);
-  getInput("hp_max", hp_max);
-
-  bool is_hp_ok;
-  
-  if(msg->current_hp >= hp_max) {
-    need_recover_ = false;
-    is_hp_ok = true;
-  }else if(msg->current_hp < hp_min) {
-    need_recover_ = true;
-    is_hp_ok = false;
-  }else if(need_recover_ && msg->current_hp < hp_max) {
-    need_recover_ = true;
-    is_hp_ok = false;
-  }else if(!need_recover_ && msg->current_hp >= hp_min) {
-    need_recover_ = false;
-    is_hp_ok = true;
+  int hp_min = 200;
+  int hp_max = 400;
+  if (!getInput("hp_min", hp_min) || !getInput("hp_max", hp_max)) {
+    RCLCPP_ERROR(logger_, "Failed to read hp_min or hp_max");
+    return BT::NodeStatus::FAILURE;
   }
 
-  return is_hp_ok ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
+  if (hp_min > hp_max) {
+    RCLCPP_ERROR(logger_, "Invalid HP range: hp_min(%d) > hp_max(%d)", hp_min, hp_max);
+    return BT::NodeStatus::FAILURE;
+  }
+
+  if (msg->current_hp < hp_min) {
+    need_recover_ = true;
+    return BT::NodeStatus::FAILURE;
+  }
+
+  if (msg->current_hp >= hp_max) {
+    need_recover_ = false;
+    return BT::NodeStatus::SUCCESS;
+  }
+
+  return need_recover_ ? BT::NodeStatus::FAILURE : BT::NodeStatus::SUCCESS;
 }
 
 BT::PortsList IsStatusOKCondition::providedPorts()
@@ -60,7 +61,7 @@ BT::PortsList IsStatusOKCondition::providedPorts()
     BT::InputPort<combat_rm_interfaces::msg::RobotStatus>(
       "key_port", "{@referee_robotStatus}", "RobotStatus port on blackboard"),
     BT::InputPort<int>("hp_min", 200, "Minimum HP. NOTE: Sentry init/max HP is 400"),
-    BT::InputPort<int>("hp_max", 399, "Maximum HP. NOTE: Sentry init/max HP is 400")};
+    BT::InputPort<int>("hp_max", 400, "Recovery exit HP. NOTE: Sentry init/max HP is 400")};
 }
 }  // namespace combat_sentry_behavior
 

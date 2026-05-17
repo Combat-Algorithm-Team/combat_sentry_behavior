@@ -30,12 +30,21 @@ WaitForSentryInfoState::WaitForSentryInfoState(
 
 BT::NodeStatus WaitForSentryInfoState::onStart()
 {
-  const auto expected_state = getInput<uint8_t>("expected_state");
+  const auto expected_state = getInput<int>("expected_state");
   if (!expected_state) {
     RCLCPP_ERROR(logger_, "Failed to read [expected_state]: %s", expected_state.error().c_str());
     return BT::NodeStatus::FAILURE;
   }
   expected_state_ = expected_state.value();
+
+  const auto ally_power_rune_state = getInput<int>("ally_power_rune_state");
+  if (!ally_power_rune_state) {
+    RCLCPP_ERROR(
+      logger_, "Failed to read [ally_power_rune_state]: %s",
+      ally_power_rune_state.error().c_str());
+    return BT::NodeStatus::FAILURE;
+  }
+  ally_power_rune_state_ = ally_power_rune_state.value();
 
   const auto timeout = getInput<double>("timeout");
   if (!timeout) {
@@ -75,7 +84,11 @@ BT::NodeStatus WaitForSentryInfoState::checkState()
   }
   reported_missing_msg_ = false;
 
-  if (msg->current_state == expected_state_) {
+  const bool match = checkExpectedValue(expected_state_, msg->current_state) &&
+                     checkExpectedValue(
+                       ally_power_rune_state_, msg->ally_power_rune_state ? 1 : 0);
+
+  if (match) {
     return BT::NodeStatus::SUCCESS;
   }
 
@@ -84,9 +97,18 @@ BT::NodeStatus WaitForSentryInfoState::checkState()
 
 bool WaitForSentryInfoState::isTimedOut() const
 {
+  if (timeout_ms_ <= 0.0) {
+    return false;
+  }
+
   const auto elapsed_ms =
     std::chrono::duration<double, std::milli>(SteadyClock::now() - start_time_).count();
   return elapsed_ms >= timeout_ms_;
+}
+
+bool WaitForSentryInfoState::checkExpectedValue(int expected, int actual) const
+{
+  return expected == -1 || expected == actual;
 }
 
 BT::PortsList WaitForSentryInfoState::providedPorts()
@@ -94,10 +116,14 @@ BT::PortsList WaitForSentryInfoState::providedPorts()
   return {
     BT::InputPort<combat_rm_interfaces::msg::SentryInfo>(
       "key_port", "{@referee_sentryInfo}", "SentryInfo port on blackboard"),
-    BT::InputPort<uint8_t>("expected_state", kMovingState, "Expected SentryInfo.current_state"),
+    BT::InputPort<int>(
+      "expected_state", kMovingState, "Expected SentryInfo.current_state. Use -1 to ignore"),
+    BT::InputPort<int>(
+      "ally_power_rune_state", -1,
+      "Expected SentryInfo.ally_power_rune_state. Use -1 to ignore"),
     BT::InputPort<double>(
       "timeout", kDefaultTimeoutMs,
-      "Timeout in milliseconds. Return SUCCESS once the expected state is observed"),
+      "Timeout in milliseconds. Use 0 to wait without timeout"),
   };
 }
 

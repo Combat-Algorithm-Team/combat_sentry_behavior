@@ -1,4 +1,4 @@
-// Copyright 2025 Lihan Chen
+// Copyright 2026 Jieliang Li
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,24 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef COMBAT_SENTRY_BEHAVIOR__PLUGINS__CONDITION__WAIT_FOR_SENTRY_INFO_STATE_HPP_
-#define COMBAT_SENTRY_BEHAVIOR__PLUGINS__CONDITION__WAIT_FOR_SENTRY_INFO_STATE_HPP_
+#ifndef COMBAT_SENTRY_BEHAVIOR__PLUGINS__CONDITION__WAIT_FOR_TARGET_LOST_STABLE_HPP_
+#define COMBAT_SENTRY_BEHAVIOR__PLUGINS__CONDITION__WAIT_FOR_TARGET_LOST_STABLE_HPP_
 
 #include <chrono>
-#include <cstdint>
 #include <string>
 
 #include "behaviortree_cpp/action_node.h"
-#include "combat_rm_interfaces/msg/sentry_info.hpp"
+#include "combat_rm_interfaces/msg/target.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 namespace combat_sentry_behavior
 {
 
-class WaitForSentryInfoState : public BT::StatefulActionNode
+class WaitForTargetLostStable : public BT::StatefulActionNode
 {
 public:
-  WaitForSentryInfoState(const std::string & name, const BT::NodeConfig & config);
+  WaitForTargetLostStable(const std::string & name, const BT::NodeConfig & config);
 
   static BT::PortsList providedPorts();
 
@@ -40,18 +39,19 @@ private:
   BT::NodeStatus onRunning() override;
   void onHalted() override;
 
-  BT::NodeStatus checkState();
-  bool isTimedOut() const;
-  bool checkExpectedValue(int expected, int actual) const;
+  BT::NodeStatus checkTarget();
+  bool isTargetId(const std::string & id) const;
+  bool isStableLost() const;
 
-  rclcpp::Logger logger_ = rclcpp::get_logger("WaitForSentryInfoState");
-  int expected_state_{3};
-  int ally_power_rune_state_{-1};
-  double timeout_ms_{5000.0};
+  rclcpp::Logger logger_ = rclcpp::get_logger("WaitForTargetLostStable");
+  int target_id_{8};
+  double lost_duration_ms_{5000.0};
+  bool seen_target_{false};
+  bool loss_observed_{false};
   bool reported_missing_msg_{false};
-  SteadyClock::time_point start_time_;
+  SteadyClock::time_point loss_start_time_;
 };
 
 }  // namespace combat_sentry_behavior
 
-#endif  // COMBAT_SENTRY_BEHAVIOR__PLUGINS__CONDITION__WAIT_FOR_SENTRY_INFO_STATE_HPP_
+#endif  // COMBAT_SENTRY_BEHAVIOR__PLUGINS__CONDITION__WAIT_FOR_TARGET_LOST_STABLE_HPP_

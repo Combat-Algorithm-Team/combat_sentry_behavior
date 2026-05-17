@@ -19,7 +19,6 @@
 
 #include "action_msgs/msg/goal_status_array.hpp"
 #include "behaviortree_cpp/xml_parsing.h"
-#include "combat_rm_interfaces/msg/armors.hpp"
 #include "combat_rm_interfaces/msg/buff.hpp"
 #include "combat_rm_interfaces/msg/event_data.hpp"
 #include "combat_rm_interfaces/msg/game_robot_hp.hpp"
@@ -88,8 +87,6 @@ SentryBehaviorServer::SentryBehaviorServer(const rclcpp::NodeOptions & options)
   subscribe<combat_rm_interfaces::msg::RobotStatus>("referee/robot_status", "referee_robotStatus");
   subscribe<combat_rm_interfaces::msg::SentryInfo>("referee/sentry_info", "referee_sentryInfo");
 
-  auto detector_qos = rclcpp::SensorDataQoS();
-  subscribe<combat_rm_interfaces::msg::Armors>("armor_detector/armors", "detector_armors", detector_qos);
   auto tracker_qos = rclcpp::SensorDataQoS();
   subscribe<combat_rm_interfaces::msg::Target>("armor_solver/target", "tracker_target", tracker_qos);
 
@@ -176,4 +173,3 @@ int main(int argc, char * argv[])
 
   rclcpp::shutdown();
 }
-

@@ -69,7 +69,7 @@
       <Sequence>
         <Inverter>
           <IsStatusOK hp_min="200"
-                      hp_max="399"
+                      hp_max="400"
                       key_port="{@referee_robotStatus}"/>
         </Inverter>
         <PublishSentryStatus sentry_status="2"
@@ -94,7 +94,7 @@
     <ReactiveSequence>
       <Inverter>
         <IsStatusOK hp_min="200"
-                    hp_max="399"
+                    hp_max="400"
                     key_port="{@referee_robotStatus}"/>
       </Inverter>
       <Fallback>

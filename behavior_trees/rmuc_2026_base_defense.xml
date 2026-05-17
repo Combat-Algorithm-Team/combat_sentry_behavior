@@ -4,8 +4,7 @@
   <BehaviorTree ID="rmuc_2026_defend_base_under_highland">
     <ReactiveSequence>
       <CheckMissionFlag flag="rmuc_phase_on_highland"
-                        expected="false"
-                        default_value="false"/>
+                        expected="false"/>
       <IsBaseHpLow hp_threshold="1000"
                    key_port="{@referee_gameRobotHp}"/>
       <PubNav2Goal goal="{rmuc_fortress_guard_goal}"
@@ -16,8 +15,7 @@
   <BehaviorTree ID="rmuc_2026_defend_base_from_highland">
     <ReactiveSequence>
       <CheckMissionFlag flag="rmuc_phase_on_highland"
-                        expected="true"
-                        default_value="false"/>
+                        expected="true"/>
       <IsBaseHpLow hp_threshold="1000"
                    key_port="{@referee_gameRobotHp}"/>
       <SubTree ID="traverse_bump_segment"
