@@ -16,6 +16,18 @@
                             default_value="false"/>
           <SubTree ID="rmuc_2026_recover_under_highland"/>
         </Sequence>
+        <Sequence>
+          <CheckMissionFlag flag="rmuc_phase_on_highland"
+                            expected="true"
+                            default_value="false"/>
+          <SubTree ID="rmuc_2026_refill_projectile_from_highland"/>
+        </Sequence>
+        <Sequence>
+          <CheckMissionFlag flag="rmuc_phase_on_highland"
+                            expected="false"
+                            default_value="false"/>
+          <SubTree ID="rmuc_2026_refill_projectile_under_highland"/>
+        </Sequence>
         <SubTree ID="rmuc_2026_defend_base_from_highland"/>
         <SubTree ID="rmuc_2026_defend_base_under_highland"/>
         <Sequence>

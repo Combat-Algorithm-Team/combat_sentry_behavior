@@ -11,13 +11,13 @@
           <Sequence>
             <PublishTargetMode target_mode="1"
                                duration="0.0"
-                               topic_name="target_mode"/>
+                               topic_name="cmd_target_mode"/>
             <PubNav2Goal goal="{rmuc_enemy_outpost_attack_goal}"
                          topic_name="goal_pose"/>
             <Sleep msec="30000"/>
             <PublishTargetMode target_mode="0"
                                duration="0.0"
-                               topic_name="target_mode"/>
+                               topic_name="cmd_target_mode"/>
             <SetMissionFlag flag="rmuc_outpost_attack_done"
                             value="true"/>
           </Sequence>
@@ -55,7 +55,7 @@
           <SubTree ID="rmuc_2026_small_power_rune_ready"/>
           <PublishTargetMode target_mode="2"
                              duration="0.0"
-                             topic_name="target_mode"/>
+                             topic_name="cmd_target_mode"/>
           <ForceSuccess>
             <CheckFieldEvent key_port="{@referee_eventData}"
                              ally_small_power_rune="1"
@@ -64,18 +64,20 @@
         </ReactiveSequence>
         <PublishTargetMode target_mode="0"
                            duration="0.0"
-                           topic_name="target_mode"/>
+                           topic_name="cmd_target_mode"/>
       </Sequence>
       <ForceFailure>
         <PublishTargetMode target_mode="0"
                            duration="0.0"
-                           topic_name="target_mode"/>
+                           topic_name="cmd_target_mode"/>
       </ForceFailure>
     </Fallback>
   </BehaviorTree>
 
   <BehaviorTree ID="rmuc_2026_enter_highland">
     <Sequence>
+      <PubNav2Goal goal="{rmuc_bump_slope_start_goal}"
+                   topic_name="goal_pose"/>
       <SubTree ID="traverse_bump_segment"
                bump_before_goal="{rmuc_bump_to_highland_before_goal}"
                bump_after_goal="{rmuc_bump_to_highland_after_goal}"/>

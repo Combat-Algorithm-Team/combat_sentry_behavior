@@ -37,8 +37,10 @@
                         key_port="{@referee_rfidStatus}"/>
         <Sequence>
           <SubTree ID="traverse_bump_segment"
-                   bump_before_goal="{rmuc_bump_from_highland_before_goal}"
-                   bump_after_goal="{rmuc_bump_from_highland_after_goal}"/>
+                   bump_before_goal="{rmuc_bump_to_highland_after_goal}"
+                   bump_after_goal="{rmuc_bump_to_highland_before_goal}"/>
+          <PubNav2Goal goal="{rmuc_bump_slope_start_goal}"
+                       topic_name="goal_pose"/>
           <SetMissionFlag flag="rmuc_phase_on_highland"
                           value="false"/>
           <PubNav2Goal goal="{rmuc_supply_goal}"
@@ -46,6 +48,81 @@
         </Sequence>
       </Fallback>
     </ReactiveSequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="rmuc_2026_refill_projectile_under_highland">
+    <Sequence>
+      <CheckProjectileRefillTime game_status_port="{@referee_gameStatus}"/>
+      <CheckProjectileAllowance sentry_info_port="{@referee_sentryInfo}"
+                                projectile_allowance_17mm_below="20"/>
+      <PublishTargetMode target_mode="0"
+                         duration="0.0"
+                         topic_name="cmd_target_mode"/>
+      <Fallback>
+        <IsRfidDetected ally_supply_point_non_exchange="true"
+                        ally_supply_point_exchange="true"
+                        key_port="{@referee_rfidStatus}"/>
+        <PubNav2Goal goal="{rmuc_supply_goal}"
+                     topic_name="goal_pose"/>
+      </Fallback>
+      <KeepRunningUntilFailure>
+        <Inverter>
+          <ReactiveSequence>
+            <IsRfidDetected ally_supply_point_non_exchange="true"
+                            ally_supply_point_exchange="true"
+                            key_port="{@referee_rfidStatus}"/>
+            <CheckProjectileAllowance sentry_info_port="{@referee_sentryInfo}"
+                                      projectile_allowance_17mm_above="20"/>
+          </ReactiveSequence>
+        </Inverter>
+      </KeepRunningUntilFailure>
+      <PublishTargetMode target_mode="1"
+                         duration="0.0"
+                         topic_name="cmd_target_mode"/>
+      <SetProjectileRefillIndex game_status_port="{@referee_gameStatus}"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="rmuc_2026_refill_projectile_from_highland">
+    <Sequence>
+      <CheckProjectileRefillTime game_status_port="{@referee_gameStatus}"/>
+      <CheckProjectileAllowance sentry_info_port="{@referee_sentryInfo}"
+                                projectile_allowance_17mm_below="20"/>
+      <PublishTargetMode target_mode="0"
+                         duration="0.0"
+                         topic_name="cmd_target_mode"/>
+      <Fallback>
+        <IsRfidDetected ally_supply_point_non_exchange="true"
+                        ally_supply_point_exchange="true"
+                        key_port="{@referee_rfidStatus}"/>
+        <Sequence>
+          <SubTree ID="traverse_bump_segment"
+                   bump_before_goal="{rmuc_bump_to_highland_after_goal}"
+                   bump_after_goal="{rmuc_bump_to_highland_before_goal}"/>
+          <PubNav2Goal goal="{rmuc_bump_slope_start_goal}"
+                       topic_name="goal_pose"/>
+          <SetMissionFlag flag="rmuc_phase_on_highland"
+                          value="false"/>
+          <PubNav2Goal goal="{rmuc_supply_goal}"
+                       topic_name="goal_pose"/>
+        </Sequence>
+      </Fallback>
+      <KeepRunningUntilFailure>
+        <Inverter>
+          <ReactiveSequence>
+            <IsRfidDetected ally_supply_point_non_exchange="true"
+                            ally_supply_point_exchange="true"
+                            key_port="{@referee_rfidStatus}"/>
+            <CheckProjectileAllowance sentry_info_port="{@referee_sentryInfo}"
+                                      projectile_allowance_17mm_above="20"/>
+          </ReactiveSequence>
+        </Inverter>
+      </KeepRunningUntilFailure>
+      <PublishTargetMode target_mode="1"
+                         duration="0.0"
+                         topic_name="cmd_target_mode"/>
+      <SetProjectileRefillIndex game_status_port="{@referee_gameStatus}"/>
+    </Sequence>
   </BehaviorTree>
 
 </root>

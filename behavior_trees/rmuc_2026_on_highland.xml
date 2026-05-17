@@ -6,9 +6,9 @@
       <CheckMissionFlag flag="rmuc_phase_on_highland"
                         expected="true"
                         default_value="false"/>
-      <PublishTargetMode target_mode="0"
+      <PublishTargetMode target_mode="1"
                          duration="0.0"
-                         topic_name="target_mode"/>
+                         topic_name="cmd_target_mode"/>
       <PubNav2Goal goal="{rmuc_assembly_guard_goal}"
                    topic_name="goal_pose"/>
     </Sequence>

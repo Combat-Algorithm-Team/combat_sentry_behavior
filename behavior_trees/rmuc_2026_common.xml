@@ -2,32 +2,96 @@
 <root BTCPP_format="4">
 
   <BehaviorTree ID="rmuc_2026_check_game_start">
-    <Fallback>
+    <ReactiveFallback>
       <IsGameStatus name="RMUC2026IsGameStart"
                     max_remain_time="420"
                     min_remain_time="0"
                     expected_game_progress="4"
                     key_port="{@referee_gameStatus}"/>
-      <ForceFailure>
+      <SubTree ID="rmuc_2026_hold_preparation"/>
+      <SubTree ID="rmuc_2026_hold_self_checking"/>
+      <SubTree ID="rmuc_2026_hold_before_running"/>
+    </ReactiveFallback>
+  </BehaviorTree>
+
+  <BehaviorTree ID="rmuc_2026_hold_preparation">
+    <ReactiveSequence>
+      <IsGameStatus name="RMUC2026Preparation"
+                    max_remain_time="180"
+                    min_remain_time="0"
+                    expected_game_progress="1"
+                    key_port="{@referee_gameStatus}"/>
+      <KeepRunningUntilFailure>
+        <Sequence>
+          <PublishChassisStatus chassis_status="25"
+                                duration="0.0"
+                                topic_name="cmd_chassis_status"/>
+          <PublishSentryStatus sentry_status="3"
+                               duration="0.0"
+                               topic_name="cmd_sentry_status"/>
+          <PublishTargetMode target_mode="1"
+                             duration="0.0"
+                             topic_name="cmd_target_mode"/>
+          <PubNav2Goal topic_name="goal_pose"/>
+        </Sequence>
+      </KeepRunningUntilFailure>
+    </ReactiveSequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="rmuc_2026_hold_self_checking">
+    <ReactiveSequence>
+      <Fallback>
+        <IsGameStatus name="RMUC2026SelfChecking"
+                      max_remain_time="15"
+                      min_remain_time="0"
+                      expected_game_progress="2"
+                      key_port="{@referee_gameStatus}"/>
+        <IsGameStatus name="RMUC2026CountDown"
+                      max_remain_time="5"
+                      min_remain_time="0"
+                      expected_game_progress="3"
+                      key_port="{@referee_gameStatus}"/>
+      </Fallback>
+      <KeepRunningUntilFailure>
         <Sequence>
           <PublishChassisStatus chassis_status="0"
                                 duration="0.0"
                                 topic_name="cmd_chassis_status"/>
-          <PublishSentryStatus sentry_status="0"
+          <PublishSentryStatus sentry_status="3"
                                duration="0.0"
                                topic_name="cmd_sentry_status"/>
           <PublishTargetMode target_mode="0"
                              duration="0.0"
-                             topic_name="target_mode"/>
+                             topic_name="cmd_target_mode"/>
           <PublishTwist v_y="0.0"
                         v_yaw="0.0"
                         v_x="0.0"
                         duration="0.0"
                         topic_name="cmd_vel"/>
-          <PubNav2Goal topic_name="goal_pose"/>
         </Sequence>
-      </ForceFailure>
-    </Fallback>
+      </KeepRunningUntilFailure>
+    </ReactiveSequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="rmuc_2026_hold_before_running">
+    <KeepRunningUntilFailure>
+      <Sequence>
+        <PublishChassisStatus chassis_status="0"
+                              duration="0.0"
+                              topic_name="cmd_chassis_status"/>
+        <PublishSentryStatus sentry_status="0"
+                             duration="0.0"
+                             topic_name="cmd_sentry_status"/>
+        <PublishTargetMode target_mode="0"
+                           duration="0.0"
+                           topic_name="cmd_target_mode"/>
+        <PublishTwist v_y="0.0"
+                      v_yaw="0.0"
+                      v_x="0.0"
+                      duration="0.0"
+                      topic_name="cmd_vel"/>
+      </Sequence>
+    </KeepRunningUntilFailure>
   </BehaviorTree>
 
   <BehaviorTree ID="rmuc_2026_control_robot_status">
@@ -41,29 +105,29 @@
                          key_port="{@detector_armors}"/>
         </Fallback>
         <Sequence>
-          <PublishChassisStatus chassis_status="255"
+          <PublishChassisStatus chassis_status="200"
                                 duration="500.0"
                                 topic_name="cmd_chassis_status"/>
-          <PublishChassisStatus chassis_status="200"
+          <PublishChassisStatus chassis_status="150"
                                 duration="300.0"
                                 topic_name="cmd_chassis_status"/>
         </Sequence>
       </Sequence>
       <Sequence>
         <CheckFieldEvent key_port="{@referee_eventData}"
-                         central_highland="0"/>
-        <PublishChassisStatus chassis_status="100"
-                              duration="0.0"
-                              topic_name="cmd_chassis_status"/>
+                         ally_fortress_gain_point="0"/>
+        <Sequence>
+          <PublishChassisStatus chassis_status="100"
+                                duration="500.0"
+                                topic_name="cmd_chassis_status"/>
+          <PublishChassisStatus chassis_status="50"
+                                duration="300.0"
+                                topic_name="cmd_chassis_status"/>
+        </Sequence>
       </Sequence>
-      <Sequence>
-        <PublishChassisStatus chassis_status="200"
-                              duration="500.0"
-                              topic_name="cmd_chassis_status"/>
-        <PublishChassisStatus chassis_status="150"
-                              duration="300.0"
-                              topic_name="cmd_chassis_status"/>
-      </Sequence>
+      <PublishChassisStatus chassis_status="25"
+                            duration="0.0"
+                            topic_name="cmd_chassis_status"/>
     </ReactiveFallback>
   </BehaviorTree>
 

@@ -100,6 +100,9 @@ list(APPEND plugin_libs wait_until_reached)
 ament_auto_add_library(mission_blackboard SHARED plugins/action/mission_blackboard.cpp)
 list(APPEND plugin_libs mission_blackboard)
 
+ament_auto_add_library(projectile_refill SHARED plugins/action/projectile_refill.cpp)
+list(APPEND plugin_libs projectile_refill)
+
 ####### Controls #######
 ament_auto_add_library(recovery_node SHARED plugins/control/recovery_node.cpp)
 list(APPEND plugin_libs recovery_node)

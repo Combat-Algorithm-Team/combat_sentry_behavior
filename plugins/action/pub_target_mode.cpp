@@ -19,7 +19,7 @@ namespace combat_sentry_behavior
 
 PublishTargetModeAction::PublishTargetModeAction(
   const std::string & name, const BT::NodeConfig & config, const BT::RosNodeParams & params)
-: PubUInt8Base(name, config, params, "target_mode")
+: PubUInt8Base(name, config, params, "cmd_target_mode")
 {
 }
 
