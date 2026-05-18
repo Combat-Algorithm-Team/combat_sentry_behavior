@@ -136,8 +136,8 @@
         </Sequence>
       </Sequence>
       <Sequence>
-        <CheckFieldEvent key_port="{@referee_eventData}"
-                         ally_fortress_gain_point="0"/>
+        <IsRfidDetected key_port="{@referee_rfidStatus}"
+                         ally_fortress_gain_point="true"/>
         <Sequence>
           <PublishChassisStatus chassis_status="100"
                                 duration="500.0"
