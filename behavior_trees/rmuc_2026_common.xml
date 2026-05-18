@@ -103,13 +103,29 @@
   <BehaviorTree ID="rmuc_2026_control_robot_status">
     <ReactiveFallback>
       <Sequence>
-        <Fallback>
-          <IsAttacked robotstatus_port="{@referee_robotStatus}"
-                      hurtdata_port="{@referee_hurtData}"/>
-          <IsDetectEnemy armor_id="1;2;3;4;7"
-                         max_distance="6.0"
-                         key_port="{@tracker_target}"/>
-        </Fallback>
+        <IsAttacked robotstatus_port="{@referee_robotStatus}"
+                    hurtdata_port="{@referee_hurtData}"/>
+        <Sequence>
+          <PublishChassisStatus chassis_status="200"
+                                duration="500.0"
+                                topic_name="cmd_chassis_status"/>
+          <PublishChassisStatus chassis_status="150"
+                                duration="300.0"
+                                topic_name="cmd_chassis_status"/>
+        </Sequence>
+      </Sequence>
+      <Sequence>
+        <IsDetectEnemy armor_id="8"
+                       max_distance="6.0"
+                       key_port="{@tracker_target}"/>
+        <PublishChassisStatus chassis_status="0"
+                              duration="0.0"
+                              topic_name="cmd_chassis_status"/>
+      </Sequence>
+      <Sequence>
+        <IsDetectEnemy armor_id="1;2;3;4;7"
+                       max_distance="6.0"
+                       key_port="{@tracker_target}"/>
         <Sequence>
           <PublishChassisStatus chassis_status="200"
                                 duration="500.0"
