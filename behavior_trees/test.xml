@@ -33,4 +33,320 @@
     </KeepRunningUntilFailure>
   </BehaviorTree>
 
+  <BehaviorTree ID="test_rmuc_2026_initialize_goals">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <SubTree ID="rmuc_2026_initialize_goals"/>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_rmuc_2026_check_game_start">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <SubTree ID="rmuc_2026_check_game_start"/>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_rmuc_2026_hold_preparation">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <SubTree ID="rmuc_2026_hold_preparation"/>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_rmuc_2026_hold_self_checking">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <SubTree ID="rmuc_2026_hold_self_checking"/>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_rmuc_2026_hold_before_running">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <SubTree ID="rmuc_2026_hold_before_running"/>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_rmuc_2026_initialize_running">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <SubTree ID="rmuc_2026_initialize_running"/>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_rmuc_2026_control_robot_status">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <SubTree ID="rmuc_2026_control_robot_status"/>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_rmuc_2026_control_sentry_status">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <SubTree ID="rmuc_2026_control_sentry_status"/>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_rmuc_2026_attack_outpost_once">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <Sequence>
+          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_attack_outpost_once"/>
+        </Sequence>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_rmuc_2026_small_power_rune_ready">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <Sequence>
+          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_small_power_rune_ready"/>
+        </Sequence>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_rmuc_2026_activate_power_rune_if_ready">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <Sequence>
+          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_activate_power_rune_if_ready"/>
+        </Sequence>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_rmuc_2026_enter_highland">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <Sequence>
+          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_enter_highland"/>
+        </Sequence>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_rmuc_2026_under_highland_tasks">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <Sequence>
+          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_under_highland_tasks"/>
+        </Sequence>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_rmuc_2026_recover_under_highland">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <Sequence>
+          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_recover_under_highland"/>
+        </Sequence>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_rmuc_2026_recover_from_highland">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <Sequence>
+          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SetMissionFlag flag="rmuc_phase_on_highland"
+                          value="true"/>
+          <SubTree ID="rmuc_2026_recover_from_highland"/>
+        </Sequence>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_rmuc_2026_refill_projectile_under_highland">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <Sequence>
+          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_refill_projectile_under_highland"/>
+        </Sequence>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_rmuc_2026_refill_projectile_from_highland">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <Sequence>
+          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SetMissionFlag flag="rmuc_phase_on_highland"
+                          value="true"/>
+          <SubTree ID="rmuc_2026_refill_projectile_from_highland"/>
+        </Sequence>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_rmuc_2026_defend_base_under_highland">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <Sequence>
+          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_defend_base_under_highland"/>
+        </Sequence>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_rmuc_2026_defend_base_from_highland">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <Sequence>
+          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SetMissionFlag flag="rmuc_phase_on_highland"
+                          value="true"/>
+          <SubTree ID="rmuc_2026_defend_base_from_highland"/>
+        </Sequence>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_rmuc_2026_on_highland_tasks">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <Sequence>
+          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SetMissionFlag flag="rmuc_phase_on_highland"
+                          value="true"/>
+          <SubTree ID="rmuc_2026_on_highland_tasks"/>
+        </Sequence>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_rmuc_2026_decide_goal">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <Sequence>
+          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_decide_goal"/>
+        </Sequence>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_rmuc_2026">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <SubTree ID="rmuc_2026"/>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_traverse_bump_segment">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <Sequence>
+          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="traverse_bump_segment"
+                   bump_before_goal="{@rmuc_bump_to_highland_before_goal}"
+                   bump_after_goal="{@rmuc_bump_to_highland_after_goal}"/>
+        </Sequence>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_traverse_bump_from_ally">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <Sequence>
+          <SetBlackboard output_key="@bump_from_ally_before_goal"
+                         value="3.5;5.5;0"/>
+          <SetBlackboard output_key="@bump_from_ally_after_goal"
+                         value="2.5;6.5;0"/>
+          <SubTree ID="traverse_bump_from_ally"
+                   bump_from_ally_before_goal="{@bump_from_ally_before_goal}"
+                   bump_from_ally_after_goal="{@bump_from_ally_after_goal}"/>
+        </Sequence>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_traverse_bump_to_ally">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <Sequence>
+          <SetBlackboard output_key="@bump_from_ally_before_goal"
+                         value="3.5;5.5;0"/>
+          <SetBlackboard output_key="@bump_from_ally_after_goal"
+                         value="2.5;6.5;0"/>
+          <SubTree ID="traverse_bump_to_ally"
+                   bump_from_ally_before_goal="{@bump_from_ally_before_goal}"
+                   bump_from_ally_after_goal="{@bump_from_ally_after_goal}"/>
+        </Sequence>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_intra_team_match_check_game_start">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <SubTree ID="intra_team_match_check_game_start"/>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_intra_team_match_control_robot_status">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <SubTree ID="intra_team_match_control_robot_status"/>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_intra_team_match_control_sentry_status">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <SubTree ID="intra_team_match_control_sentry_status"/>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_intra_team_match_check_min_hp">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <SubTree ID="intra_team_match_check_min_hp"/>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_intra_team_match_decide_goal">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <SubTree ID="intra_team_match_decide_goal"/>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_intra_team_match">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <SubTree ID="intra_team_match"/>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
 </root>
