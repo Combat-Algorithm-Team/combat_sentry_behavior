@@ -73,7 +73,7 @@
           </ReactiveSequence>
         </Inverter>
       </KeepRunningUntilFailure>
-      <PublishTargetMode target_mode="1"
+      <PublishTargetMode cmd_target_mode="1"
                          duration="0.0"
                          topic_name="cmd_target_mode"/>
       <SetProjectileRefillIndex game_status_port="{@referee_gameStatus}"/>
@@ -112,7 +112,7 @@
           </ReactiveSequence>
         </Inverter>
       </KeepRunningUntilFailure>
-      <PublishTargetMode target_mode="1"
+      <PublishTargetMode cmd_target_mode="1"
                          duration="0.0"
                          topic_name="cmd_target_mode"/>
       <SetProjectileRefillIndex game_status_port="{@referee_gameStatus}"/>

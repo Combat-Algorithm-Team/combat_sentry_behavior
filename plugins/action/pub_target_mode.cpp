@@ -26,7 +26,7 @@ PublishTargetModeAction::PublishTargetModeAction(
 BT::PortsList PublishTargetModeAction::providedPorts()
 {
   return providedBasicPorts({
-    BT::InputPort<uint8_t>("target_mode", 0, "Target mode (0-255)"),
+    BT::InputPort<uint8_t>("cmd_target_mode", 0, "Target mode (0-255)"),
   });
 }
 

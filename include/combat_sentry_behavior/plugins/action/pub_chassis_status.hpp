@@ -22,7 +22,8 @@ namespace combat_sentry_behavior
 class PublishChassisStatusAction : public PubUInt8Base
 {
 public:
-  PublishChassisStatusAction(const std::string & name, const BT::NodeConfig & config, const BT::RosNodeParams & params);
+  PublishChassisStatusAction(
+    const std::string & name, const BT::NodeConfig & config, const BT::RosNodeParams & params);
 
   static BT::PortsList providedPorts();
 };

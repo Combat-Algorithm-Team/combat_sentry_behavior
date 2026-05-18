@@ -7,7 +7,7 @@
                         expected="false"/>
       <RecoveryNode num_attempts="999">
         <Sequence>
-          <PublishTargetMode target_mode="2"
+          <PublishTargetMode cmd_target_mode="2"
                              duration="0.0"
                              topic_name="cmd_target_mode"/>
           <PubNav2Goal goal="{@rmuc_enemy_outpost_attack_goal}"
@@ -15,7 +15,7 @@
           <WaitForTargetLostStable target_id="8"
                                    lost_duration="5000.0"
                                    key_port="{@tracker_target}"/>
-          <PublishTargetMode target_mode="1"
+          <PublishTargetMode cmd_target_mode="1"
                              duration="0.0"
                              topic_name="cmd_target_mode"/>
           <SetMissionFlag flag="rmuc_outpost_attack_done"
@@ -23,7 +23,7 @@
         </Sequence>
         <ForceSuccess>
           <Sequence>
-            <PublishTargetMode target_mode="2"
+            <PublishTargetMode cmd_target_mode="2"
                                duration="0.0"
                                topic_name="cmd_target_mode"/>
             <PubNav2Goal goal="{@rmuc_enemy_outpost_attack_goal}"
@@ -59,14 +59,14 @@
         <PubNav2Goal goal="{@rmuc_trapezoid_low_platform_goal}"
                      topic_name="goal_pose"/>
       </ReactiveSequence>
-      <PublishTargetMode target_mode="3"
+      <PublishTargetMode cmd_target_mode="3"
                          duration="0.0"
                          topic_name="cmd_target_mode"/>
       <ReactiveFallback>
         <Sequence>
           <CheckFieldEvent key_port="{@referee_eventData}"
                            ally_small_power_rune="1"/>
-          <PublishTargetMode target_mode="1"
+          <PublishTargetMode cmd_target_mode="1"
                              duration="0.0"
                              topic_name="cmd_target_mode"/>
         </Sequence>
@@ -79,7 +79,7 @@
             <Sequence>
               <CheckFieldEvent key_port="{@referee_eventData}"
                                ally_small_power_rune="1"/>
-              <PublishTargetMode target_mode="1"
+              <PublishTargetMode cmd_target_mode="1"
                                  duration="0.0"
                                  topic_name="cmd_target_mode"/>
             </Sequence>
@@ -89,7 +89,7 @@
                                         ally_power_rune_state="1"
                                         timeout="0.0"
                                         key_port="{@referee_sentryInfo}"/>
-                <PublishTargetMode target_mode="1"
+                <PublishTargetMode cmd_target_mode="1"
                                    duration="0.0"
                                    topic_name="cmd_target_mode"/>
                 <IncrementMissionCounter counter="rmuc_small_power_rune_activation_failures"

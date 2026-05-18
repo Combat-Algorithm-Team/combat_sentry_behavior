@@ -29,7 +29,7 @@
           <PublishSentryStatus sentry_status="3"
                                duration="0.0"
                                topic_name="cmd_sentry_status"/>
-          <PublishTargetMode target_mode="1"
+          <PublishTargetMode cmd_target_mode="1"
                              duration="0.0"
                              topic_name="cmd_target_mode"/>
           <PubNav2Goal topic_name="goal_pose"/>
@@ -60,7 +60,7 @@
           <PublishSentryStatus sentry_status="3"
                                duration="0.0"
                                topic_name="cmd_sentry_status"/>
-          <PublishTargetMode target_mode="0"
+          <PublishTargetMode cmd_target_mode="0"
                              duration="0.0"
                              topic_name="cmd_target_mode"/>
           <PublishTwist v_y="0.0"
@@ -82,7 +82,7 @@
         <PublishSentryStatus sentry_status="0"
                              duration="0.0"
                              topic_name="cmd_sentry_status"/>
-        <PublishTargetMode target_mode="0"
+        <PublishTargetMode cmd_target_mode="0"
                            duration="0.0"
                            topic_name="cmd_target_mode"/>
         <PublishTwist v_y="0.0"
@@ -95,7 +95,7 @@
   </BehaviorTree>
 
   <BehaviorTree ID="rmuc_2026_initialize_running">
-    <PublishTargetMode target_mode="1"
+    <PublishTargetMode cmd_target_mode="1"
                        duration="0.0"
                        topic_name="cmd_target_mode"/>
   </BehaviorTree>
@@ -110,7 +110,7 @@
                                 duration="500.0"
                                 topic_name="cmd_chassis_status"/>
           <PublishChassisStatus chassis_status="150"
-                                duration="300.0"
+                                duration="500.0"
                                 topic_name="cmd_chassis_status"/>
         </Sequence>
       </Sequence>
@@ -131,7 +131,7 @@
                                 duration="500.0"
                                 topic_name="cmd_chassis_status"/>
           <PublishChassisStatus chassis_status="150"
-                                duration="300.0"
+                                duration="500.0"
                                 topic_name="cmd_chassis_status"/>
         </Sequence>
       </Sequence>
