@@ -116,7 +116,7 @@
       </Sequence>
       <Sequence>
         <IsDetectEnemy armor_id="8"
-                       max_distance="6.0"
+                       max_distance="10.0"
                        key_port="{@tracker_target}"/>
         <PublishChassisStatus chassis_status="0"
                               duration="0.0"

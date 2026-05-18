@@ -15,7 +15,7 @@
         <IsRfidDetected ally_supply_point_non_exchange="true"
                         ally_supply_point_exchange="true"
                         key_port="{@referee_rfidStatus}"/>
-        <PubNav2Goal goal="{rmuc_supply_goal}"
+        <PubNav2Goal goal="{@rmuc_supply_goal}"
                      topic_name="goal_pose"/>
       </Fallback>
     </ReactiveSequence>
@@ -37,13 +37,13 @@
                         key_port="{@referee_rfidStatus}"/>
         <Sequence>
           <SubTree ID="traverse_bump_segment"
-                   bump_before_goal="{rmuc_bump_to_highland_after_goal}"
-                   bump_after_goal="{rmuc_bump_to_highland_before_goal}"/>
-          <PubNav2Goal goal="{rmuc_bump_slope_start_goal}"
+                   bump_before_goal="{@rmuc_bump_to_highland_after_goal}"
+                   bump_after_goal="{@rmuc_bump_to_highland_before_goal}"/>
+          <PubNav2Goal goal="{@rmuc_bump_slope_start_goal}"
                        topic_name="goal_pose"/>
           <SetMissionFlag flag="rmuc_phase_on_highland"
                           value="false"/>
-          <PubNav2Goal goal="{rmuc_supply_goal}"
+          <PubNav2Goal goal="{@rmuc_supply_goal}"
                        topic_name="goal_pose"/>
         </Sequence>
       </Fallback>
@@ -59,7 +59,7 @@
         <IsRfidDetected ally_supply_point_non_exchange="true"
                         ally_supply_point_exchange="true"
                         key_port="{@referee_rfidStatus}"/>
-        <PubNav2Goal goal="{rmuc_supply_goal}"
+        <PubNav2Goal goal="{@rmuc_supply_goal}"
                      topic_name="goal_pose"/>
       </Fallback>
       <KeepRunningUntilFailure>
@@ -91,13 +91,13 @@
                         key_port="{@referee_rfidStatus}"/>
         <Sequence>
           <SubTree ID="traverse_bump_segment"
-                   bump_before_goal="{rmuc_bump_to_highland_after_goal}"
-                   bump_after_goal="{rmuc_bump_to_highland_before_goal}"/>
-          <PubNav2Goal goal="{rmuc_bump_slope_start_goal}"
+                   bump_before_goal="{@rmuc_bump_to_highland_after_goal}"
+                   bump_after_goal="{@rmuc_bump_to_highland_before_goal}"/>
+          <PubNav2Goal goal="{@rmuc_bump_slope_start_goal}"
                        topic_name="goal_pose"/>
           <SetMissionFlag flag="rmuc_phase_on_highland"
                           value="false"/>
-          <PubNav2Goal goal="{rmuc_supply_goal}"
+          <PubNav2Goal goal="{@rmuc_supply_goal}"
                        topic_name="goal_pose"/>
         </Sequence>
       </Fallback>

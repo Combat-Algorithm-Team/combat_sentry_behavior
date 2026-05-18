@@ -59,20 +59,20 @@ bool readIntPort(BT::TreeNode & node, rclcpp::Logger logger, const char * port, 
 }
 
 bool readBlackboardFlag(
-  const BT::Blackboard::Ptr & blackboard, const std::string & key, bool default_value)
+  const BT::Blackboard & blackboard, const std::string & key, bool default_value)
 {
   bool value = default_value;
-  if (!blackboard->get<bool>(key, value)) {
+  if (!blackboard.get<bool>(key, value)) {
     return default_value;
   }
   return value;
 }
 
 int readBlackboardCounter(
-  const BT::Blackboard::Ptr & blackboard, const std::string & key, int default_value)
+  const BT::Blackboard & blackboard, const std::string & key, int default_value)
 {
   int value = default_value;
-  if (!blackboard->get<int>(key, value)) {
+  if (!blackboard.get<int>(key, value)) {
     return default_value;
   }
   return value;
@@ -102,7 +102,8 @@ BT::NodeStatus CheckMissionFlag::tick()
     return BT::NodeStatus::FAILURE;
   }
 
-  const bool value = readBlackboardFlag(config().blackboard, flag, default_value);
+  const bool value =
+    readBlackboardFlag(*config().blackboard->rootBlackboard(), flag, default_value);
   return value == expected ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
 }
 
@@ -135,7 +136,7 @@ BT::NodeStatus SetMissionFlag::tick()
     return BT::NodeStatus::FAILURE;
   }
 
-  config().blackboard->set(flag, value);
+  config().blackboard->rootBlackboard()->set(flag, value);
   return BT::NodeStatus::SUCCESS;
 }
 
@@ -169,7 +170,8 @@ BT::NodeStatus CheckMissionCounter::tick()
     return BT::NodeStatus::FAILURE;
   }
 
-  const int value = readBlackboardCounter(config().blackboard, counter, default_value);
+  const int value =
+    readBlackboardCounter(*config().blackboard->rootBlackboard(), counter, default_value);
   return value < max_count ? BT::NodeStatus::SUCCESS : BT::NodeStatus::FAILURE;
 }
 
@@ -202,7 +204,7 @@ BT::NodeStatus SetMissionCounter::tick()
     return BT::NodeStatus::FAILURE;
   }
 
-  config().blackboard->set(counter, value);
+  config().blackboard->rootBlackboard()->set(counter, value);
   return BT::NodeStatus::SUCCESS;
 }
 
@@ -237,11 +239,11 @@ BT::NodeStatus IncrementMissionCounter::tick()
     return BT::NodeStatus::FAILURE;
   }
 
-  int value = readBlackboardCounter(config().blackboard, counter, 0) + step;
+  int value = readBlackboardCounter(*config().blackboard->rootBlackboard(), counter, 0) + step;
   if (max_count >= 0 && value > max_count) {
     value = max_count;
   }
-  config().blackboard->set(counter, value);
+  config().blackboard->rootBlackboard()->set(counter, value);
   return BT::NodeStatus::SUCCESS;
 }
 
