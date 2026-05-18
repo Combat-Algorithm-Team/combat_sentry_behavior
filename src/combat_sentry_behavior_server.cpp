@@ -51,8 +51,7 @@ void SentryBehaviorServer::subscribe(
 
 template <typename T>
 void SentryBehaviorServer::subscribeWithCallback(
-  const std::string & topic,
-  std::function<void(const typename T::SharedPtr)> callback,
+  const std::string & topic, std::function<void(const typename T::SharedPtr)> callback,
   const rclcpp::QoS & qos)
 {
   auto sub = node()->create_subscription<T>(topic, qos, std::move(callback));
@@ -76,19 +75,30 @@ SentryBehaviorServer::SentryBehaviorServer(const rclcpp::NodeOptions & options)
   node()->get_parameter("nav_plan_topic", nav_plan_topic);
   node()->get_parameter("nav_action_name", nav_action_name);
 
-  subscribe<combat_rm_interfaces::msg::Buff>("referee/buff", "referee_buff");
-  subscribe<combat_rm_interfaces::msg::EventData>("referee/event_data", "referee_eventData");
-  subscribe<combat_rm_interfaces::msg::GameRobotHp>("referee/game_robot_hp", "referee_gameRobotHp");
-  subscribe<combat_rm_interfaces::msg::GameStatus>("referee/game_status", "referee_gameStatus");
-  subscribe<combat_rm_interfaces::msg::GroundRobotPosition>("referee/ground_robot_position", "referee_groundRobotPosition");
-  subscribe<combat_rm_interfaces::msg::HurtData>("referee/hurt_data", "referee_hurtData");
-  subscribe<combat_rm_interfaces::msg::RfidStatus>("referee/rfid_status", "referee_rfidStatus");
-  subscribe<combat_rm_interfaces::msg::RobotPos>("referee/robot_pos", "referee_robotPos");
-  subscribe<combat_rm_interfaces::msg::RobotStatus>("referee/robot_status", "referee_robotStatus");
-  subscribe<combat_rm_interfaces::msg::SentryInfo>("referee/sentry_info", "referee_sentryInfo");
+  auto referee_qos = rclcpp::QoS(rclcpp::KeepLast(10)).best_effort();
+  subscribe<combat_rm_interfaces::msg::Buff>("referee/buff", "referee_buff", referee_qos);
+  subscribe<combat_rm_interfaces::msg::EventData>(
+    "referee/event_data", "referee_eventData", referee_qos);
+  subscribe<combat_rm_interfaces::msg::GameRobotHp>(
+    "referee/game_robot_hp", "referee_gameRobotHp", referee_qos);
+  subscribe<combat_rm_interfaces::msg::GameStatus>(
+    "referee/game_status", "referee_gameStatus", referee_qos);
+  subscribe<combat_rm_interfaces::msg::GroundRobotPosition>(
+    "referee/ground_robot_position", "referee_groundRobotPosition", referee_qos);
+  subscribe<combat_rm_interfaces::msg::HurtData>(
+    "referee/hurt_data", "referee_hurtData", referee_qos);
+  subscribe<combat_rm_interfaces::msg::RfidStatus>(
+    "referee/rfid_status", "referee_rfidStatus", referee_qos);
+  subscribe<combat_rm_interfaces::msg::RobotPos>(
+    "referee/robot_pos", "referee_robotPos", referee_qos);
+  subscribe<combat_rm_interfaces::msg::RobotStatus>(
+    "referee/robot_status", "referee_robotStatus", referee_qos);
+  subscribe<combat_rm_interfaces::msg::SentryInfo>(
+    "referee/sentry_info", "referee_sentryInfo", referee_qos);
 
   auto tracker_qos = rclcpp::SensorDataQoS();
-  subscribe<combat_rm_interfaces::msg::Target>("armor_solver/target", "tracker_target", tracker_qos);
+  subscribe<combat_rm_interfaces::msg::Target>(
+    "armor_solver/target", "tracker_target", tracker_qos);
 
   auto costmap_qos = rclcpp::QoS(rclcpp::KeepLast(1)).transient_local().reliable();
   subscribe<nav_msgs::msg::OccupancyGrid>(
