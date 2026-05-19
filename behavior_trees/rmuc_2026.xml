@@ -24,9 +24,9 @@
                             expected="false"/>
           <SubTree ID="rmuc_2026_refill_projectile_under_highland"/>
         </Sequence>
-        <SubTree ID="rmuc_2026_final_two_minute_fortress_attack"/>
         <SubTree ID="rmuc_2026_defend_base_from_highland"/>
         <SubTree ID="rmuc_2026_defend_base_under_highland"/>
+        <SubTree ID="rmuc_2026_final_two_minute_fortress_attack"/>
         <Sequence>
           <CheckMissionFlag flag="rmuc_phase_on_highland"
                             expected="true"/>

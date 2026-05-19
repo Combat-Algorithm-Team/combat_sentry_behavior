@@ -95,8 +95,26 @@
     </KeepRunningUntilFailure>
   </BehaviorTree>
 
+  <BehaviorTree ID="rmuc_2026_reset_target_mode_to_armor">
+    <PublishTargetMode cmd_target_mode="1"
+                       duration="0.0"
+                       topic_name="cmd_target_mode"/>
+  </BehaviorTree>
+
   <BehaviorTree ID="rmuc_2026_control_robot_status">
     <ReactiveFallback>
+      <Sequence>
+        <IsRfidDetected key_port="{@referee_rfidStatus}"
+                        enemy_fortress_gain_point="true"/>
+        <Sequence>
+          <PublishChassisStatus chassis_status="255"
+                                duration="500.0"
+                                topic_name="cmd_chassis_status"/>
+          <PublishChassisStatus chassis_status="200"
+                                duration="500.0"
+                                topic_name="cmd_chassis_status"/>
+        </Sequence>
+      </Sequence>
       <Sequence>
         <IsAttacked robotstatus_port="{@referee_robotStatus}"
                     hurtdata_port="{@referee_hurtData}"/>

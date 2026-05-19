@@ -5,9 +5,6 @@
     <Sequence>
       <PubNav2Goal goal="{bump_before_goal}"
                    topic_name="goal_pose"/>
-      <PublishBumpStatus bump_status="1"
-                         duration="0.0"
-                         topic_name="bump_status"/>
       <WaitForSentryInfoState expected_state="3"
                               timeout="5000.0"
                               key_port="{@referee_sentryInfo}"/>
@@ -18,16 +15,13 @@
         </Timeout>
         <ReactiveParallel success_count="1"
                           failure_count="2">
-          <Sleep msec="10000"/>
+          <Sleep msec="500"/>
           <KeepRunningUntilFailure>
             <PubNav2Goal goal="{bump_before_goal}"
                          topic_name="goal_pose"/>
           </KeepRunningUntilFailure>
         </ReactiveParallel>
       </RecoveryNode>
-      <PublishBumpStatus bump_status="0"
-                         duration="0.0"
-                         topic_name="bump_status"/>
     </Sequence>
   </BehaviorTree>
 

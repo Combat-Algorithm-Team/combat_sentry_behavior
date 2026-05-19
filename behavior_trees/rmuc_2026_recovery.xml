@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
 
+  <BehaviorTree ID="rmuc_2026_return_from_enemy_fortress_if_needed">
+    <Fallback>
+      <Sequence>
+        <CheckMissionFlag flag="rmuc_phase_enemy_fortress_attack"
+                          expected="true"/>
+        <SubTree ID="traverse_bump_segment"
+                 bump_before_goal="{@rmuc_enemy_bump_from_highland_after_goal}"
+                 bump_after_goal="{@rmuc_enemy_bump_from_highland_before_goal}"/>
+        <SetMissionFlag flag="rmuc_phase_enemy_fortress_attack"
+                        value="false"/>
+      </Sequence>
+      <CheckMissionFlag flag="rmuc_phase_enemy_fortress_attack"
+                        expected="false"/>
+    </Fallback>
+  </BehaviorTree>
+
   <BehaviorTree ID="rmuc_2026_recover_under_highland">
     <ReactiveSequence>
       <Inverter>
@@ -8,6 +24,7 @@
                     hp_max="400"
                     key_port="{@referee_robotStatus}"/>
       </Inverter>
+      <SubTree ID="rmuc_2026_reset_target_mode_to_armor"/>
       <PublishSentryStatus sentry_status="2"
                            duration="0.0"
                            topic_name="cmd_sentry_status"/>
@@ -28,6 +45,7 @@
                     hp_max="400"
                     key_port="{@referee_robotStatus}"/>
       </Inverter>
+      <SubTree ID="rmuc_2026_reset_target_mode_to_armor"/>
       <PublishSentryStatus sentry_status="2"
                            duration="0.0"
                            topic_name="cmd_sentry_status"/>
@@ -36,6 +54,7 @@
                         ally_supply_point_exchange="true"
                         key_port="{@referee_rfidStatus}"/>
         <Sequence>
+          <SubTree ID="rmuc_2026_return_from_enemy_fortress_if_needed"/>
           <SubTree ID="traverse_bump_segment"
                    bump_before_goal="{@rmuc_bump_to_highland_after_goal}"
                    bump_after_goal="{@rmuc_bump_to_highland_before_goal}"/>
@@ -55,6 +74,7 @@
       <CheckProjectileRefillTime game_status_port="{@referee_gameStatus}"/>
       <CheckProjectileAllowance sentry_info_port="{@referee_sentryInfo}"
                                 projectile_allowance_17mm_below="20"/>
+      <SubTree ID="rmuc_2026_reset_target_mode_to_armor"/>
       <Fallback>
         <IsRfidDetected ally_supply_point_non_exchange="true"
                         ally_supply_point_exchange="true"
@@ -85,11 +105,13 @@
       <CheckProjectileRefillTime game_status_port="{@referee_gameStatus}"/>
       <CheckProjectileAllowance sentry_info_port="{@referee_sentryInfo}"
                                 projectile_allowance_17mm_below="20"/>
+      <SubTree ID="rmuc_2026_reset_target_mode_to_armor"/>
       <Fallback>
         <IsRfidDetected ally_supply_point_non_exchange="true"
                         ally_supply_point_exchange="true"
                         key_port="{@referee_rfidStatus}"/>
         <Sequence>
+          <SubTree ID="rmuc_2026_return_from_enemy_fortress_if_needed"/>
           <SubTree ID="traverse_bump_segment"
                    bump_before_goal="{@rmuc_bump_to_highland_after_goal}"
                    bump_after_goal="{@rmuc_bump_to_highland_before_goal}"/>

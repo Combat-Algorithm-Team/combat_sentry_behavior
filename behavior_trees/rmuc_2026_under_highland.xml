@@ -105,6 +105,7 @@
 
   <BehaviorTree ID="rmuc_2026_enter_highland">
     <Sequence>
+      <SubTree ID="rmuc_2026_reset_target_mode_to_armor"/>
       <PubNav2Goal goal="{@rmuc_bump_slope_start_goal}"
                    topic_name="goal_pose"/>
       <SubTree ID="traverse_bump_segment"
@@ -115,6 +116,16 @@
     </Sequence>
   </BehaviorTree>
 
+  <BehaviorTree ID="rmuc_2026_defend_fortress_under_highland">
+    <ReactiveSequence>
+      <CheckFieldEvent key_port="{@referee_eventData}"
+                       ally_fortress_gain_point="2"/>
+      <SubTree ID="rmuc_2026_reset_target_mode_to_armor"/>
+      <PubNav2Goal goal="{@rmuc_fortress_defense_under_highland_goal}"
+                   topic_name="goal_pose"/>
+    </ReactiveSequence>
+  </BehaviorTree>
+
   <BehaviorTree ID="rmuc_2026_under_highland_tasks">
     <Sequence>
       <CheckMissionFlag flag="rmuc_phase_on_highland"
@@ -122,6 +133,7 @@
       <Fallback>
         <SubTree ID="rmuc_2026_attack_outpost_once"/>
         <SubTree ID="rmuc_2026_activate_power_rune_if_ready"/>
+        <SubTree ID="rmuc_2026_defend_fortress_under_highland"/>
         <SubTree ID="rmuc_2026_enter_highland"/>
       </Fallback>
     </Sequence>

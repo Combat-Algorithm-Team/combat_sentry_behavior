@@ -7,6 +7,7 @@
                         expected="false"/>
       <IsBaseHpLow hp_threshold="1000"
                    key_port="{@referee_gameRobotHp}"/>
+      <SubTree ID="rmuc_2026_reset_target_mode_to_armor"/>
       <PubNav2Goal goal="{@rmuc_fortress_guard_goal}"
                    topic_name="goal_pose"/>
     </ReactiveSequence>
@@ -18,6 +19,8 @@
                         expected="true"/>
       <IsBaseHpLow hp_threshold="4000"
                    key_port="{@referee_gameRobotHp}"/>
+      <SubTree ID="rmuc_2026_reset_target_mode_to_armor"/>
+      <SubTree ID="rmuc_2026_return_from_enemy_fortress_if_needed"/>
       <SubTree ID="traverse_bump_segment"
                bump_before_goal="{@rmuc_bump_to_highland_after_goal}"
                bump_after_goal="{@rmuc_bump_to_highland_before_goal}"/>

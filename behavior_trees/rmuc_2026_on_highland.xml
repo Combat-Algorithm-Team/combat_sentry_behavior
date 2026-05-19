@@ -2,7 +2,7 @@
 <root BTCPP_format="4">
 
   <BehaviorTree ID="rmuc_2026_final_two_minute_fortress_attack">
-    <ReactiveSequence>
+    <Sequence>
       <CheckMissionFlag flag="rmuc_enable_final_two_minute_fortress_attack"
                         expected="true"/>
       <CheckMissionFlag flag="rmuc_phase_on_highland"
@@ -12,29 +12,37 @@
                     min_remain_time="0"
                     expected_game_progress="4"
                     key_port="{@referee_gameStatus}"/>
-      <PublishTargetMode cmd_target_mode="1"
-                         duration="0.0"
-                         topic_name="cmd_target_mode"/>
-      <SubTree ID="traverse_bump_segment"
-               bump_before_goal="{@rmuc_enemy_bump_from_highland_before_goal}"
-               bump_after_goal="{@rmuc_enemy_bump_from_highland_after_goal}"/>
-      <PubNav2Goal goal="{@rmuc_enemy_fortress_upper_goal}"
-                   topic_name="goal_pose"/>
-    </ReactiveSequence>
+      <SubTree ID="rmuc_2026_reset_target_mode_to_armor"/>
+      <Fallback>
+        <Sequence>
+          <CheckMissionFlag flag="rmuc_phase_enemy_fortress_attack"
+                            expected="true"/>
+          <PubNav2Goal goal="{@rmuc_enemy_fortress_upper_goal}"
+                       topic_name="goal_pose"/>
+        </Sequence>
+        <Sequence>
+          <SubTree ID="traverse_bump_segment"
+                   bump_before_goal="{@rmuc_enemy_bump_from_highland_before_goal}"
+                   bump_after_goal="{@rmuc_enemy_bump_from_highland_after_goal}"/>
+          <SetMissionFlag flag="rmuc_phase_enemy_fortress_attack"
+                          value="true"/>
+          <PubNav2Goal goal="{@rmuc_enemy_fortress_upper_goal}"
+                       topic_name="goal_pose"/>
+        </Sequence>
+      </Fallback>
+    </Sequence>
   </BehaviorTree>
 
   <BehaviorTree ID="rmuc_2026_on_highland_tasks">
     <Sequence>
       <CheckMissionFlag flag="rmuc_phase_on_highland"
                         expected="true"/>
-      <PublishTargetMode cmd_target_mode="1"
-                         duration="0.0"
-                         topic_name="cmd_target_mode"/>
+      <SubTree ID="rmuc_2026_reset_target_mode_to_armor"/>
       <ReactiveFallback>
         <ReactiveSequence>
           <CheckFieldEvent key_port="{@referee_eventData}"
                            ally_fortress_gain_point="2"/>
-          <PubNav2Goal goal="{@rmuc_highland_fortress_defense_goal}"
+          <PubNav2Goal goal="{@rmuc_fortress_defense_on_highland_goal}"
                        topic_name="goal_pose"/>
         </ReactiveSequence>
         <PubNav2Goal goal="{@rmuc_assembly_guard_goal}"
