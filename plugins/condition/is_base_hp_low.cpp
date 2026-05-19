@@ -33,7 +33,7 @@ BT::NodeStatus IsBaseHpLowCondition::checkBaseHp()
     return BT::NodeStatus::FAILURE;
   }
 
-  int hp_threshold = 600;
+  int hp_threshold = 4000;
   const auto hp_threshold_result = getInput("hp_threshold", hp_threshold);
   if (!hp_threshold_result) {
     RCLCPP_ERROR(
