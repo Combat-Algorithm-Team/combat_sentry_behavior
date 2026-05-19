@@ -170,7 +170,7 @@
     <ReactiveFallback>
       <Sequence>
         <Inverter>
-          <IsStatusOK hp_min="200"
+          <IsStatusOK hp_min="100"
                       hp_max="400"
                       key_port="{@referee_robotStatus}"/>
         </Inverter>
