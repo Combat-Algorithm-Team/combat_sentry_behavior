@@ -33,10 +33,10 @@
     </KeepRunningUntilFailure>
   </BehaviorTree>
 
-  <BehaviorTree ID="test_rmuc_2026_initialize_goals">
+  <BehaviorTree ID="test_rmuc_2026_initialize">
     <KeepRunningUntilFailure>
       <ForceSuccess>
-        <SubTree ID="rmuc_2026_initialize_goals"/>
+        <SubTree ID="rmuc_2026_initialize"/>
       </ForceSuccess>
     </KeepRunningUntilFailure>
   </BehaviorTree>
@@ -73,14 +73,6 @@
     </KeepRunningUntilFailure>
   </BehaviorTree>
 
-  <BehaviorTree ID="test_rmuc_2026_initialize_running">
-    <KeepRunningUntilFailure>
-      <ForceSuccess>
-        <SubTree ID="rmuc_2026_initialize_running"/>
-      </ForceSuccess>
-    </KeepRunningUntilFailure>
-  </BehaviorTree>
-
   <BehaviorTree ID="test_rmuc_2026_control_robot_status">
     <KeepRunningUntilFailure>
       <ForceSuccess>
@@ -101,7 +93,7 @@
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <Sequence>
-          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_initialize"/>
           <SubTree ID="rmuc_2026_attack_outpost_once"/>
         </Sequence>
       </ForceSuccess>
@@ -112,7 +104,7 @@
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <Sequence>
-          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_initialize"/>
           <SubTree ID="rmuc_2026_small_power_rune_ready"/>
         </Sequence>
       </ForceSuccess>
@@ -123,7 +115,7 @@
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <Sequence>
-          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_initialize"/>
           <SubTree ID="rmuc_2026_activate_power_rune_if_ready"/>
         </Sequence>
       </ForceSuccess>
@@ -134,7 +126,7 @@
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <Sequence>
-          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_initialize"/>
           <SubTree ID="rmuc_2026_enter_highland"/>
         </Sequence>
       </ForceSuccess>
@@ -145,7 +137,7 @@
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <Sequence>
-          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_initialize"/>
           <SubTree ID="rmuc_2026_under_highland_tasks"/>
         </Sequence>
       </ForceSuccess>
@@ -156,7 +148,7 @@
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <Sequence>
-          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_initialize"/>
           <SubTree ID="rmuc_2026_recover_under_highland"/>
         </Sequence>
       </ForceSuccess>
@@ -167,7 +159,7 @@
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <Sequence>
-          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_initialize"/>
           <SetMissionFlag flag="rmuc_phase_on_highland"
                           value="true"/>
           <SubTree ID="rmuc_2026_recover_from_highland"/>
@@ -180,7 +172,7 @@
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <Sequence>
-          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_initialize"/>
           <SubTree ID="rmuc_2026_refill_projectile_under_highland"/>
         </Sequence>
       </ForceSuccess>
@@ -191,7 +183,7 @@
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <Sequence>
-          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_initialize"/>
           <SetMissionFlag flag="rmuc_phase_on_highland"
                           value="true"/>
           <SubTree ID="rmuc_2026_refill_projectile_from_highland"/>
@@ -204,7 +196,7 @@
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <Sequence>
-          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_initialize"/>
           <SubTree ID="rmuc_2026_defend_base_under_highland"/>
         </Sequence>
       </ForceSuccess>
@@ -215,7 +207,7 @@
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <Sequence>
-          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_initialize"/>
           <SetMissionFlag flag="rmuc_phase_on_highland"
                           value="true"/>
           <SubTree ID="rmuc_2026_defend_base_from_highland"/>
@@ -228,10 +220,25 @@
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <Sequence>
-          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_initialize"/>
           <SetMissionFlag flag="rmuc_phase_on_highland"
                           value="true"/>
           <SubTree ID="rmuc_2026_on_highland_tasks"/>
+        </Sequence>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_rmuc_2026_final_two_minute_fortress_attack">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <Sequence>
+          <SubTree ID="rmuc_2026_initialize"/>
+          <SetMissionFlag flag="rmuc_phase_on_highland"
+                          value="true"/>
+          <SetMissionFlag flag="rmuc_enable_final_two_minute_fortress_attack"
+                          value="true"/>
+          <SubTree ID="rmuc_2026_final_two_minute_fortress_attack"/>
         </Sequence>
       </ForceSuccess>
     </KeepRunningUntilFailure>
@@ -241,7 +248,7 @@
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <Sequence>
-          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_initialize"/>
           <SubTree ID="rmuc_2026_decide_goal"/>
         </Sequence>
       </ForceSuccess>
@@ -260,7 +267,7 @@
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <Sequence>
-          <SubTree ID="rmuc_2026_initialize_goals"/>
+          <SubTree ID="rmuc_2026_initialize"/>
           <SubTree ID="traverse_bump_segment"
                    bump_before_goal="{@rmuc_bump_to_highland_before_goal}"
                    bump_after_goal="{@rmuc_bump_to_highland_after_goal}"/>

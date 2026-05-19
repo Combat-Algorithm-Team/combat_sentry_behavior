@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
 
-  <BehaviorTree ID="rmuc_2026_initialize_goals">
+  <BehaviorTree ID="rmuc_2026_initialize">
     <Sequence>
       <!-- TODO: Replace these placeholders with RMUC2026 map-calibrated poses. -->
       <SetBlackboard output_key="@rmuc_supply_goal"
@@ -16,18 +16,29 @@
                      value="3.5;5.5;0"/>
       <SetBlackboard output_key="@rmuc_bump_to_highland_after_goal"
                      value="2.5;6.5;0"/>
+      <SetBlackboard output_key="@rmuc_enemy_bump_from_highland_before_goal"
+                     value="2.5;6.5;0"/>
+      <SetBlackboard output_key="@rmuc_enemy_bump_from_highland_after_goal"
+                     value="2.5;6.5;0"/>
       <SetBlackboard output_key="@rmuc_fortress_guard_goal"
                      value="0;0;0"/>
       <SetBlackboard output_key="@rmuc_highland_fortress_defense_goal"
                      value="2.5;6.5;0"/>
+      <SetBlackboard output_key="@rmuc_enemy_fortress_upper_goal"
+                     value="0;0;0"/>
       <SetBlackboard output_key="@rmuc_assembly_guard_goal"
                      value="2.5;6.5;0"/>
       <SetMissionFlag flag="rmuc_phase_on_highland"
                       value="false"/>
       <SetMissionFlag flag="rmuc_outpost_attack_done"
                       value="false"/>
+      <SetMissionFlag flag="rmuc_enable_final_two_minute_fortress_attack"
+                      value="false"/>
       <SetMissionCounter counter="rmuc_small_power_rune_activation_failures"
                          value="0"/>
+      <PublishTargetMode cmd_target_mode="1"
+                         duration="0.0"
+                         topic_name="cmd_target_mode"/>
     </Sequence>
   </BehaviorTree>
 

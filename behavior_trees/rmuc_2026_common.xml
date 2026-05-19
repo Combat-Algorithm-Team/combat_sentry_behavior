@@ -32,7 +32,8 @@
           <PublishTargetMode cmd_target_mode="1"
                              duration="0.0"
                              topic_name="cmd_target_mode"/>
-          <PubNav2Goal topic_name="goal_pose"/>
+          <PubNav2Goal goal="-0.1;0.0;0.0"
+                       topic_name="goal_pose"/>
         </Sequence>
       </KeepRunningUntilFailure>
     </ReactiveSequence>
@@ -92,12 +93,6 @@
                       topic_name="cmd_vel"/>
       </Sequence>
     </KeepRunningUntilFailure>
-  </BehaviorTree>
-
-  <BehaviorTree ID="rmuc_2026_initialize_running">
-    <PublishTargetMode cmd_target_mode="1"
-                       duration="0.0"
-                       topic_name="cmd_target_mode"/>
   </BehaviorTree>
 
   <BehaviorTree ID="rmuc_2026_control_robot_status">

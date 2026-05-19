@@ -1,6 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
 
+  <BehaviorTree ID="rmuc_2026_final_two_minute_fortress_attack">
+    <ReactiveSequence>
+      <CheckMissionFlag flag="rmuc_enable_final_two_minute_fortress_attack"
+                        expected="true"/>
+      <CheckMissionFlag flag="rmuc_phase_on_highland"
+                        expected="true"/>
+      <IsGameStatus name="RMUC2026FinalTwoMinuteFortressAttackTime"
+                    max_remain_time="120"
+                    min_remain_time="0"
+                    expected_game_progress="4"
+                    key_port="{@referee_gameStatus}"/>
+      <PublishTargetMode cmd_target_mode="1"
+                         duration="0.0"
+                         topic_name="cmd_target_mode"/>
+      <SubTree ID="traverse_bump_segment"
+               bump_before_goal="{@rmuc_enemy_bump_from_highland_before_goal}"
+               bump_after_goal="{@rmuc_enemy_bump_from_highland_after_goal}"/>
+      <PubNav2Goal goal="{@rmuc_enemy_fortress_upper_goal}"
+                   topic_name="goal_pose"/>
+    </ReactiveSequence>
+  </BehaviorTree>
+
   <BehaviorTree ID="rmuc_2026_on_highland_tasks">
     <Sequence>
       <CheckMissionFlag flag="rmuc_phase_on_highland"
