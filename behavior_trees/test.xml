@@ -1,94 +1,193 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
 
-  <BehaviorTree ID="test_attack_pose">
+  <!-- Nav2 goal 发布/抢占/halt 测试：不依赖整棵 RMUC 树，专门观察 PubNav2Goal 的状态机。 -->
+  <BehaviorTree ID="test_nav2_goal_ping_pong_seed">
+    <Sequence>
+      <SetBlackboard output_key="@test_nav2_goal_a"
+                     value="0.45;0.0;0.0"/>
+      <SetBlackboard output_key="@test_nav2_goal_b"
+                     value="-0.45;0.0;3.1416"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_nav2_goal_preempt_a_with_b">
+    <Sequence>
+      <PublishTargetMode cmd_target_mode="1"
+                         duration="0.0"
+                         topic_name="cmd_target_mode"/>
+      <!-- A 先保持 RUNNING；B 延迟发布后，A 应检测到新 goal_pose 并静默失败退出。 -->
+      <ReactiveParallel success_count="1"
+                        failure_count="2">
+        <Inverter>
+          <PubNav2Goal goal="{@test_nav2_goal_a}"
+                       topic_name="goal_pose"
+                       success_distance_tolerance="0.02"
+                       goal_pose_match_tolerance="0.08"
+                       goal_republish_period="250"
+                       nav_observation_timeout="60000"/>
+        </Inverter>
+        <Delay delay_msec="700">
+          <Sequence>
+            <PublishTargetMode cmd_target_mode="2"
+                               duration="0.0"
+                               topic_name="cmd_target_mode"/>
+            <PubNav2Goal goal="{@test_nav2_goal_b}"
+                         topic_name="goal_pose"
+                         success_distance_tolerance="0.02"
+                         goal_pose_match_tolerance="0.08"
+                         nav_observation_timeout="60000"/>
+          </Sequence>
+        </Delay>
+      </ReactiveParallel>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_nav2_goal_preempt_b_with_a">
+    <Sequence>
+      <PublishTargetMode cmd_target_mode="2"
+                         duration="0.0"
+                         topic_name="cmd_target_mode"/>
+      <!-- 与上一段方向相反，避免只验证单向抢占。 -->
+      <ReactiveParallel success_count="1"
+                        failure_count="2">
+        <Inverter>
+          <PubNav2Goal goal="{@test_nav2_goal_b}"
+                       topic_name="goal_pose"
+                       success_distance_tolerance="0.02"
+                       goal_pose_match_tolerance="0.08"
+                       goal_republish_period="250"
+                       nav_observation_timeout="60000"/>
+        </Inverter>
+        <Delay delay_msec="700">
+          <Sequence>
+            <PublishTargetMode cmd_target_mode="1"
+                               duration="0.0"
+                               topic_name="cmd_target_mode"/>
+            <PubNav2Goal goal="{@test_nav2_goal_a}"
+                         topic_name="goal_pose"
+                         success_distance_tolerance="0.02"
+                         goal_pose_match_tolerance="0.08"
+                         nav_observation_timeout="60000"/>
+          </Sequence>
+        </Delay>
+      </ReactiveParallel>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_nav2_goal_halt_after_timeout_a">
+    <Sequence>
+      <PublishTargetMode cmd_target_mode="0"
+                         duration="0.0"
+                         topic_name="cmd_target_mode"/>
+      <!-- Timeout 会 halt 正在 RUNNING 的 PubNav2Goal，用日志确认 onHalted 是否触发。 -->
+      <ForceSuccess>
+        <Timeout msec="700">
+          <PubNav2Goal goal="{@test_nav2_goal_a}"
+                       topic_name="goal_pose"
+                       success_distance_tolerance="0.02"
+                       goal_pose_match_tolerance="0.08"
+                       goal_republish_period="250"
+                       nav_observation_timeout="60000"/>
+        </Timeout>
+      </ForceSuccess>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_nav2_goal_halt_after_timeout_b">
+    <Sequence>
+      <PublishTargetMode cmd_target_mode="0"
+                         duration="0.0"
+                         topic_name="cmd_target_mode"/>
+      <ForceSuccess>
+        <Timeout msec="700">
+          <PubNav2Goal goal="{@test_nav2_goal_b}"
+                       topic_name="goal_pose"
+                       success_distance_tolerance="0.02"
+                       goal_pose_match_tolerance="0.08"
+                       goal_republish_period="250"
+                       nav_observation_timeout="60000"/>
+        </Timeout>
+      </ForceSuccess>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_nav2_goal_ping_pong_halt">
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <Sequence>
-          <IsDetectEnemy armor_id="1;2;3;4;7"
-                      max_distance="6.0"
-                      key_port="{@tracker_target}"/>
-          <CheckTargetInRegion target_port="{@tracker_target}"/>
-          <CalculateAttackPose costmap_port="{@nav_globalCostmap}"
-                               tracker_port="{@tracker_target}"
-                               goal="{attack_pose}"
-                               topic_name="debug_attack_pose"/>
-          <IsGoalAvailable max_x="10.0"
-                          max_y="6.0"
-                          goal="{attack_pose}"/>
-          <PubNav2Goal goal="{attack_pose}"
-                       topic_name="goal_pose"/>
+          <SubTree ID="test_nav2_goal_ping_pong_seed"/>
+          <SubTree ID="test_nav2_goal_preempt_a_with_b"/>
+          <SubTree ID="test_nav2_goal_halt_after_timeout_b"/>
+          <SubTree ID="test_nav2_goal_preempt_b_with_a"/>
+          <SubTree ID="test_nav2_goal_halt_after_timeout_a"/>
         </Sequence>
       </ForceSuccess>
     </KeepRunningUntilFailure>
   </BehaviorTree>
 
-  <BehaviorTree ID="test_check_target_in_region">
+  <!-- RMUC 整树低位移测试：先运行真实初始化，再用近距离目标覆盖地图点位。 -->
+  <BehaviorTree ID="test_rmuc_2026_minimal_motion_initialize">
+    <Sequence>
+      <SubTree ID="rmuc_2026_initialize"/>
+      <SetBlackboard output_key="@rmuc_supply_goal"
+                     value="0.0;0.0;0.0"/>
+      <SetBlackboard output_key="@rmuc_enemy_outpost_attack_goal"
+                     value="0.18;0.0;0.0"/>
+      <SetBlackboard output_key="@rmuc_trapezoid_low_platform_goal"
+                     value="0.0;0.18;1.5708"/>
+      <SetBlackboard output_key="@rmuc_bump_to_highland_before_goal"
+                     value="-0.18;0.18;2.3562"/>
+      <SetBlackboard output_key="@rmuc_bump_to_highland_after_goal"
+                     value="-0.18;0.0;3.1416"/>
+      <SetBlackboard output_key="@rmuc_enemy_bump_from_highland_before_goal"
+                     value="-0.18;-0.18;-2.3562"/>
+      <SetBlackboard output_key="@rmuc_enemy_bump_from_highland_after_goal"
+                     value="0.0;-0.18;-1.5708"/>
+      <SetBlackboard output_key="@rmuc_fortress_guard_goal"
+                     value="0.18;-0.18;-0.7854"/>
+      <SetBlackboard output_key="@rmuc_fortress_defense_on_highland_goal"
+                     value="0.12;0.12;0.7854"/>
+      <SetBlackboard output_key="@rmuc_fortress_defense_under_highland_goal"
+                     value="0.12;-0.12;-0.7854"/>
+      <SetBlackboard output_key="@rmuc_enemy_fortress_upper_goal"
+                     value="-0.12;0.12;2.3562"/>
+      <SetBlackboard output_key="@rmuc_assembly_guard_goal"
+                     value="-0.12;-0.12;-2.3562"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <!--
+    低血量抢占/恢复重跑测试：
+    1. 健康血量时先进入低地任务，通常会从前哨站任务开始。
+    2. 外部发布 referee/robot_status.current_hp < 200 后，rmuc_2026_decide_goal 应切到补给恢复。
+    3. 外部发布 current_hp >= 400 后，恢复分支退出，未完成的低地任务应从头重新执行。
+  -->
+  <BehaviorTree ID="test_rmuc_2026_low_hp_preempt_restart">
     <KeepRunningUntilFailure>
       <ForceSuccess>
-        <Sequence>
-          <CheckTargetInRegion target_port="{@tracker_target}"/>
-        </Sequence>
+        <ReactiveSequence>
+          <RunOnce then_skip="false">
+            <SubTree ID="test_rmuc_2026_minimal_motion_initialize"/>
+          </RunOnce>
+          <ReactiveParallel success_count="3"
+                            failure_count="1">
+            <KeepRunningUntilFailure>
+              <SubTree ID="rmuc_2026_decide_goal"/>
+            </KeepRunningUntilFailure>
+            <KeepRunningUntilFailure>
+              <SubTree ID="rmuc_2026_control_robot_status"/>
+            </KeepRunningUntilFailure>
+            <KeepRunningUntilFailure>
+              <SubTree ID="rmuc_2026_control_sentry_status"/>
+            </KeepRunningUntilFailure>
+          </ReactiveParallel>
+        </ReactiveSequence>
       </ForceSuccess>
     </KeepRunningUntilFailure>
   </BehaviorTree>
 
-  <BehaviorTree ID="test_rmuc_2026_initialize">
-    <KeepRunningUntilFailure>
-      <ForceSuccess>
-        <SubTree ID="rmuc_2026_initialize"/>
-      </ForceSuccess>
-    </KeepRunningUntilFailure>
-  </BehaviorTree>
-
-  <BehaviorTree ID="test_rmuc_2026_check_game_start">
-    <KeepRunningUntilFailure>
-      <ForceSuccess>
-        <SubTree ID="rmuc_2026_check_game_start"/>
-      </ForceSuccess>
-    </KeepRunningUntilFailure>
-  </BehaviorTree>
-
-  <BehaviorTree ID="test_rmuc_2026_hold_preparation">
-    <KeepRunningUntilFailure>
-      <ForceSuccess>
-        <SubTree ID="rmuc_2026_hold_preparation"/>
-      </ForceSuccess>
-    </KeepRunningUntilFailure>
-  </BehaviorTree>
-
-  <BehaviorTree ID="test_rmuc_2026_hold_self_checking">
-    <KeepRunningUntilFailure>
-      <ForceSuccess>
-        <SubTree ID="rmuc_2026_hold_self_checking"/>
-      </ForceSuccess>
-    </KeepRunningUntilFailure>
-  </BehaviorTree>
-
-  <BehaviorTree ID="test_rmuc_2026_hold_before_running">
-    <KeepRunningUntilFailure>
-      <ForceSuccess>
-        <SubTree ID="rmuc_2026_hold_before_running"/>
-      </ForceSuccess>
-    </KeepRunningUntilFailure>
-  </BehaviorTree>
-
-  <BehaviorTree ID="test_rmuc_2026_control_robot_status">
-    <KeepRunningUntilFailure>
-      <ForceSuccess>
-        <SubTree ID="rmuc_2026_control_robot_status"/>
-      </ForceSuccess>
-    </KeepRunningUntilFailure>
-  </BehaviorTree>
-
-  <BehaviorTree ID="test_rmuc_2026_control_sentry_status">
-    <KeepRunningUntilFailure>
-      <ForceSuccess>
-        <SubTree ID="rmuc_2026_control_sentry_status"/>
-      </ForceSuccess>
-    </KeepRunningUntilFailure>
-  </BehaviorTree>
-
+  <!-- 下面保留任务级 RMUC test：它们有前置黑板/任务标志，比单纯包一层 SubTree 更有调试价值。 -->
   <BehaviorTree ID="test_rmuc_2026_attack_outpost_once">
     <KeepRunningUntilFailure>
       <ForceSuccess>
@@ -263,6 +362,32 @@
     </KeepRunningUntilFailure>
   </BehaviorTree>
 
+  <!-- 推荐用于联调整棵 RMUC 树：目标点很近，但 yaw 和 target_mode 足够区分当前行为。 -->
+  <BehaviorTree ID="test_rmuc_2026_minimal_motion">
+    <KeepRunningUntilFailure>
+      <ForceSuccess>
+        <ReactiveSequence>
+          <SubTree ID="rmuc_2026_check_game_start"/>
+          <RunOnce then_skip="false">
+            <SubTree ID="test_rmuc_2026_minimal_motion_initialize"/>
+          </RunOnce>
+          <ReactiveParallel success_count="3"
+                            failure_count="1">
+            <KeepRunningUntilFailure>
+              <SubTree ID="rmuc_2026_decide_goal"/>
+            </KeepRunningUntilFailure>
+            <KeepRunningUntilFailure>
+              <SubTree ID="rmuc_2026_control_robot_status"/>
+            </KeepRunningUntilFailure>
+            <KeepRunningUntilFailure>
+              <SubTree ID="rmuc_2026_control_sentry_status"/>
+            </KeepRunningUntilFailure>
+          </ReactiveParallel>
+        </ReactiveSequence>
+      </ForceSuccess>
+    </KeepRunningUntilFailure>
+  </BehaviorTree>
+
   <BehaviorTree ID="test_traverse_bump_segment">
     <KeepRunningUntilFailure>
       <ForceSuccess>
@@ -304,54 +429,6 @@
                    bump_from_ally_before_goal="{@bump_from_ally_before_goal}"
                    bump_from_ally_after_goal="{@bump_from_ally_after_goal}"/>
         </Sequence>
-      </ForceSuccess>
-    </KeepRunningUntilFailure>
-  </BehaviorTree>
-
-  <BehaviorTree ID="test_intra_team_match_check_game_start">
-    <KeepRunningUntilFailure>
-      <ForceSuccess>
-        <SubTree ID="intra_team_match_check_game_start"/>
-      </ForceSuccess>
-    </KeepRunningUntilFailure>
-  </BehaviorTree>
-
-  <BehaviorTree ID="test_intra_team_match_control_robot_status">
-    <KeepRunningUntilFailure>
-      <ForceSuccess>
-        <SubTree ID="intra_team_match_control_robot_status"/>
-      </ForceSuccess>
-    </KeepRunningUntilFailure>
-  </BehaviorTree>
-
-  <BehaviorTree ID="test_intra_team_match_control_sentry_status">
-    <KeepRunningUntilFailure>
-      <ForceSuccess>
-        <SubTree ID="intra_team_match_control_sentry_status"/>
-      </ForceSuccess>
-    </KeepRunningUntilFailure>
-  </BehaviorTree>
-
-  <BehaviorTree ID="test_intra_team_match_check_min_hp">
-    <KeepRunningUntilFailure>
-      <ForceSuccess>
-        <SubTree ID="intra_team_match_check_min_hp"/>
-      </ForceSuccess>
-    </KeepRunningUntilFailure>
-  </BehaviorTree>
-
-  <BehaviorTree ID="test_intra_team_match_decide_goal">
-    <KeepRunningUntilFailure>
-      <ForceSuccess>
-        <SubTree ID="intra_team_match_decide_goal"/>
-      </ForceSuccess>
-    </KeepRunningUntilFailure>
-  </BehaviorTree>
-
-  <BehaviorTree ID="test_intra_team_match">
-    <KeepRunningUntilFailure>
-      <ForceSuccess>
-        <SubTree ID="intra_team_match"/>
       </ForceSuccess>
     </KeepRunningUntilFailure>
   </BehaviorTree>

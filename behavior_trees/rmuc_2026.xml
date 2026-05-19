@@ -3,17 +3,25 @@
 
   <BehaviorTree ID="rmuc_2026_decide_goal">
     <ForceSuccess>
+      <!--
+        任务优先级从上到下匹配：
+        先处理低血量恢复和补弹，再处理基地防守/最后两分钟进攻，
+        最后才进入高地或低地的常规任务。
+      -->
       <ReactiveFallback>
+        <!-- 已在高地时，低血量优先从高地回补给区。 -->
         <Sequence>
           <CheckMissionFlag flag="rmuc_phase_on_highland"
                             expected="true"/>
           <SubTree ID="rmuc_2026_recover_from_highland"/>
         </Sequence>
+        <!-- 未在高地时，低血量直接回补给区。 -->
         <Sequence>
           <CheckMissionFlag flag="rmuc_phase_on_highland"
                             expected="false"/>
           <SubTree ID="rmuc_2026_recover_under_highland"/>
         </Sequence>
+        <!-- 补弹任务同样区分高地/低地路径，避免跨地形状态混乱。 -->
         <Sequence>
           <CheckMissionFlag flag="rmuc_phase_on_highland"
                             expected="true"/>
@@ -27,6 +35,7 @@
         <SubTree ID="rmuc_2026_defend_base_from_highland"/>
         <SubTree ID="rmuc_2026_defend_base_under_highland"/>
         <SubTree ID="rmuc_2026_final_two_minute_fortress_attack"/>
+        <!-- 高地状态只跑高地常规任务，否则进入低地任务集合。 -->
         <Sequence>
           <CheckMissionFlag flag="rmuc_phase_on_highland"
                             expected="true"/>
@@ -41,10 +50,13 @@
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <ReactiveSequence>
+          <!-- 比赛未开始时停在等待/自检/准备逻辑，开始后才进入主循环。 -->
           <SubTree ID="rmuc_2026_check_game_start"/>
+          <!-- 初始化只执行一次：写入地图目标、任务标志和默认目标模式。 -->
           <RunOnce then_skip="false">
             <SubTree ID="rmuc_2026_initialize"/>
           </RunOnce>
+          <!-- 三个分支并行 tick：决策导航目标、控制底盘状态、控制云台/哨兵状态。 -->
           <ReactiveParallel success_count="3"
                             failure_count="1">
             <KeepRunningUntilFailure>

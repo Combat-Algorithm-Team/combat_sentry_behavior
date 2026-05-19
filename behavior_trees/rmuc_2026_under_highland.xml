@@ -3,6 +3,7 @@
 
   <BehaviorTree ID="rmuc_2026_attack_outpost_once">
     <Sequence>
+      <!-- 前哨站只尝试一次；成功后写任务标志，后续主循环会跳过该分支。 -->
       <CheckMissionFlag flag="rmuc_outpost_attack_done"
                         expected="false"/>
       <RecoveryNode num_attempts="999">
@@ -54,6 +55,7 @@
 
   <BehaviorTree ID="rmuc_2026_activate_power_rune_if_ready">
     <Sequence>
+      <!-- 小能量机关窗口可能在导航途中消失，所以到点前持续重检 ready 条件。 -->
       <ReactiveSequence>
         <SubTree ID="rmuc_2026_small_power_rune_ready"/>
         <PubNav2Goal goal="{@rmuc_trapezoid_low_platform_goal}"
@@ -106,8 +108,6 @@
   <BehaviorTree ID="rmuc_2026_enter_highland">
     <Sequence>
       <SubTree ID="rmuc_2026_reset_target_mode_to_armor"/>
-      <PubNav2Goal goal="{@rmuc_bump_slope_start_goal}"
-                   topic_name="goal_pose"/>
       <SubTree ID="traverse_bump_segment"
                bump_before_goal="{@rmuc_bump_to_highland_before_goal}"
                bump_after_goal="{@rmuc_bump_to_highland_after_goal}"/>
@@ -130,6 +130,7 @@
     <Sequence>
       <CheckMissionFlag flag="rmuc_phase_on_highland"
                         expected="false"/>
+      <!-- 低地常规任务优先级：前哨站、小能量机关、低地防堡垒，最后才上高地。 -->
       <Fallback>
         <SubTree ID="rmuc_2026_attack_outpost_once"/>
         <SubTree ID="rmuc_2026_activate_power_rune_if_ready"/>

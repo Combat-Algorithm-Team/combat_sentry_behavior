@@ -24,8 +24,6 @@
       <SubTree ID="traverse_bump_segment"
                bump_before_goal="{@rmuc_bump_to_highland_after_goal}"
                bump_after_goal="{@rmuc_bump_to_highland_before_goal}"/>
-      <PubNav2Goal goal="{@rmuc_bump_slope_start_goal}"
-                   topic_name="goal_pose"/>
       <SetMissionFlag flag="rmuc_phase_on_highland"
                       value="false"/>
       <PubNav2Goal goal="{@rmuc_fortress_guard_goal}"

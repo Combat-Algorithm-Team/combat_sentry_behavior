@@ -10,8 +10,6 @@
                      value="7.804;4.616;0"/>
       <SetBlackboard output_key="@rmuc_trapezoid_low_platform_goal"
                      value="4.116;5.227;0"/>
-      <SetBlackboard output_key="@rmuc_bump_slope_start_goal"
-                     value="3.980;-5.126;0"/>
       <SetBlackboard output_key="@rmuc_bump_to_highland_before_goal"
                      value="0.541;-7.086;0"/>
       <SetBlackboard output_key="@rmuc_bump_to_highland_after_goal"

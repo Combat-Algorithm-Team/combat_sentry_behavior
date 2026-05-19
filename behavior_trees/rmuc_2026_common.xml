@@ -179,6 +179,14 @@
                              topic_name="cmd_sentry_status"/>
       </Sequence>
       <Sequence>
+        <IsDetectEnemy armor_id="8"
+                       max_distance="10.0"
+                       key_port="{@tracker_target}"/>
+        <PublishSentryStatus sentry_status="1"
+                             duration="0.0"
+                             topic_name="cmd_sentry_status"/>
+      </Sequence>
+      <Sequence>
         <IsDetectEnemy armor_id="1;2;3;4;7"
                        max_distance="6.0"
                        key_port="{@tracker_target}"/>
