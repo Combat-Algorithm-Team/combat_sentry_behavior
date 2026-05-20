@@ -37,6 +37,8 @@
 
   <BehaviorTree ID="rmuc_2026_small_power_rune_ready">
     <Sequence>
+      <CheckMissionFlag flag="rmuc_enable_small_power_rune_activation"
+                        expected="true"/>
       <CheckMissionCounter counter="rmuc_small_power_rune_activation_failures"
                            max_count="2"/>
       <CheckMissionFlag flag="rmuc_phase_on_highland"

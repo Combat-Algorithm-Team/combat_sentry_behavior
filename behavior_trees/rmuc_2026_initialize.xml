@@ -34,6 +34,8 @@
                       value="false"/>
       <SetMissionFlag flag="rmuc_enable_final_two_minute_fortress_attack"
                       value="false"/>
+      <SetMissionFlag flag="rmuc_enable_small_power_rune_activation"
+                      value="false"/>
       <SetMissionFlag flag="rmuc_phase_enemy_fortress_attack"
                       value="false"/>
       <SetMissionCounter counter="rmuc_small_power_rune_activation_failures"

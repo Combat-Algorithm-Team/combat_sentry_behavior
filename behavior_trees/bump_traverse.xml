@@ -4,24 +4,13 @@
   <BehaviorTree ID="traverse_bump_segment">
     <Sequence>
       <PubNav2Goal goal="{bump_before_goal}"
+                   success_distance_tolerance="0.05"
                    topic_name="goal_pose"/>
       <WaitForSentryInfoState expected_state="3"
                               timeout="5000.0"
                               key_port="{@referee_sentryInfo}"/>
-      <RecoveryNode num_attempts="999">
-        <Timeout msec="30000">
-          <PubNav2Goal goal="{bump_after_goal}"
-                       topic_name="goal_pose"/>
-        </Timeout>
-        <ReactiveParallel success_count="1"
-                          failure_count="2">
-          <Sleep msec="500"/>
-          <KeepRunningUntilFailure>
-            <PubNav2Goal goal="{bump_before_goal}"
-                         topic_name="goal_pose"/>
-          </KeepRunningUntilFailure>
-        </ReactiveParallel>
-      </RecoveryNode>
+      <PubNav2Goal goal="{bump_after_goal}"
+                   topic_name="goal_pose"/>
     </Sequence>
   </BehaviorTree>
 
