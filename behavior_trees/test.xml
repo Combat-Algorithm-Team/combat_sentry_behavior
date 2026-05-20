@@ -1,16 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4">
 
-  <!-- Nav2 goal 发布/抢占/halt 测试：不依赖整棵 RMUC 树，专门观察 PubNav2Goal 的状态机。 -->
-  <BehaviorTree ID="test_nav2_goal_ping_pong_seed">
-    <Sequence>
-      <SetBlackboard output_key="@test_nav2_goal_a"
-                     value="0.45;0.0;0.0"/>
-      <SetBlackboard output_key="@test_nav2_goal_b"
-                     value="-0.45;0.0;3.1416"/>
-    </Sequence>
-  </BehaviorTree>
+  <!--
+    可直接运行的 test 名称列表：
+    - test_nav2_goal_preempt_a_with_b
+    - test_nav2_goal_preempt_b_with_a
+    - test_nav2_goal_halt_after_timeout_a
+    - test_nav2_goal_halt_after_timeout_b
+    - test_nav2_goal_ping_pong_halt
+    - test_rmuc_2026_low_hp_preempt_restart
+    - test_rmuc_2026_attack_outpost_once
+    - test_rmuc_2026_small_power_rune_ready
+    - test_rmuc_2026_activate_power_rune_if_ready
+    - test_rmuc_2026_enter_highland
+    - test_rmuc_2026_under_highland_tasks
+    - test_rmuc_2026_recover_under_highland
+    - test_rmuc_2026_recover_from_highland
+    - test_rmuc_2026_refill_projectile_under_highland
+    - test_rmuc_2026_refill_projectile_from_highland
+    - test_rmuc_2026_defend_base_under_highland
+    - test_rmuc_2026_defend_base_from_highland
+    - test_rmuc_2026_on_highland_tasks
+    - test_rmuc_2026_final_two_minute_fortress_attack
+    - test_rmuc_2026_decide_goal
+    - test_rmuc_2026
+    - test_rmuc_2026_minimal_motion
+    - test_traverse_bump_segment
+    - test_traverse_bump_from_ally
+    - test_traverse_bump_to_ally
+  -->
 
+  <!-- Nav2 goal 发布/抢占/halt 测试：不依赖整棵 RMUC 树，专门观察 PubNav2Goal 的状态机。 -->
   <BehaviorTree ID="test_nav2_goal_preempt_a_with_b">
     <Sequence>
       <PublishTargetMode cmd_target_mode="1"
@@ -116,45 +136,103 @@
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <Sequence>
-          <SubTree ID="test_nav2_goal_ping_pong_seed"/>
-          <SubTree ID="test_nav2_goal_preempt_a_with_b"/>
-          <SubTree ID="test_nav2_goal_halt_after_timeout_b"/>
-          <SubTree ID="test_nav2_goal_preempt_b_with_a"/>
-          <SubTree ID="test_nav2_goal_halt_after_timeout_a"/>
+          <!-- 测试覆盖区：Nav2 ping-pong 目标点。 -->
+          <SetBlackboard output_key="@test_nav2_goal_a"
+                         value="0.45;0.0;0.0"/>
+          <SetBlackboard output_key="@test_nav2_goal_b"
+                         value="-0.45;0.0;3.1416"/>
+          <Sequence>
+            <PublishTargetMode cmd_target_mode="1"
+                               duration="0.0"
+                               topic_name="cmd_target_mode"/>
+            <!-- A 先保持 RUNNING；B 延迟发布后，A 应检测到新 goal_pose 并静默失败退出。 -->
+            <ReactiveParallel success_count="1"
+                              failure_count="2">
+              <Inverter>
+                <PubNav2Goal goal="{@test_nav2_goal_a}"
+                             topic_name="goal_pose"
+                             success_distance_tolerance="0.02"
+                             goal_pose_match_tolerance="0.08"
+                             goal_republish_period="250"
+                             nav_observation_timeout="60000"/>
+              </Inverter>
+              <Delay delay_msec="700">
+                <Sequence>
+                  <PublishTargetMode cmd_target_mode="2"
+                                     duration="0.0"
+                                     topic_name="cmd_target_mode"/>
+                  <PubNav2Goal goal="{@test_nav2_goal_b}"
+                               topic_name="goal_pose"
+                               success_distance_tolerance="0.02"
+                               goal_pose_match_tolerance="0.08"
+                               nav_observation_timeout="60000"/>
+                </Sequence>
+              </Delay>
+            </ReactiveParallel>
+          </Sequence>
+          <Sequence>
+            <PublishTargetMode cmd_target_mode="0"
+                               duration="0.0"
+                               topic_name="cmd_target_mode"/>
+            <ForceSuccess>
+              <Timeout msec="700">
+                <PubNav2Goal goal="{@test_nav2_goal_b}"
+                             topic_name="goal_pose"
+                             success_distance_tolerance="0.02"
+                             goal_pose_match_tolerance="0.08"
+                             goal_republish_period="250"
+                             nav_observation_timeout="60000"/>
+              </Timeout>
+            </ForceSuccess>
+          </Sequence>
+          <Sequence>
+            <PublishTargetMode cmd_target_mode="2"
+                               duration="0.0"
+                               topic_name="cmd_target_mode"/>
+            <!-- 与上一段方向相反，避免只验证单向抢占。 -->
+            <ReactiveParallel success_count="1"
+                              failure_count="2">
+              <Inverter>
+                <PubNav2Goal goal="{@test_nav2_goal_b}"
+                             topic_name="goal_pose"
+                             success_distance_tolerance="0.02"
+                             goal_pose_match_tolerance="0.08"
+                             goal_republish_period="250"
+                             nav_observation_timeout="60000"/>
+              </Inverter>
+              <Delay delay_msec="700">
+                <Sequence>
+                  <PublishTargetMode cmd_target_mode="1"
+                                     duration="0.0"
+                                     topic_name="cmd_target_mode"/>
+                  <PubNav2Goal goal="{@test_nav2_goal_a}"
+                               topic_name="goal_pose"
+                               success_distance_tolerance="0.02"
+                               goal_pose_match_tolerance="0.08"
+                               nav_observation_timeout="60000"/>
+                </Sequence>
+              </Delay>
+            </ReactiveParallel>
+          </Sequence>
+          <Sequence>
+            <PublishTargetMode cmd_target_mode="0"
+                               duration="0.0"
+                               topic_name="cmd_target_mode"/>
+            <!-- Timeout 会 halt 正在 RUNNING 的 PubNav2Goal，用日志确认 onHalted 是否触发。 -->
+            <ForceSuccess>
+              <Timeout msec="700">
+                <PubNav2Goal goal="{@test_nav2_goal_a}"
+                             topic_name="goal_pose"
+                             success_distance_tolerance="0.02"
+                             goal_pose_match_tolerance="0.08"
+                             goal_republish_period="250"
+                             nav_observation_timeout="60000"/>
+              </Timeout>
+            </ForceSuccess>
+          </Sequence>
         </Sequence>
       </ForceSuccess>
     </KeepRunningUntilFailure>
-  </BehaviorTree>
-
-  <!-- RMUC 整树低位移测试：先运行真实初始化，再用近距离目标覆盖地图点位。 -->
-  <BehaviorTree ID="test_rmuc_2026_minimal_motion_initialize">
-    <Sequence>
-      <SubTree ID="rmuc_2026_initialize"/>
-      <SetBlackboard output_key="@rmuc_supply_goal"
-                     value="0.0;0.0;0.0"/>
-      <SetBlackboard output_key="@rmuc_enemy_outpost_attack_goal"
-                     value="0.18;0.0;0.0"/>
-      <SetBlackboard output_key="@rmuc_trapezoid_low_platform_goal"
-                     value="0.0;0.18;1.5708"/>
-      <SetBlackboard output_key="@rmuc_bump_to_highland_before_goal"
-                     value="-0.18;0.18;2.3562"/>
-      <SetBlackboard output_key="@rmuc_bump_to_highland_after_goal"
-                     value="-0.18;0.0;3.1416"/>
-      <SetBlackboard output_key="@rmuc_enemy_bump_from_highland_before_goal"
-                     value="-0.18;-0.18;-2.3562"/>
-      <SetBlackboard output_key="@rmuc_enemy_bump_from_highland_after_goal"
-                     value="0.0;-0.18;-1.5708"/>
-      <SetBlackboard output_key="@rmuc_fortress_guard_goal"
-                     value="0.18;-0.18;-0.7854"/>
-      <SetBlackboard output_key="@rmuc_fortress_defense_on_highland_goal"
-                     value="0.12;0.12;0.7854"/>
-      <SetBlackboard output_key="@rmuc_fortress_defense_under_highland_goal"
-                     value="0.12;-0.12;-0.7854"/>
-      <SetBlackboard output_key="@rmuc_enemy_fortress_upper_goal"
-                     value="-0.12;0.12;2.3562"/>
-      <SetBlackboard output_key="@rmuc_assembly_guard_goal"
-                     value="-0.12;-0.12;-2.3562"/>
-    </Sequence>
   </BehaviorTree>
 
   <!--
@@ -168,7 +246,34 @@
       <ForceSuccess>
         <ReactiveSequence>
           <RunOnce then_skip="false">
-            <SubTree ID="test_rmuc_2026_minimal_motion_initialize"/>
+            <Sequence>
+              <SubTree ID="rmuc_2026_initialize"/>
+              <!-- 测试覆盖区：整树低位移目标点。 -->
+              <SetBlackboard output_key="@rmuc_supply_goal"
+                             value="0.0;0.0;0.0"/>
+              <SetBlackboard output_key="@rmuc_enemy_outpost_attack_goal"
+                             value="0.18;0.0;0.0"/>
+              <SetBlackboard output_key="@rmuc_trapezoid_low_platform_goal"
+                             value="0.0;0.18;1.5708"/>
+              <SetBlackboard output_key="@rmuc_bump_to_highland_before_goal"
+                             value="-0.18;0.18;2.3562"/>
+              <SetBlackboard output_key="@rmuc_bump_to_highland_after_goal"
+                             value="-0.18;0.0;3.1416"/>
+              <SetBlackboard output_key="@rmuc_enemy_bump_from_highland_before_goal"
+                             value="-0.18;-0.18;-2.3562"/>
+              <SetBlackboard output_key="@rmuc_enemy_bump_from_highland_after_goal"
+                             value="0.0;-0.18;-1.5708"/>
+              <SetBlackboard output_key="@rmuc_fortress_guard_goal"
+                             value="0.18;-0.18;-0.7854"/>
+              <SetBlackboard output_key="@rmuc_fortress_defense_on_highland_goal"
+                             value="0.12;0.12;0.7854"/>
+              <SetBlackboard output_key="@rmuc_fortress_defense_under_highland_goal"
+                             value="0.12;-0.12;-0.7854"/>
+              <SetBlackboard output_key="@rmuc_enemy_fortress_upper_goal"
+                             value="-0.12;0.12;2.3562"/>
+              <SetBlackboard output_key="@rmuc_assembly_guard_goal"
+                             value="-0.12;-0.12;-2.3562"/>
+            </Sequence>
           </RunOnce>
           <ReactiveParallel success_count="3"
                             failure_count="1">
@@ -193,6 +298,9 @@
       <ForceSuccess>
         <Sequence>
           <SubTree ID="rmuc_2026_initialize"/>
+          <!-- 测试前哨击打位置：需要试不同站位时只改这里，不影响正式 RMUC 树。 -->
+          <SetBlackboard output_key="@rmuc_enemy_outpost_attack_goal"
+                         value="7.804;4.616;0"/>
           <SubTree ID="rmuc_2026_attack_outpost_once"/>
         </Sequence>
       </ForceSuccess>
@@ -204,6 +312,7 @@
       <ForceSuccess>
         <Sequence>
           <SubTree ID="rmuc_2026_initialize"/>
+          <!-- 测试覆盖区：需要自定义该任务输入时写在这里。 -->
           <SubTree ID="rmuc_2026_small_power_rune_ready"/>
         </Sequence>
       </ForceSuccess>
@@ -215,6 +324,7 @@
       <ForceSuccess>
         <Sequence>
           <SubTree ID="rmuc_2026_initialize"/>
+          <!-- 测试覆盖区：需要自定义该任务输入时写在这里。 -->
           <SubTree ID="rmuc_2026_activate_power_rune_if_ready"/>
         </Sequence>
       </ForceSuccess>
@@ -226,6 +336,7 @@
       <ForceSuccess>
         <Sequence>
           <SubTree ID="rmuc_2026_initialize"/>
+          <!-- 测试覆盖区：需要自定义上高地前后点时写在这里。 -->
           <SubTree ID="rmuc_2026_enter_highland"/>
         </Sequence>
       </ForceSuccess>
@@ -237,6 +348,7 @@
       <ForceSuccess>
         <Sequence>
           <SubTree ID="rmuc_2026_initialize"/>
+          <!-- 测试覆盖区：需要自定义低地任务目标或开关时写在这里。 -->
           <SubTree ID="rmuc_2026_under_highland_tasks"/>
         </Sequence>
       </ForceSuccess>
@@ -248,6 +360,7 @@
       <ForceSuccess>
         <Sequence>
           <SubTree ID="rmuc_2026_initialize"/>
+          <!-- 测试覆盖区：需要自定义低地恢复输入时写在这里。 -->
           <SubTree ID="rmuc_2026_recover_under_highland"/>
         </Sequence>
       </ForceSuccess>
@@ -259,6 +372,7 @@
       <ForceSuccess>
         <Sequence>
           <SubTree ID="rmuc_2026_initialize"/>
+          <!-- 测试覆盖区：从高地恢复需要先置高地阶段。 -->
           <SetMissionFlag flag="rmuc_phase_on_highland"
                           value="true"/>
           <SubTree ID="rmuc_2026_recover_from_highland"/>
@@ -272,6 +386,7 @@
       <ForceSuccess>
         <Sequence>
           <SubTree ID="rmuc_2026_initialize"/>
+          <!-- 测试覆盖区：需要自定义低地补弹输入时写在这里。 -->
           <SubTree ID="rmuc_2026_refill_projectile_under_highland"/>
         </Sequence>
       </ForceSuccess>
@@ -283,6 +398,7 @@
       <ForceSuccess>
         <Sequence>
           <SubTree ID="rmuc_2026_initialize"/>
+          <!-- 测试覆盖区：从高地补弹需要先置高地阶段。 -->
           <SetMissionFlag flag="rmuc_phase_on_highland"
                           value="true"/>
           <SubTree ID="rmuc_2026_refill_projectile_from_highland"/>
@@ -296,6 +412,7 @@
       <ForceSuccess>
         <Sequence>
           <SubTree ID="rmuc_2026_initialize"/>
+          <!-- 测试覆盖区：需要自定义低地守基地输入时写在这里。 -->
           <SubTree ID="rmuc_2026_defend_base_under_highland"/>
         </Sequence>
       </ForceSuccess>
@@ -307,6 +424,7 @@
       <ForceSuccess>
         <Sequence>
           <SubTree ID="rmuc_2026_initialize"/>
+          <!-- 测试覆盖区：从高地守基地需要先置高地阶段。 -->
           <SetMissionFlag flag="rmuc_phase_on_highland"
                           value="true"/>
           <SubTree ID="rmuc_2026_defend_base_from_highland"/>
@@ -320,6 +438,7 @@
       <ForceSuccess>
         <Sequence>
           <SubTree ID="rmuc_2026_initialize"/>
+          <!-- 测试覆盖区：高地常规任务需要先置高地阶段。 -->
           <SetMissionFlag flag="rmuc_phase_on_highland"
                           value="true"/>
           <SubTree ID="rmuc_2026_on_highland_tasks"/>
@@ -333,6 +452,7 @@
       <ForceSuccess>
         <Sequence>
           <SubTree ID="rmuc_2026_initialize"/>
+          <!-- 测试覆盖区：最后两分钟进攻需要先置高地阶段并打开任务开关。 -->
           <SetMissionFlag flag="rmuc_phase_on_highland"
                           value="true"/>
           <SetMissionFlag flag="rmuc_enable_final_two_minute_fortress_attack"
@@ -348,6 +468,7 @@
       <ForceSuccess>
         <Sequence>
           <SubTree ID="rmuc_2026_initialize"/>
+          <!-- 测试覆盖区：需要自定义整套决策输入时写在这里。 -->
           <SubTree ID="rmuc_2026_decide_goal"/>
         </Sequence>
       </ForceSuccess>
@@ -369,7 +490,34 @@
         <ReactiveSequence>
           <SubTree ID="rmuc_2026_check_game_start"/>
           <RunOnce then_skip="false">
-            <SubTree ID="test_rmuc_2026_minimal_motion_initialize"/>
+            <Sequence>
+              <SubTree ID="rmuc_2026_initialize"/>
+              <!-- 测试覆盖区：整树低位移目标点。 -->
+              <SetBlackboard output_key="@rmuc_supply_goal"
+                             value="0.0;0.0;0.0"/>
+              <SetBlackboard output_key="@rmuc_enemy_outpost_attack_goal"
+                             value="0.18;0.0;0.0"/>
+              <SetBlackboard output_key="@rmuc_trapezoid_low_platform_goal"
+                             value="0.0;0.18;1.5708"/>
+              <SetBlackboard output_key="@rmuc_bump_to_highland_before_goal"
+                             value="-0.18;0.18;2.3562"/>
+              <SetBlackboard output_key="@rmuc_bump_to_highland_after_goal"
+                             value="-0.18;0.0;3.1416"/>
+              <SetBlackboard output_key="@rmuc_enemy_bump_from_highland_before_goal"
+                             value="-0.18;-0.18;-2.3562"/>
+              <SetBlackboard output_key="@rmuc_enemy_bump_from_highland_after_goal"
+                             value="0.0;-0.18;-1.5708"/>
+              <SetBlackboard output_key="@rmuc_fortress_guard_goal"
+                             value="0.18;-0.18;-0.7854"/>
+              <SetBlackboard output_key="@rmuc_fortress_defense_on_highland_goal"
+                             value="0.12;0.12;0.7854"/>
+              <SetBlackboard output_key="@rmuc_fortress_defense_under_highland_goal"
+                             value="0.12;-0.12;-0.7854"/>
+              <SetBlackboard output_key="@rmuc_enemy_fortress_upper_goal"
+                             value="-0.12;0.12;2.3562"/>
+              <SetBlackboard output_key="@rmuc_assembly_guard_goal"
+                             value="-0.12;-0.12;-2.3562"/>
+            </Sequence>
           </RunOnce>
           <ReactiveParallel success_count="3"
                             failure_count="1">
@@ -393,6 +541,7 @@
       <ForceSuccess>
         <Sequence>
           <SubTree ID="rmuc_2026_initialize"/>
+          <!-- 测试覆盖区：需要自定义飞坡前后点时写在这里。 -->
           <SubTree ID="traverse_bump_segment"
                    bump_before_goal="{@rmuc_bump_to_highland_before_goal}"
                    bump_after_goal="{@rmuc_bump_to_highland_after_goal}"/>
@@ -405,6 +554,7 @@
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <Sequence>
+          <!-- 测试覆盖区：需要自定义己方飞坡前后点时写在这里。 -->
           <SetBlackboard output_key="@bump_from_ally_before_goal"
                          value="3.5;5.5;0"/>
           <SetBlackboard output_key="@bump_from_ally_after_goal"
@@ -421,6 +571,7 @@
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <Sequence>
+          <!-- 测试覆盖区：需要自定义回己方飞坡前后点时写在这里。 -->
           <SetBlackboard output_key="@bump_from_ally_before_goal"
                          value="3.5;5.5;0"/>
           <SetBlackboard output_key="@bump_from_ally_after_goal"

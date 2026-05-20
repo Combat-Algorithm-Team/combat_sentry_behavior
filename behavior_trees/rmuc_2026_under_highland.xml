@@ -109,12 +109,26 @@
 
   <BehaviorTree ID="rmuc_2026_enter_highland">
     <Sequence>
+      <CheckMissionFlag flag="rmuc_enable_enter_highland"
+                        expected="true"/>
       <SubTree ID="rmuc_2026_reset_target_mode_to_armor"/>
       <SubTree ID="traverse_bump_segment"
                bump_before_goal="{@rmuc_bump_to_highland_before_goal}"
                bump_after_goal="{@rmuc_bump_to_highland_after_goal}"/>
       <SetMissionFlag flag="rmuc_phase_on_highland"
                       value="true"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="rmuc_2026_hold_fortress_when_highland_disabled">
+    <Sequence>
+      <CheckMissionFlag flag="rmuc_enable_enter_highland"
+                        expected="false"/>
+      <CheckMissionFlag flag="rmuc_outpost_attack_done"
+                        expected="true"/>
+      <SubTree ID="rmuc_2026_reset_target_mode_to_armor"/>
+      <PubNav2Goal goal="{@rmuc_fortress_defense_under_highland_goal}"
+                   topic_name="goal_pose"/>
     </Sequence>
   </BehaviorTree>
 
@@ -132,9 +146,10 @@
     <Sequence>
       <CheckMissionFlag flag="rmuc_phase_on_highland"
                         expected="false"/>
-      <!-- 低地常规任务优先级：前哨站、小能量机关、低地防堡垒，最后才上高地。 -->
+      <!-- 低地常规任务优先级：前哨站、禁上高地时守己方堡垒、小能量机关、低地防堡垒，最后才上高地。 -->
       <Fallback>
         <SubTree ID="rmuc_2026_attack_outpost_once"/>
+        <SubTree ID="rmuc_2026_hold_fortress_when_highland_disabled"/>
         <SubTree ID="rmuc_2026_activate_power_rune_if_ready"/>
         <SubTree ID="rmuc_2026_defend_fortress_under_highland"/>
         <SubTree ID="rmuc_2026_enter_highland"/>

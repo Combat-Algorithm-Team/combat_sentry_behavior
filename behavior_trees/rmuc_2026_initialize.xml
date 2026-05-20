@@ -3,13 +3,14 @@
 
   <BehaviorTree ID="rmuc_2026_initialize">
     <Sequence>
-      <!-- TODO: Replace these placeholders with RMUC2026 map-calibrated poses. -->
+      <!-- 补给和低地开局任务目标。 -->
       <SetBlackboard output_key="@rmuc_supply_goal"
                      value="-1.003;-7.623;0"/>
       <SetBlackboard output_key="@rmuc_enemy_outpost_attack_goal"
                      value="7.804;4.616;0"/>
       <SetBlackboard output_key="@rmuc_trapezoid_low_platform_goal"
                      value="4.116;5.227;0"/>
+      <!-- 高地出入坡道目标：before/after 分别表示过坡前后的导航点。 -->
       <SetBlackboard output_key="@rmuc_bump_to_highland_before_goal"
                      value="0.541;-7.086;0"/>
       <SetBlackboard output_key="@rmuc_bump_to_highland_after_goal"
@@ -18,28 +19,42 @@
                      value="13.675;5.805;0"/>
       <SetBlackboard output_key="@rmuc_enemy_bump_from_highland_after_goal"
                      value="19.650;5.805;0"/>
+      <!-- 己方堡垒、基地防守和高地常规站位目标。 -->
       <SetBlackboard output_key="@rmuc_fortress_guard_goal"
                      value="2.699;-0.675;0"/>
       <SetBlackboard output_key="@rmuc_fortress_defense_on_highland_goal"
                      value="7.104;1.607;0"/>
       <SetBlackboard output_key="@rmuc_fortress_defense_under_highland_goal"
                      value="5.523;2.123;0"/>
-      <SetBlackboard output_key="@rmuc_enemy_fortress_upper_goal"
-                     value="17.500;-0.674;0"/>
       <SetBlackboard output_key="@rmuc_assembly_guard_goal"
                      value="7.976;2.809;0"/>
+      <!-- 敌方堡垒进攻目标，默认只在最后两分钟进攻开关开启后使用。 -->
+      <SetBlackboard output_key="@rmuc_enemy_fortress_upper_goal"
+                     value="17.500;-0.674;0"/>
+      <!--
+        任务阶段标志：
+        这些 flag 记录当前是否已经进入某个阶段，避免主循环重复执行一次性流程。
+      -->
       <SetMissionFlag flag="rmuc_phase_on_highland"
                       value="false"/>
       <SetMissionFlag flag="rmuc_outpost_attack_done"
                       value="false"/>
+      <SetMissionFlag flag="rmuc_phase_enemy_fortress_attack"
+                      value="false"/>
+      <!--
+        策略功能开关：
+        默认允许上高地；小能量机关和最后两分钟敌方堡垒进攻默认关闭，按赛场策略再打开。
+      -->
+      <SetMissionFlag flag="rmuc_enable_enter_highland"
+                      value="true"/>
       <SetMissionFlag flag="rmuc_enable_final_two_minute_fortress_attack"
                       value="false"/>
       <SetMissionFlag flag="rmuc_enable_small_power_rune_activation"
                       value="false"/>
-      <SetMissionFlag flag="rmuc_phase_enemy_fortress_attack"
-                      value="false"/>
+      <!-- 任务计数器：限制小能量机关连续尝试失败次数。 -->
       <SetMissionCounter counter="rmuc_small_power_rune_activation_failures"
                          value="0"/>
+      <!-- 默认识别/打击模式：初始化结束后回到装甲板模式。 -->
       <PublishTargetMode cmd_target_mode="1"
                          duration="0.0"
                          topic_name="cmd_target_mode"/>
