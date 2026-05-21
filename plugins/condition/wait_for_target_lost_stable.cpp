@@ -41,7 +41,6 @@ BT::NodeStatus WaitForTargetLostStable::onStart()
     lost_duration_ms_ = 0.0;
   }
 
-  seen_target_ = false;
   loss_observed_ = false;
   reported_missing_msg_ = false;
   return checkTarget();
@@ -54,7 +53,6 @@ BT::NodeStatus WaitForTargetLostStable::onRunning()
 
 void WaitForTargetLostStable::onHalted()
 {
-  seen_target_ = false;
   loss_observed_ = false;
   reported_missing_msg_ = false;
 }
@@ -73,12 +71,12 @@ BT::NodeStatus WaitForTargetLostStable::checkTarget()
 
   const bool target_id_match = isTargetId(msg->id);
   if (target_id_match && msg->tracking) {
-    seen_target_ = true;
-    return loss_observed_ ? BT::NodeStatus::FAILURE : BT::NodeStatus::RUNNING;
+    loss_observed_ = false;
+    return BT::NodeStatus::RUNNING;
   }
 
-  const bool target_lost = !msg->tracking && (target_id_match || (seen_target_ && msg->id.empty()));
-  if (target_lost) {
+  // In outpost target mode, the tracker is configured to report only this target.
+  if (!msg->tracking) {
     if (!loss_observed_) {
       loss_observed_ = true;
       loss_start_time_ = SteadyClock::now();
@@ -86,7 +84,7 @@ BT::NodeStatus WaitForTargetLostStable::checkTarget()
     return isStableLost() ? BT::NodeStatus::SUCCESS : BT::NodeStatus::RUNNING;
   }
 
-  return loss_observed_ && isStableLost() ? BT::NodeStatus::SUCCESS : BT::NodeStatus::RUNNING;
+  return BT::NodeStatus::RUNNING;
 }
 
 bool WaitForTargetLostStable::isTargetId(const std::string & id) const
