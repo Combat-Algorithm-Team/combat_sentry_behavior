@@ -28,6 +28,8 @@
                      value="5.523;2.123;0"/>
       <SetBlackboard output_key="@rmuc_assembly_guard_goal"
                      value="7.976;2.809;0"/>
+      <SetBlackboard output_key="@rmuc_outpost_protect_goal"
+                     value="7.322;-3.924;0"/>
       <!-- 敌方堡垒进攻目标，默认只在最后两分钟进攻开关开启后使用。 -->
       <SetBlackboard output_key="@rmuc_enemy_fortress_upper_goal"
                      value="17.500;-0.674;0"/>

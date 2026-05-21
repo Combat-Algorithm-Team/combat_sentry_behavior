@@ -377,7 +377,7 @@ BT::NodeStatus PubNav2GoalAction::onRunning()
     return BT::NodeStatus::FAILURE;
   }
 
-  std::chrono::milliseconds goal_bind_delay(200);
+  std::chrono::milliseconds goal_bind_delay(50);
   const auto bind_delay_result = getInput("nav_goal_bind_delay", goal_bind_delay);
   if (!bind_delay_result) {
     RCLCPP_ERROR(
@@ -542,7 +542,7 @@ BT::PortsList PubNav2GoalAction::providedPorts()
       "goal_republish_period", std::chrono::milliseconds(0),
       "How often to republish the same goal while running. Use 0 to publish only on start"),
     BT::InputPort<std::chrono::milliseconds>(
-      "nav_goal_bind_delay", std::chrono::milliseconds(200),
+      "nav_goal_bind_delay", std::chrono::milliseconds(50),
       "Minimum time after observing the current goal_pose before binding nav2 status"),
     BT::InputPort<std::chrono::milliseconds>(
       "nav_observation_timeout", std::chrono::milliseconds(2000),

@@ -45,6 +45,12 @@
           <PubNav2Goal goal="{@rmuc_fortress_defense_on_highland_goal}"
                        topic_name="goal_pose"/>
         </ReactiveSequence>
+        <ReactiveSequence>
+          <IsOutpostHpLow hp_threshold="500"
+                          key_port="{@referee_gameRobotHp}"/>
+          <PubNav2Goal goal="{@rmuc_outpost_protect_goal}"
+                       topic_name="goal_pose"/>
+        </ReactiveSequence>
         <PubNav2Goal goal="{@rmuc_assembly_guard_goal}"
                      topic_name="goal_pose"/>
       </ReactiveFallback>

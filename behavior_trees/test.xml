@@ -266,6 +266,8 @@
                        value="-0.12;0.12;2.3562"/>
         <SetBlackboard output_key="@rmuc_assembly_guard_goal"
                        value="-0.12;-0.12;-2.3562"/>
+        <SetBlackboard output_key="@rmuc_outpost_protect_goal"
+                       value="0.12;-0.18;-0.9828"/>
       </Sequence>
     </Fallback>
   </BehaviorTree>
