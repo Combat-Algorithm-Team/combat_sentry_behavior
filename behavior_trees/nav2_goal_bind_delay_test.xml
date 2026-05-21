@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+
+  <BehaviorTree ID="test_nav2_goal_bind_delay_static_sweep">
+    <Sequence>
+      <ForceSuccess>
+        <Timeout msec="2500">
+          <PubNav2Goal goal="0.20;0.0;0.0"
+                       topic_name="goal_pose"
+                       success_distance_tolerance="0.02"
+                       goal_pose_match_tolerance="0.08"
+                       nav_goal_bind_delay="200"
+                       nav_observation_timeout="60000"/>
+        </Timeout>
+      </ForceSuccess>
+      <ForceSuccess>
+        <Timeout msec="2500">
+          <PubNav2Goal goal="-0.20;0.0;3.1416"
+                       topic_name="goal_pose"
+                       success_distance_tolerance="0.02"
+                       goal_pose_match_tolerance="0.08"
+                       nav_goal_bind_delay="200"
+                       nav_observation_timeout="60000"/>
+        </Timeout>
+      </ForceSuccess>
+      <ForceSuccess>
+        <Timeout msec="3500">
+          <PubNav2Goal goal="0.80;0.0;0.0"
+                       topic_name="goal_pose"
+                       success_distance_tolerance="0.04"
+                       goal_pose_match_tolerance="0.10"
+                       nav_goal_bind_delay="200"
+                       nav_observation_timeout="60000"/>
+        </Timeout>
+      </ForceSuccess>
+      <ForceSuccess>
+        <Timeout msec="3500">
+          <PubNav2Goal goal="-0.80;0.0;3.1416"
+                       topic_name="goal_pose"
+                       success_distance_tolerance="0.04"
+                       goal_pose_match_tolerance="0.10"
+                       nav_goal_bind_delay="200"
+                       nav_observation_timeout="60000"/>
+        </Timeout>
+      </ForceSuccess>
+      <ForceSuccess>
+        <Timeout msec="5000">
+          <PubNav2Goal goal="1.80;0.0;0.0"
+                       topic_name="goal_pose"
+                       success_distance_tolerance="0.08"
+                       goal_pose_match_tolerance="0.12"
+                       nav_goal_bind_delay="200"
+                       nav_observation_timeout="60000"/>
+        </Timeout>
+      </ForceSuccess>
+      <ForceSuccess>
+        <Timeout msec="5000">
+          <PubNav2Goal goal="-1.80;0.0;3.1416"
+                       topic_name="goal_pose"
+                       success_distance_tolerance="0.08"
+                       goal_pose_match_tolerance="0.12"
+                       nav_goal_bind_delay="200"
+                       nav_observation_timeout="60000"/>
+        </Timeout>
+      </ForceSuccess>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_nav2_goal_bind_delay_moving_sweep">
+    <Sequence>
+      <PubNav2Goal goal="0.20;0.0;0.0"
+                   topic_name="goal_pose"
+                   success_distance_tolerance="0.02"
+                   goal_pose_match_tolerance="0.08"
+                   nav_goal_bind_delay="200"
+                   nav_observation_timeout="60000"/>
+      <PubNav2Goal goal="-0.20;0.0;3.1416"
+                   topic_name="goal_pose"
+                   success_distance_tolerance="0.02"
+                   goal_pose_match_tolerance="0.08"
+                   nav_goal_bind_delay="200"
+                   nav_observation_timeout="60000"/>
+      <PubNav2Goal goal="0.80;0.0;0.0"
+                   topic_name="goal_pose"
+                   success_distance_tolerance="0.04"
+                   goal_pose_match_tolerance="0.10"
+                   nav_goal_bind_delay="200"
+                   nav_observation_timeout="60000"/>
+      <PubNav2Goal goal="-0.80;0.0;3.1416"
+                   topic_name="goal_pose"
+                   success_distance_tolerance="0.04"
+                   goal_pose_match_tolerance="0.10"
+                   nav_goal_bind_delay="200"
+                   nav_observation_timeout="60000"/>
+      <PubNav2Goal goal="1.80;0.0;0.0"
+                   topic_name="goal_pose"
+                   success_distance_tolerance="0.08"
+                   goal_pose_match_tolerance="0.12"
+                   nav_goal_bind_delay="200"
+                   nav_observation_timeout="60000"/>
+      <PubNav2Goal goal="-1.80;0.0;3.1416"
+                   topic_name="goal_pose"
+                   success_distance_tolerance="0.08"
+                   goal_pose_match_tolerance="0.12"
+                   nav_goal_bind_delay="200"
+                   nav_observation_timeout="60000"/>
+    </Sequence>
+  </BehaviorTree>
+
+</root>

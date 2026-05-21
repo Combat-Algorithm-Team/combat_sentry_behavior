@@ -25,6 +25,7 @@
 #include "behaviortree_ros2/bt_topic_pub_action_node.hpp"
 #include "combat_sentry_behavior/custom_types.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
+#include "nav_msgs/msg/path.hpp"
 #include "unique_identifier_msgs/msg/uuid.hpp"
 
 namespace combat_sentry_behavior
@@ -67,10 +68,19 @@ private:
   bool matchesCurrentGoalPose(
     const geometry_msgs::msg::PoseStamped & goal_pose, double position_tolerance) const;
 
+  bool pathEndsAtCurrentGoal(const nav_msgs::msg::Path & path, double position_tolerance) const;
+
   bool updateObservedGoalPose(
     const std::chrono::milliseconds & timeout, double position_tolerance);
 
-  std::optional<action_msgs::msg::GoalStatus> firstStatusAfterObservedGoal(
+  bool isAtOrAfterGoalBindDelay(
+    const BT::Timestamp & stamp, const std::chrono::milliseconds & bind_delay) const;
+
+  bool hasObservedCurrentPlan() const;
+
+  double elapsedSinceObservedGoalPoseMs() const;
+
+  std::optional<action_msgs::msg::GoalStatus> latestBindableStatusAfterObservedGoal(
     const action_msgs::msg::GoalStatusArray & status_array) const;
 
   std::optional<action_msgs::msg::GoalStatus> findStatusForGoal(
@@ -78,7 +88,7 @@ private:
     const unique_identifier_msgs::msg::UUID & goal_id) const;
 
   std::optional<action_msgs::msg::GoalStatus> selectCurrentGoalStatus(
-    const action_msgs::msg::GoalStatusArray & status_array);
+    const action_msgs::msg::GoalStatusArray & status_array, bool allow_unbound_goal_binding);
 
   rclcpp::Logger logger() { return node_->get_logger(); }
   rclcpp::Time now() { return node_->now(); }
@@ -88,6 +98,8 @@ private:
   Pose3D current_goal_{};
   std::optional<unique_identifier_msgs::msg::UUID> current_goal_id_;
   bool observed_current_goal_pose_{false};
+  bool observed_current_plan_{false};
+  SteadyClock::duration observed_goal_pose_time_{};
   int64_t observed_goal_pose_ros_nanoseconds_{0};
   SteadyClock::time_point start_time_{};
   SteadyClock::time_point last_republish_time_{};

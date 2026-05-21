@@ -60,6 +60,12 @@ bool sameGoalId(
   return lhs.uuid == rhs.uuid;
 }
 
+bool isBindableStatus(int status)
+{
+  return status == action_msgs::msg::GoalStatus::STATUS_ACCEPTED ||
+         status == action_msgs::msg::GoalStatus::STATUS_EXECUTING;
+}
+
 }  // namespace
 
 namespace combat_sentry_behavior
@@ -117,6 +123,8 @@ bool PubNav2GoalAction::publishGoal()
   goal_sent_ros_nanoseconds_ = rclcpp::Time(message.header.stamp).nanoseconds();
   current_goal_id_.reset();
   observed_current_goal_pose_ = false;
+  observed_current_plan_ = false;
+  observed_goal_pose_time_ = SteadyClock::duration::zero();
   observed_goal_pose_ros_nanoseconds_ = 0;
   publisher_->publish(message);
   last_republish_time_ = SteadyClock::now();
@@ -130,6 +138,8 @@ void PubNav2GoalAction::resetOutputs()
   last_status_code_ = action_msgs::msg::GoalStatus::STATUS_UNKNOWN;
   current_goal_id_.reset();
   observed_current_goal_pose_ = false;
+  observed_current_plan_ = false;
+  observed_goal_pose_time_ = SteadyClock::duration::zero();
   observed_goal_pose_ros_nanoseconds_ = 0;
 }
 
@@ -160,6 +170,16 @@ bool PubNav2GoalAction::matchesCurrentGoalPose(
   return position_error <= position_tolerance;
 }
 
+bool PubNav2GoalAction::pathEndsAtCurrentGoal(
+  const nav_msgs::msg::Path & path, double position_tolerance) const
+{
+  if (path.poses.empty()) {
+    return false;
+  }
+
+  return matchesCurrentGoalPose(path.poses.back(), position_tolerance);
+}
+
 bool PubNav2GoalAction::updateObservedGoalPose(
   const std::chrono::milliseconds & timeout, double position_tolerance)
 {
@@ -177,7 +197,18 @@ bool PubNav2GoalAction::updateObservedGoalPose(
   }
 
   if (matchesCurrentGoalPose(stamped_goal_pose->value, position_tolerance)) {
+    if (!observed_current_goal_pose_) {
+      const auto elapsed_ms =
+        std::chrono::duration<double, std::milli>(SteadyClock::now() - last_republish_time_)
+          .count();
+      RCLCPP_INFO(
+        logger(),
+        "PubNav2GoalAction observed current goal_pose echo after %.1f ms for goal "
+        "(%.3f, %.3f, %.3f)",
+        elapsed_ms, current_goal_.x, current_goal_.y, current_goal_.yaw);
+    }
     observed_current_goal_pose_ = true;
+    observed_goal_pose_time_ = stamped_goal_pose->stamp.time;
     observed_goal_pose_ros_nanoseconds_ = observed_stamp;
     return true;
   }
@@ -192,7 +223,28 @@ bool PubNav2GoalAction::updateObservedGoalPose(
   return false;
 }
 
-std::optional<action_msgs::msg::GoalStatus> PubNav2GoalAction::firstStatusAfterObservedGoal(
+bool PubNav2GoalAction::isAtOrAfterGoalBindDelay(
+  const BT::Timestamp & stamp, const std::chrono::milliseconds & bind_delay) const
+{
+  return observed_current_goal_pose_ && stamp.time >= observed_goal_pose_time_ + bind_delay;
+}
+
+bool PubNav2GoalAction::hasObservedCurrentPlan() const
+{
+  return observed_current_plan_;
+}
+
+double PubNav2GoalAction::elapsedSinceObservedGoalPoseMs() const
+{
+  if (!observed_current_goal_pose_) {
+    return std::numeric_limits<double>::infinity();
+  }
+
+  const auto elapsed = SteadyClock::now().time_since_epoch() - observed_goal_pose_time_;
+  return std::chrono::duration<double, std::milli>(elapsed).count();
+}
+
+std::optional<action_msgs::msg::GoalStatus> PubNav2GoalAction::latestBindableStatusAfterObservedGoal(
   const action_msgs::msg::GoalStatusArray & status_array) const
 {
   if (status_array.status_list.empty()) {
@@ -200,20 +252,22 @@ std::optional<action_msgs::msg::GoalStatus> PubNav2GoalAction::firstStatusAfterO
   }
 
   const action_msgs::msg::GoalStatus * latest_status = nullptr;
-  int64_t earliest_stamp_nanoseconds = std::numeric_limits<int64_t>::max();
+  int64_t latest_stamp_nanoseconds = std::numeric_limits<int64_t>::min();
 
   for (const auto & status : status_array.status_list) {
-    if (!isValidGoalId(status.goal_info.goal_id)) {
+    if (!isValidGoalId(status.goal_info.goal_id) || !isBindableStatus(status.status)) {
       continue;
     }
 
     const auto current_stamp_nanoseconds = rclcpp::Time(status.goal_info.stamp).nanoseconds();
-    if (current_stamp_nanoseconds < observed_goal_pose_ros_nanoseconds_) {
+    if (observed_goal_pose_ros_nanoseconds_ > 0 &&
+      current_stamp_nanoseconds < observed_goal_pose_ros_nanoseconds_)
+    {
       continue;
     }
-    if (latest_status == nullptr || current_stamp_nanoseconds < earliest_stamp_nanoseconds) {
+    if (latest_status == nullptr || current_stamp_nanoseconds > latest_stamp_nanoseconds) {
       latest_status = &status;
-      earliest_stamp_nanoseconds = current_stamp_nanoseconds;
+      latest_stamp_nanoseconds = current_stamp_nanoseconds;
     }
   }
 
@@ -238,22 +292,25 @@ std::optional<action_msgs::msg::GoalStatus> PubNav2GoalAction::findStatusForGoal
 }
 
 std::optional<action_msgs::msg::GoalStatus> PubNav2GoalAction::selectCurrentGoalStatus(
-  const action_msgs::msg::GoalStatusArray & status_array)
+  const action_msgs::msg::GoalStatusArray & status_array, bool allow_unbound_goal_binding)
 {
   if (current_goal_id_) {
     return findStatusForGoal(status_array, current_goal_id_.value());
   }
 
-  if (!observed_current_goal_pose_) {
+  if (!observed_current_goal_pose_ || !allow_unbound_goal_binding) {
     return std::nullopt;
   }
 
-  const auto latest_status = firstStatusAfterObservedGoal(status_array);
+  const auto latest_status = latestBindableStatusAfterObservedGoal(status_array);
   if (!latest_status) {
     return std::nullopt;
   }
 
   current_goal_id_ = latest_status->goal_info.goal_id;
+  RCLCPP_INFO(
+    logger(), "PubNav2GoalAction bound current nav2 goal from status=%d after %.1f ms",
+    latest_status->status, elapsedSinceObservedGoalPoseMs());
   return latest_status;
 }
 
@@ -320,6 +377,14 @@ BT::NodeStatus PubNav2GoalAction::onRunning()
     return BT::NodeStatus::FAILURE;
   }
 
+  std::chrono::milliseconds goal_bind_delay(200);
+  const auto bind_delay_result = getInput("nav_goal_bind_delay", goal_bind_delay);
+  if (!bind_delay_result) {
+    RCLCPP_ERROR(
+      logger(), "Failed to read [nav_goal_bind_delay]: %s", bind_delay_result.error().c_str());
+    return BT::NodeStatus::FAILURE;
+  }
+
   const auto now_steady = SteadyClock::now();
   if (republish_period.count() > 0 &&
     (now_steady - last_republish_time_) >= republish_period && !publishGoal())
@@ -337,12 +402,33 @@ BT::NodeStatus PubNav2GoalAction::onRunning()
     return BT::NodeStatus::FAILURE;
   }
 
+  if (const auto stamped_plan = getInputStamped<nav_msgs::msg::Path>("plan_port")) {
+    if (isFresh(stamped_plan->stamp, observation_timeout) &&
+      isFromCurrentRun(stamped_plan->stamp) &&
+      isAtOrAfterGoalBindDelay(stamped_plan->stamp, std::chrono::milliseconds(0)) &&
+      pathEndsAtCurrentGoal(stamped_plan->value, goal_pose_match_tolerance))
+    {
+      last_path_remaining_ = computePathLength(stamped_plan->value);
+      has_fresh_path_remaining = true;
+      if (!observed_current_plan_) {
+        observed_current_plan_ = true;
+        RCLCPP_INFO(
+          logger(),
+          "PubNav2GoalAction observed current-goal plan after %.1f ms "
+          "(path_remaining=%.3f)",
+          elapsedSinceObservedGoalPoseMs(), last_path_remaining_);
+      }
+    }
+  }
+
   if (const auto stamped_status =
         getInputStamped<action_msgs::msg::GoalStatusArray>("status_port")) {
     if (isFresh(stamped_status->stamp, observation_timeout) &&
-      isFromCurrentRun(stamped_status->stamp))
+      isFromCurrentRun(stamped_status->stamp) &&
+      isAtOrAfterGoalBindDelay(stamped_status->stamp, goal_bind_delay))
     {
-      const auto current_goal_status = selectCurrentGoalStatus(stamped_status->value);
+      const auto current_goal_status =
+        selectCurrentGoalStatus(stamped_status->value, hasObservedCurrentPlan());
       if (current_goal_status) {
         last_status_code_ = current_goal_status->status;
         has_current_goal_status = true;
@@ -352,31 +438,23 @@ BT::NodeStatus PubNav2GoalAction::onRunning()
     }
   }
 
-  if (!has_current_goal_status) {
-    last_status_code_ = action_msgs::msg::GoalStatus::STATUS_UNKNOWN;
-  }
-
+  using NavigateToPoseFeedbackMessage = nav2_msgs::action::NavigateToPose::Impl::FeedbackMessage;
   if (current_goal_id_) {
-    using NavigateToPoseFeedbackMessage = nav2_msgs::action::NavigateToPose::Impl::FeedbackMessage;
     if (const auto stamped_feedback =
           getInputStamped<NavigateToPoseFeedbackMessage>("feedback_port")) {
       if (isFresh(stamped_feedback->stamp, observation_timeout) &&
         isFromCurrentRun(stamped_feedback->stamp) &&
+        isAtOrAfterGoalBindDelay(stamped_feedback->stamp, goal_bind_delay) &&
         sameGoalId(stamped_feedback->value.goal_id, current_goal_id_.value()))
       {
         last_distance_remaining_ = stamped_feedback->value.feedback.distance_remaining;
         has_fresh_distance_remaining = true;
       }
     }
+  }
 
-    if (const auto stamped_plan = getInputStamped<nav_msgs::msg::Path>("plan_port")) {
-      if (isFresh(stamped_plan->stamp, observation_timeout) &&
-        isFromCurrentRun(stamped_plan->stamp))
-      {
-        last_path_remaining_ = computePathLength(stamped_plan->value);
-        has_fresh_path_remaining = true;
-      }
-    }
+  if (!has_current_goal_status) {
+    last_status_code_ = action_msgs::msg::GoalStatus::STATUS_UNKNOWN;
   }
 
   publishOutputs();
@@ -409,8 +487,8 @@ BT::NodeStatus PubNav2GoalAction::onRunning()
     publishOutputs();
     RCLCPP_WARN(
       logger(),
-      "PubNav2GoalAction timed out waiting for current goal_pose echo or nav2 goal status for goal "
-      "(%.3f, %.3f, %.3f)",
+      "PubNav2GoalAction timed out waiting for current goal_pose echo, matching plan, or nav2 "
+      "goal status for goal (%.3f, %.3f, %.3f)",
       current_goal_.x, current_goal_.y, current_goal_.yaw);
     return BT::NodeStatus::FAILURE;
   }
@@ -463,6 +541,9 @@ BT::PortsList PubNav2GoalAction::providedPorts()
     BT::InputPort<std::chrono::milliseconds>(
       "goal_republish_period", std::chrono::milliseconds(0),
       "How often to republish the same goal while running. Use 0 to publish only on start"),
+    BT::InputPort<std::chrono::milliseconds>(
+      "nav_goal_bind_delay", std::chrono::milliseconds(200),
+      "Minimum time after observing the current goal_pose before binding nav2 status"),
     BT::InputPort<std::chrono::milliseconds>(
       "nav_observation_timeout", std::chrono::milliseconds(2000),
       "How long to wait for fresh nav2 status, feedback, or plan before failing"),

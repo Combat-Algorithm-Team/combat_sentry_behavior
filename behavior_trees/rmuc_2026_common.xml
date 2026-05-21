@@ -122,10 +122,10 @@
         <IsRfidDetected key_port="{@referee_rfidStatus}"
                         enemy_fortress_gain_point="true"/>
         <Sequence>
-          <PublishChassisStatus chassis_status="255"
+          <PublishChassisStatus chassis_status="100"
                                 duration="500.0"
                                 topic_name="cmd_chassis_status"/>
-          <PublishChassisStatus chassis_status="200"
+          <PublishChassisStatus chassis_status="50"
                                 duration="500.0"
                                 topic_name="cmd_chassis_status"/>
         </Sequence>
@@ -146,7 +146,7 @@
         <IsDetectEnemy armor_id="8"
                        max_distance="10.0"
                        key_port="{@tracker_target}"/>
-        <PublishChassisStatus chassis_status="0"
+        <PublishChassisStatus chassis_status="25"
                               duration="0.0"
                               topic_name="cmd_chassis_status"/>
       </Sequence>
