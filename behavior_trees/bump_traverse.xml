@@ -6,6 +6,9 @@
       <PubNav2Goal goal="{bump_before_goal}"
                    success_distance_tolerance="0.05"
                    topic_name="goal_pose"/>
+      <Delay delay_msec="1000">
+        <AlwaysSuccess/>
+      </Delay>
       <WaitForSentryInfoState expected_state="3"
                               timeout="5000.0"
                               key_port="{@referee_sentryInfo}"/>
