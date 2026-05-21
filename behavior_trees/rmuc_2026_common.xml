@@ -21,6 +21,8 @@
                     min_remain_time="0"
                     expected_game_progress="1"
                     key_port="{@referee_gameStatus}"/>
+      <SetMissionFlag flag="rmuc_round_initialized"
+                      value="false"/>
       <KeepRunningUntilFailure>
         <Sequence>
           <PublishChassisStatus chassis_status="25"
@@ -53,6 +55,8 @@
                       expected_game_progress="3"
                       key_port="{@referee_gameStatus}"/>
       </Fallback>
+      <SetMissionFlag flag="rmuc_round_initialized"
+                      value="false"/>
       <KeepRunningUntilFailure>
         <Sequence>
           <PublishChassisStatus chassis_status="0"
@@ -77,6 +81,17 @@
   <BehaviorTree ID="rmuc_2026_hold_before_running">
     <KeepRunningUntilFailure>
       <Sequence>
+        <ForceSuccess>
+          <Sequence>
+            <IsGameStatus name="RMUC2026NotStarted"
+                          max_remain_time="600"
+                          min_remain_time="0"
+                          expected_game_progress="0"
+                          key_port="{@referee_gameStatus}"/>
+            <SetMissionFlag flag="rmuc_round_initialized"
+                            value="false"/>
+          </Sequence>
+        </ForceSuccess>
         <PublishChassisStatus chassis_status="0"
                               duration="0.0"
                               topic_name="cmd_chassis_status"/>

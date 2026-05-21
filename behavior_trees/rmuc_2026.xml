@@ -46,16 +46,22 @@
     </ForceSuccess>
   </BehaviorTree>
 
+  <BehaviorTree ID="rmuc_2026_initialize_round_if_needed">
+    <Fallback>
+      <CheckMissionFlag flag="rmuc_round_initialized"
+                        expected="true"/>
+      <SubTree ID="rmuc_2026_initialize"/>
+    </Fallback>
+  </BehaviorTree>
+
   <BehaviorTree ID="rmuc_2026">
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <ReactiveSequence>
           <!-- 比赛未开始时停在等待/自检/准备逻辑，开始后才进入主循环。 -->
           <SubTree ID="rmuc_2026_check_game_start"/>
-          <!-- 初始化只执行一次：写入地图目标、任务标志和默认目标模式。 -->
-          <RunOnce then_skip="false">
-            <SubTree ID="rmuc_2026_initialize"/>
-          </RunOnce>
+          <!-- 每个小局开始后初始化一次；准备/未开始阶段会把 round flag 复位。 -->
+          <SubTree ID="rmuc_2026_initialize_round_if_needed"/>
           <!-- 三个分支并行 tick：决策导航目标、控制底盘状态、控制云台/哨兵状态。 -->
           <ReactiveParallel success_count="3"
                             failure_count="1">

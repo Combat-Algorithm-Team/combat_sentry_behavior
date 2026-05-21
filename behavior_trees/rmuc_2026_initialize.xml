@@ -58,6 +58,8 @@
       <PublishTargetMode cmd_target_mode="1"
                          duration="0.0"
                          topic_name="cmd_target_mode"/>
+      <SetMissionFlag flag="rmuc_round_initialized"
+                      value="true"/>
     </Sequence>
   </BehaviorTree>
 
