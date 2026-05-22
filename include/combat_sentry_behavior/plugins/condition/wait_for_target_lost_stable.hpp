@@ -46,6 +46,7 @@ private:
   rclcpp::Logger logger_ = rclcpp::get_logger("WaitForTargetLostStable");
   int target_id_{8};
   double lost_duration_ms_{5000.0};
+  bool target_seen_once_{false};
   bool loss_observed_{false};
   bool reported_missing_msg_{false};
   SteadyClock::time_point loss_start_time_;

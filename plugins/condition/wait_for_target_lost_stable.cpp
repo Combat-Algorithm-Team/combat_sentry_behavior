@@ -41,6 +41,7 @@ BT::NodeStatus WaitForTargetLostStable::onStart()
     lost_duration_ms_ = 0.0;
   }
 
+  target_seen_once_ = false;
   loss_observed_ = false;
   reported_missing_msg_ = false;
   return checkTarget();
@@ -53,6 +54,7 @@ BT::NodeStatus WaitForTargetLostStable::onRunning()
 
 void WaitForTargetLostStable::onHalted()
 {
+  target_seen_once_ = false;
   loss_observed_ = false;
   reported_missing_msg_ = false;
 }
@@ -65,17 +67,22 @@ BT::NodeStatus WaitForTargetLostStable::checkTarget()
       RCLCPP_WARN(logger_, "Target message is not available: %s", msg.error().c_str());
       reported_missing_msg_ = true;
     }
+    loss_observed_ = false;
     return BT::NodeStatus::RUNNING;
   }
   reported_missing_msg_ = false;
 
   const bool target_id_match = isTargetId(msg->id);
   if (target_id_match && msg->tracking) {
+    target_seen_once_ = true;
     loss_observed_ = false;
     return BT::NodeStatus::RUNNING;
   }
 
-  // In outpost target mode, the tracker is configured to report only this target.
+  if (!target_seen_once_) {
+    return BT::NodeStatus::RUNNING;
+  }
+
   if (!msg->tracking) {
     if (!loss_observed_) {
       loss_observed_ = true;

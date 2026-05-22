@@ -5,9 +5,8 @@
     <Sequence>
       <PubNav2Goal goal="{bump_before_goal}"
                    topic_name="goal_pose"/>
-      <WaitUntilReached target="{bump_before_goal}"
-                        tolerance="0.05"/>
-      <Delay delay_msec="1000">
+      <WaitUntilReached target="{bump_before_goal}"/>
+      <Delay delay_msec="200">
         <AlwaysSuccess/>
       </Delay>
       <WaitForSentryInfoState expected_state="3"

@@ -25,9 +25,6 @@
                     key_port="{@referee_robotStatus}"/>
       </Inverter>
       <SubTree ID="rmuc_2026_reset_target_mode_to_armor"/>
-      <PublishSentryStatus sentry_status="2"
-                           duration="0.0"
-                           topic_name="cmd_sentry_status"/>
       <Fallback>
         <IsRfidDetected ally_supply_point_non_exchange="true"
                         ally_supply_point_exchange="true"
@@ -49,9 +46,6 @@
                     key_port="{@referee_robotStatus}"/>
       </Inverter>
       <SubTree ID="rmuc_2026_reset_target_mode_to_armor"/>
-      <PublishSentryStatus sentry_status="2"
-                           duration="0.0"
-                           topic_name="cmd_sentry_status"/>
       <Fallback>
         <IsRfidDetected ally_supply_point_non_exchange="true"
                         ally_supply_point_exchange="true"

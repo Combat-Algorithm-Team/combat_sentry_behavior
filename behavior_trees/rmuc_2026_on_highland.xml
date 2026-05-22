@@ -42,21 +42,22 @@
       <SubTree ID="rmuc_2026_reset_target_mode_to_armor"/>
       <ReactiveFallback>
         <ReactiveSequence>
+          <!-- 己方前哨站归零且已在高地时，优先导航到指定坐标。 -->
+          <IsOutpostHpLow hp_threshold="1"
+                          key_port="{@referee_gameRobotHp}"/>
+          <Sequence>
+            <PubNav2Goal goal="13.675;5.805;0"
+                         topic_name="goal_pose"/>
+            <WaitUntilReached target="13.675;5.805;0"/>
+          </Sequence>
+        </ReactiveSequence>
+        <ReactiveSequence>
           <CheckFieldEvent key_port="{@referee_eventData}"
                            ally_fortress_gain_point="2"/>
           <Sequence>
             <PubNav2Goal goal="{@rmuc_fortress_defense_on_highland_goal}"
                          topic_name="goal_pose"/>
             <WaitUntilReached target="{@rmuc_fortress_defense_on_highland_goal}"/>
-          </Sequence>
-        </ReactiveSequence>
-        <ReactiveSequence>
-          <IsOutpostHpLow hp_threshold="500"
-                          key_port="{@referee_gameRobotHp}"/>
-          <Sequence>
-            <PubNav2Goal goal="{@rmuc_outpost_protect_goal}"
-                         topic_name="goal_pose"/>
-            <WaitUntilReached target="{@rmuc_outpost_protect_goal}"/>
           </Sequence>
         </ReactiveSequence>
         <Sequence>

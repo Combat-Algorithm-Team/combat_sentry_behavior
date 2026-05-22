@@ -23,6 +23,26 @@
     </Sequence>
   </BehaviorTree>
 
+  <BehaviorTree ID="rmuc_2026_finish_outpost_attack_after_two_minutes">
+    <ForceFailure>
+      <Sequence>
+        <!-- 开赛两分钟后前哨站任务视为完成，但本分支保持失败以继续后续低地任务。 -->
+        <CheckMissionFlag flag="rmuc_outpost_attack_done"
+                          expected="false"/>
+        <IsGameStatus name="RMUC2026OutpostAttackElapsedTwoMinutes"
+                      max_remain_time="300"
+                      min_remain_time="0"
+                      expected_game_progress="4"
+                      key_port="{@referee_gameStatus}"/>
+        <PublishTargetMode cmd_target_mode="1"
+                           duration="0.0"
+                           topic_name="cmd_target_mode"/>
+        <SetMissionFlag flag="rmuc_outpost_attack_done"
+                        value="true"/>
+      </Sequence>
+    </ForceFailure>
+  </BehaviorTree>
+
   <BehaviorTree ID="rmuc_2026_small_power_rune_ready">
     <Sequence>
       <CheckMissionFlag flag="rmuc_enable_small_power_rune_activation"
@@ -141,8 +161,9 @@
     <Sequence>
       <CheckMissionFlag flag="rmuc_phase_on_highland"
                         expected="false"/>
-      <!-- 低地常规任务优先级：前哨站、禁上高地时守己方堡垒、小能量机关、低地防堡垒，最后才上高地。 -->
+      <!-- 低地常规任务优先级：前哨站超时完成检测、前哨站、禁上高地时守己方堡垒、小能量机关、低地防堡垒，最后才上高地。 -->
       <Fallback>
+        <SubTree ID="rmuc_2026_finish_outpost_attack_after_two_minutes"/>
         <SubTree ID="rmuc_2026_attack_outpost_once"/>
         <SubTree ID="rmuc_2026_hold_fortress_when_highland_disabled"/>
         <SubTree ID="rmuc_2026_activate_power_rune_if_ready"/>
