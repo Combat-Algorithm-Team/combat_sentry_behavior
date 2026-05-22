@@ -16,6 +16,7 @@
 #define COMBAT_SENTRY_BEHAVIOR__PLUGINS__ACTION__WAIT_UNTIL_REACHED_HPP_
 
 #include <memory>
+#include <string>
 
 #include "behaviortree_cpp/action_node.h"
 #include "behaviortree_ros2/ros_node_params.hpp"
@@ -44,7 +45,10 @@ private:
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
   Pose3D target_{};
-  double tolerance_{0.0};
+  double tolerance_{0.1};
+  double transform_timeout_{0.05};
+  std::string target_frame_{"map"};
+  std::string robot_frame_{"base_yaw_odom"};
 };
 }  // namespace combat_sentry_behavior
 

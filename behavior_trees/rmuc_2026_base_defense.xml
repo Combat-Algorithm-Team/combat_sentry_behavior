@@ -8,8 +8,11 @@
       <IsBaseHpLow hp_threshold="1000"
                    key_port="{@referee_gameRobotHp}"/>
       <SubTree ID="rmuc_2026_reset_target_mode_to_armor"/>
-      <PubNav2Goal goal="{@rmuc_fortress_guard_goal}"
-                   topic_name="goal_pose"/>
+      <Sequence>
+        <PubNav2Goal goal="{@rmuc_fortress_guard_goal}"
+                     topic_name="goal_pose"/>
+        <WaitUntilReached target="{@rmuc_fortress_guard_goal}"/>
+      </Sequence>
     </ReactiveSequence>
   </BehaviorTree>
 
@@ -26,8 +29,11 @@
                bump_after_goal="{@rmuc_bump_to_highland_before_goal}"/>
       <SetMissionFlag flag="rmuc_phase_on_highland"
                       value="false"/>
-      <PubNav2Goal goal="{@rmuc_fortress_guard_goal}"
-                   topic_name="goal_pose"/>
+      <Sequence>
+        <PubNav2Goal goal="{@rmuc_fortress_guard_goal}"
+                     topic_name="goal_pose"/>
+        <WaitUntilReached target="{@rmuc_fortress_guard_goal}"/>
+      </Sequence>
     </ReactiveSequence>
   </BehaviorTree>
 

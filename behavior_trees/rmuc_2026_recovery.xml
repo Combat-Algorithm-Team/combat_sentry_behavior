@@ -32,8 +32,11 @@
         <IsRfidDetected ally_supply_point_non_exchange="true"
                         ally_supply_point_exchange="true"
                         key_port="{@referee_rfidStatus}"/>
-        <PubNav2Goal goal="{@rmuc_supply_goal}"
-                     topic_name="goal_pose"/>
+        <Sequence>
+          <PubNav2Goal goal="{@rmuc_supply_goal}"
+                       topic_name="goal_pose"/>
+          <WaitUntilReached target="{@rmuc_supply_goal}"/>
+        </Sequence>
       </Fallback>
     </ReactiveSequence>
   </BehaviorTree>
@@ -62,6 +65,7 @@
                           value="false"/>
           <PubNav2Goal goal="{@rmuc_supply_goal}"
                        topic_name="goal_pose"/>
+          <WaitUntilReached target="{@rmuc_supply_goal}"/>
         </Sequence>
       </Fallback>
     </ReactiveSequence>
@@ -77,8 +81,11 @@
         <IsRfidDetected ally_supply_point_non_exchange="true"
                         ally_supply_point_exchange="true"
                         key_port="{@referee_rfidStatus}"/>
-        <PubNav2Goal goal="{@rmuc_supply_goal}"
-                     topic_name="goal_pose"/>
+        <Sequence>
+          <PubNav2Goal goal="{@rmuc_supply_goal}"
+                       topic_name="goal_pose"/>
+          <WaitUntilReached target="{@rmuc_supply_goal}"/>
+        </Sequence>
       </Fallback>
       <KeepRunningUntilFailure>
         <Inverter>
@@ -117,6 +124,7 @@
                           value="false"/>
           <PubNav2Goal goal="{@rmuc_supply_goal}"
                        topic_name="goal_pose"/>
+          <WaitUntilReached target="{@rmuc_supply_goal}"/>
         </Sequence>
       </Fallback>
       <KeepRunningUntilFailure>

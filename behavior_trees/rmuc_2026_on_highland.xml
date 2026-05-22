@@ -19,6 +19,7 @@
                             expected="true"/>
           <PubNav2Goal goal="{@rmuc_enemy_fortress_upper_goal}"
                        topic_name="goal_pose"/>
+          <WaitUntilReached target="{@rmuc_enemy_fortress_upper_goal}"/>
         </Sequence>
         <Sequence>
           <SubTree ID="traverse_bump_segment"
@@ -28,6 +29,7 @@
                           value="true"/>
           <PubNav2Goal goal="{@rmuc_enemy_fortress_upper_goal}"
                        topic_name="goal_pose"/>
+          <WaitUntilReached target="{@rmuc_enemy_fortress_upper_goal}"/>
         </Sequence>
       </Fallback>
     </Sequence>
@@ -42,17 +44,26 @@
         <ReactiveSequence>
           <CheckFieldEvent key_port="{@referee_eventData}"
                            ally_fortress_gain_point="2"/>
-          <PubNav2Goal goal="{@rmuc_fortress_defense_on_highland_goal}"
-                       topic_name="goal_pose"/>
+          <Sequence>
+            <PubNav2Goal goal="{@rmuc_fortress_defense_on_highland_goal}"
+                         topic_name="goal_pose"/>
+            <WaitUntilReached target="{@rmuc_fortress_defense_on_highland_goal}"/>
+          </Sequence>
         </ReactiveSequence>
         <ReactiveSequence>
           <IsOutpostHpLow hp_threshold="500"
                           key_port="{@referee_gameRobotHp}"/>
-          <PubNav2Goal goal="{@rmuc_outpost_protect_goal}"
-                       topic_name="goal_pose"/>
+          <Sequence>
+            <PubNav2Goal goal="{@rmuc_outpost_protect_goal}"
+                         topic_name="goal_pose"/>
+            <WaitUntilReached target="{@rmuc_outpost_protect_goal}"/>
+          </Sequence>
         </ReactiveSequence>
-        <PubNav2Goal goal="{@rmuc_assembly_guard_goal}"
-                     topic_name="goal_pose"/>
+        <Sequence>
+          <PubNav2Goal goal="{@rmuc_assembly_guard_goal}"
+                       topic_name="goal_pose"/>
+          <WaitUntilReached target="{@rmuc_assembly_guard_goal}"/>
+        </Sequence>
       </ReactiveFallback>
     </Sequence>
   </BehaviorTree>

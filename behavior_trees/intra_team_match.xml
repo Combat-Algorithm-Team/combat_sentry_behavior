@@ -22,6 +22,7 @@
                         duration="0.0"
                         topic_name="cmd_vel"/>
           <PubNav2Goal topic_name="goal_pose"/>
+          <WaitUntilReached target="0;0;0"/>
         </Sequence>
       </ForceFailure>
     </Fallback>
@@ -100,7 +101,10 @@
       <Fallback>
         <IsRfidDetected ally_supply_point_non_exchange="true"
                         key_port="{@referee_rfidStatus}"/>
-        <PubNav2Goal topic_name="goal_pose"/>
+        <Sequence>
+          <PubNav2Goal topic_name="goal_pose"/>
+          <WaitUntilReached target="0;0;0"/>
+        </Sequence>
       </Fallback>
     </ReactiveSequence>
   </BehaviorTree>
@@ -109,8 +113,11 @@
     <ForceSuccess>
       <ReactiveFallback>
         <SubTree ID="intra_team_match_check_min_hp"/>
-        <PubNav2Goal goal="3.5;5.5;0"
-                   topic_name="goal_pose"/>
+        <Sequence>
+          <PubNav2Goal goal="3.5;5.5;0"
+                       topic_name="goal_pose"/>
+          <WaitUntilReached target="3.5;5.5;0"/>
+        </Sequence>
       </ReactiveFallback>
     </ForceSuccess>
   </BehaviorTree>

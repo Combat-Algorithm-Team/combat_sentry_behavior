@@ -4,8 +4,9 @@
   <BehaviorTree ID="traverse_bump_segment">
     <Sequence>
       <PubNav2Goal goal="{bump_before_goal}"
-                   success_distance_tolerance="0.05"
                    topic_name="goal_pose"/>
+      <WaitUntilReached target="{bump_before_goal}"
+                        tolerance="0.05"/>
       <Delay delay_msec="1000">
         <AlwaysSuccess/>
       </Delay>
@@ -14,6 +15,7 @@
                               key_port="{@referee_sentryInfo}"/>
       <PubNav2Goal goal="{bump_after_goal}"
                    topic_name="goal_pose"/>
+      <WaitUntilReached target="{bump_after_goal}"/>
     </Sequence>
   </BehaviorTree>
 

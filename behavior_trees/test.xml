@@ -3,11 +3,13 @@
 
   <!--
     可直接运行的 test 名称列表：
-    - test_nav2_goal_preempt_a_with_b
-    - test_nav2_goal_preempt_b_with_a
-    - test_nav2_goal_halt_after_timeout_a
-    - test_nav2_goal_halt_after_timeout_b
-    - test_nav2_goal_ping_pong_halt
+    - test_nav2_goal_wait_a
+    - test_nav2_goal_wait_b
+    - test_nav2_goal_wait_timeout_a
+    - test_nav2_goal_wait_timeout_b
+    - test_nav2_goal_ping_pong_wait
+    - test_nav2_goal_wait_static_sweep
+    - test_nav2_goal_wait_moving_sweep
     - test_rmuc_2026_low_hp_preempt_restart
     - test_rmuc_2026_attack_outpost_once
     - test_rmuc_2026_small_power_rune_ready
@@ -30,113 +32,71 @@
     - test_traverse_bump_to_ally
   -->
 
-  <!-- Nav2 goal 发布/抢占/halt 测试：不依赖整棵 RMUC 树，专门观察 PubNav2Goal 的状态机。 -->
-  <BehaviorTree ID="test_nav2_goal_preempt_a_with_b">
+  <!-- Nav2 goal 发布/到点测试：PubNav2Goal 只发布，WaitUntilReached 只用 TF 判断是否到点。 -->
+  <BehaviorTree ID="test_nav2_goal_wait_a">
     <Sequence>
       <PublishTargetMode cmd_target_mode="1"
                          duration="0.0"
                          topic_name="cmd_target_mode"/>
-      <!-- A 先保持 RUNNING；B 延迟发布后，A 应检测到新 goal_pose 并静默失败退出。 -->
-      <ReactiveParallel success_count="1"
-                        failure_count="2">
-        <Inverter>
-          <PubNav2Goal goal="{@test_nav2_goal_a}"
-                       topic_name="goal_pose"
-                       success_distance_tolerance="0.02"
-                       goal_pose_match_tolerance="0.08"
-                       goal_republish_period="250"
-                       nav_observation_timeout="60000"/>
-        </Inverter>
-        <Delay delay_msec="700">
-          <Sequence>
-            <PublishTargetMode cmd_target_mode="2"
-                               duration="0.0"
-                               topic_name="cmd_target_mode"/>
-            <PubNav2Goal goal="{@test_nav2_goal_b}"
-                         topic_name="goal_pose"
-                         success_distance_tolerance="0.02"
-                         goal_pose_match_tolerance="0.08"
-                         nav_observation_timeout="60000"/>
-          </Sequence>
-        </Delay>
-      </ReactiveParallel>
+      <PubNav2Goal goal="{@test_nav2_goal_a}"
+                   topic_name="goal_pose"/>
+      <WaitUntilReached target="{@test_nav2_goal_a}"
+                        tolerance="0.02"/>
     </Sequence>
   </BehaviorTree>
 
-  <BehaviorTree ID="test_nav2_goal_preempt_b_with_a">
+  <BehaviorTree ID="test_nav2_goal_wait_b">
     <Sequence>
       <PublishTargetMode cmd_target_mode="2"
                          duration="0.0"
                          topic_name="cmd_target_mode"/>
-      <!-- 与上一段方向相反，避免只验证单向抢占。 -->
-      <ReactiveParallel success_count="1"
-                        failure_count="2">
-        <Inverter>
-          <PubNav2Goal goal="{@test_nav2_goal_b}"
-                       topic_name="goal_pose"
-                       success_distance_tolerance="0.02"
-                       goal_pose_match_tolerance="0.08"
-                       goal_republish_period="250"
-                       nav_observation_timeout="60000"/>
-        </Inverter>
-        <Delay delay_msec="700">
+      <PubNav2Goal goal="{@test_nav2_goal_b}"
+                   topic_name="goal_pose"/>
+      <WaitUntilReached target="{@test_nav2_goal_b}"
+                        tolerance="0.02"/>
+    </Sequence>
+  </BehaviorTree>
+
+  <BehaviorTree ID="test_nav2_goal_wait_timeout_a">
+    <Sequence>
+      <PublishTargetMode cmd_target_mode="0"
+                         duration="0.0"
+                         topic_name="cmd_target_mode"/>
+      <ForceSuccess>
+        <Timeout msec="700">
           <Sequence>
-            <PublishTargetMode cmd_target_mode="1"
-                               duration="0.0"
-                               topic_name="cmd_target_mode"/>
             <PubNav2Goal goal="{@test_nav2_goal_a}"
-                         topic_name="goal_pose"
-                         success_distance_tolerance="0.02"
-                         goal_pose_match_tolerance="0.08"
-                         nav_observation_timeout="60000"/>
+                         topic_name="goal_pose"/>
+            <WaitUntilReached target="{@test_nav2_goal_a}"
+                              tolerance="0.02"/>
           </Sequence>
-        </Delay>
-      </ReactiveParallel>
-    </Sequence>
-  </BehaviorTree>
-
-  <BehaviorTree ID="test_nav2_goal_halt_after_timeout_a">
-    <Sequence>
-      <PublishTargetMode cmd_target_mode="0"
-                         duration="0.0"
-                         topic_name="cmd_target_mode"/>
-      <!-- Timeout 会 halt 正在 RUNNING 的 PubNav2Goal，用日志确认 onHalted 是否触发。 -->
-      <ForceSuccess>
-        <Timeout msec="700">
-          <PubNav2Goal goal="{@test_nav2_goal_a}"
-                       topic_name="goal_pose"
-                       success_distance_tolerance="0.02"
-                       goal_pose_match_tolerance="0.08"
-                       goal_republish_period="250"
-                       nav_observation_timeout="60000"/>
         </Timeout>
       </ForceSuccess>
     </Sequence>
   </BehaviorTree>
 
-  <BehaviorTree ID="test_nav2_goal_halt_after_timeout_b">
+  <BehaviorTree ID="test_nav2_goal_wait_timeout_b">
     <Sequence>
       <PublishTargetMode cmd_target_mode="0"
                          duration="0.0"
                          topic_name="cmd_target_mode"/>
       <ForceSuccess>
         <Timeout msec="700">
-          <PubNav2Goal goal="{@test_nav2_goal_b}"
-                       topic_name="goal_pose"
-                       success_distance_tolerance="0.02"
-                       goal_pose_match_tolerance="0.08"
-                       goal_republish_period="250"
-                       nav_observation_timeout="60000"/>
+          <Sequence>
+            <PubNav2Goal goal="{@test_nav2_goal_b}"
+                         topic_name="goal_pose"/>
+            <WaitUntilReached target="{@test_nav2_goal_b}"
+                              tolerance="0.02"/>
+          </Sequence>
         </Timeout>
       </ForceSuccess>
     </Sequence>
   </BehaviorTree>
 
-  <BehaviorTree ID="test_nav2_goal_ping_pong_halt">
+  <BehaviorTree ID="test_nav2_goal_ping_pong_wait">
     <KeepRunningUntilFailure>
       <ForceSuccess>
         <Sequence>
-          <!-- 测试覆盖区：Nav2 ping-pong 目标点。 -->
           <SetBlackboard output_key="@test_nav2_goal_a"
                          value="0.45;0.0;0.0"/>
           <SetBlackboard output_key="@test_nav2_goal_b"
@@ -145,90 +105,19 @@
             <PublishTargetMode cmd_target_mode="1"
                                duration="0.0"
                                topic_name="cmd_target_mode"/>
-            <!-- A 先保持 RUNNING；B 延迟发布后，A 应检测到新 goal_pose 并静默失败退出。 -->
-            <ReactiveParallel success_count="1"
-                              failure_count="2">
-              <Inverter>
-                <PubNav2Goal goal="{@test_nav2_goal_a}"
-                             topic_name="goal_pose"
-                             success_distance_tolerance="0.02"
-                             goal_pose_match_tolerance="0.08"
-                             goal_republish_period="250"
-                             nav_observation_timeout="60000"/>
-              </Inverter>
-              <Delay delay_msec="700">
-                <Sequence>
-                  <PublishTargetMode cmd_target_mode="2"
-                                     duration="0.0"
-                                     topic_name="cmd_target_mode"/>
-                  <PubNav2Goal goal="{@test_nav2_goal_b}"
-                               topic_name="goal_pose"
-                               success_distance_tolerance="0.02"
-                               goal_pose_match_tolerance="0.08"
-                               nav_observation_timeout="60000"/>
-                </Sequence>
-              </Delay>
-            </ReactiveParallel>
-          </Sequence>
-          <Sequence>
-            <PublishTargetMode cmd_target_mode="0"
-                               duration="0.0"
-                               topic_name="cmd_target_mode"/>
-            <ForceSuccess>
-              <Timeout msec="700">
-                <PubNav2Goal goal="{@test_nav2_goal_b}"
-                             topic_name="goal_pose"
-                             success_distance_tolerance="0.02"
-                             goal_pose_match_tolerance="0.08"
-                             goal_republish_period="250"
-                             nav_observation_timeout="60000"/>
-              </Timeout>
-            </ForceSuccess>
+            <PubNav2Goal goal="{@test_nav2_goal_a}"
+                         topic_name="goal_pose"/>
+            <WaitUntilReached target="{@test_nav2_goal_a}"
+                              tolerance="0.02"/>
           </Sequence>
           <Sequence>
             <PublishTargetMode cmd_target_mode="2"
                                duration="0.0"
                                topic_name="cmd_target_mode"/>
-            <!-- 与上一段方向相反，避免只验证单向抢占。 -->
-            <ReactiveParallel success_count="1"
-                              failure_count="2">
-              <Inverter>
-                <PubNav2Goal goal="{@test_nav2_goal_b}"
-                             topic_name="goal_pose"
-                             success_distance_tolerance="0.02"
-                             goal_pose_match_tolerance="0.08"
-                             goal_republish_period="250"
-                             nav_observation_timeout="60000"/>
-              </Inverter>
-              <Delay delay_msec="700">
-                <Sequence>
-                  <PublishTargetMode cmd_target_mode="1"
-                                     duration="0.0"
-                                     topic_name="cmd_target_mode"/>
-                  <PubNav2Goal goal="{@test_nav2_goal_a}"
-                               topic_name="goal_pose"
-                               success_distance_tolerance="0.02"
-                               goal_pose_match_tolerance="0.08"
-                               nav_observation_timeout="60000"/>
-                </Sequence>
-              </Delay>
-            </ReactiveParallel>
-          </Sequence>
-          <Sequence>
-            <PublishTargetMode cmd_target_mode="0"
-                               duration="0.0"
-                               topic_name="cmd_target_mode"/>
-            <!-- Timeout 会 halt 正在 RUNNING 的 PubNav2Goal，用日志确认 onHalted 是否触发。 -->
-            <ForceSuccess>
-              <Timeout msec="700">
-                <PubNav2Goal goal="{@test_nav2_goal_a}"
-                             topic_name="goal_pose"
-                             success_distance_tolerance="0.02"
-                             goal_pose_match_tolerance="0.08"
-                             goal_republish_period="250"
-                             nav_observation_timeout="60000"/>
-              </Timeout>
-            </ForceSuccess>
+            <PubNav2Goal goal="{@test_nav2_goal_b}"
+                         topic_name="goal_pose"/>
+            <WaitUntilReached target="{@test_nav2_goal_b}"
+                              tolerance="0.02"/>
           </Sequence>
         </Sequence>
       </ForceSuccess>

@@ -11,6 +11,7 @@
                          topic_name="cmd_target_mode"/>
       <PubNav2Goal goal="{@rmuc_enemy_outpost_attack_goal}"
                    topic_name="goal_pose"/>
+      <WaitUntilReached target="{@rmuc_enemy_outpost_attack_goal}"/>
       <WaitForTargetLostStable target_id="8"
                                lost_duration="10000.0"
                                key_port="{@tracker_target}"/>
@@ -47,8 +48,11 @@
       <!-- 小能量机关窗口可能在导航途中消失，所以到点前持续重检 ready 条件。 -->
       <ReactiveSequence>
         <SubTree ID="rmuc_2026_small_power_rune_ready"/>
-        <PubNav2Goal goal="{@rmuc_trapezoid_low_platform_goal}"
-                     topic_name="goal_pose"/>
+        <Sequence>
+          <PubNav2Goal goal="{@rmuc_trapezoid_low_platform_goal}"
+                       topic_name="goal_pose"/>
+          <WaitUntilReached target="{@rmuc_trapezoid_low_platform_goal}"/>
+        </Sequence>
       </ReactiveSequence>
       <PublishTargetMode cmd_target_mode="3"
                          duration="0.0"
@@ -116,6 +120,7 @@
       <SubTree ID="rmuc_2026_reset_target_mode_to_armor"/>
       <PubNav2Goal goal="{@rmuc_fortress_defense_under_highland_goal}"
                    topic_name="goal_pose"/>
+      <WaitUntilReached target="{@rmuc_fortress_defense_under_highland_goal}"/>
     </Sequence>
   </BehaviorTree>
 
@@ -124,8 +129,11 @@
       <CheckFieldEvent key_port="{@referee_eventData}"
                        ally_fortress_gain_point="2"/>
       <SubTree ID="rmuc_2026_reset_target_mode_to_armor"/>
-      <PubNav2Goal goal="{@rmuc_fortress_defense_under_highland_goal}"
-                   topic_name="goal_pose"/>
+      <Sequence>
+        <PubNav2Goal goal="{@rmuc_fortress_defense_under_highland_goal}"
+                     topic_name="goal_pose"/>
+        <WaitUntilReached target="{@rmuc_fortress_defense_under_highland_goal}"/>
+      </Sequence>
     </ReactiveSequence>
   </BehaviorTree>
 
